@@ -5,7 +5,6 @@ import com.codeforcommunity.api.IProcessor;
 import com.codeforcommunity.dto.ContentNote;
 import com.codeforcommunity.dto.MemberReturn;
 import com.codeforcommunity.dto.FullNote;
-import com.codeforcommunity.dto.NoteRequest;
 import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.pojos.Note;
@@ -54,6 +53,17 @@ public class ProcessorImpl implements IProcessor {
     return noteRecords.stream()
         .map(noteRecord -> this.dbNoteToReturn(noteRecord.into(Note.class)))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public FullNote updateNote(int noteId, ContentNote newNote) {
+    NoteRecord noteToUpdate = db.fetchOne(Tables.NOTE, Tables.NOTE.ID.eq(noteId));
+    noteToUpdate.setTitle(newNote.getTitle());
+    noteToUpdate.setBody(newNote.getContent());
+
+    noteToUpdate.store();
+
+    return dbNoteToReturn(noteToUpdate.into(Note.class));
   }
 
   private FullNote dbNoteToReturn(Note note) {

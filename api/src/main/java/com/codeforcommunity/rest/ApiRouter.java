@@ -4,8 +4,11 @@ import com.codeforcommunity.api.IProcessor;
 import com.codeforcommunity.dto.MemberReturn;
 import com.codeforcommunity.dto.FullNote;
 import com.codeforcommunity.dto.NoteRequest;
+import com.codeforcommunity.dto.NoteResponse;
+import com.codeforcommunity.dto.NotesRequest;
 import com.codeforcommunity.dto.NotesResponse;
 import com.codeforcommunity.validation.RequestValidator;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
@@ -53,7 +56,6 @@ public class ApiRouter {
     registerPutNoteRoute(router);
     registerDeleteNoteRoute(router);
 
-
     return router;
   }
 
@@ -69,7 +71,7 @@ public class ApiRouter {
 
   private void registerPutNoteRoute(Router router) {
     Route putNoteRoute = router.route(HttpMethod.PUT, "/api/note/:note_id");
-    putNoteRoute.handler(this::handleGetMemberRoute);
+    putNoteRoute.handler(this::handlePutNoteRoute);
   }
 
   private void registerDeleteNoteRoute(Router router) {
@@ -95,7 +97,7 @@ public class ApiRouter {
   }
 
   private void handlePostNoteRoute(RoutingContext ctx) {
-    NoteRequest requestBody = ctx.getBodyAsJson().mapTo(NoteRequest.class); //TODO: Exception handling
+    NotesRequest requestBody = ctx.getBodyAsJson().mapTo(NotesRequest.class); //TODO: Exception handling
 
     List<FullNote> notes = processor.createNotes(requestBody.getNotes());
 
@@ -104,6 +106,21 @@ public class ApiRouter {
         .putHeader("content-type", "application/json")
         .end(JsonObject.mapFrom(response).encode());
   }
+
+  private void handlePutNoteRoute(RoutingContext ctx) {
+    HttpServerRequest request = ctx.request();
+    NoteRequest requestBody = ctx.getBodyAsJson().mapTo(NoteRequest.class);
+    Integer noteId =  Integer.parseInt(request.getParam("note_id"));
+
+    FullNote updatedNote = processor.updateNote(noteId, requestBody.getNote());
+
+    NoteResponse response = new NoteResponse("OK", updatedNote);
+    ctx.response().setStatusCode(200)
+        .putHeader("content-type", "application/json")
+        .end(JsonObject.mapFrom(response).encode());
+  }
+
+
 
   /**
    * Add a handler for getting all members.

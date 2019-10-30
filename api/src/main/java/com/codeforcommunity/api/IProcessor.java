@@ -18,4 +18,6 @@ public interface IProcessor {
   FullNote getANote(int noteId);
 
   List<FullNote> createNotes(List<ContentNote> notes);
+
+  FullNote updateNote(int noteId, ContentNote newNote);
 }

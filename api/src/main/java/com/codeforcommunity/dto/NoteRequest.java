@@ -1,21 +1,20 @@
 package com.codeforcommunity.dto;
 
-import java.util.List;
-
 public class NoteRequest {
-  private List<ContentNote> notes;
 
-  public NoteRequest(List<ContentNote> notes) {
-    this.notes = notes;
+  private ContentNote note;
+
+  public NoteRequest(ContentNote note) {
+    this.note = note;
   }
 
   private NoteRequest() {}
 
-  public List<ContentNote> getNotes() {
-    return notes;
+  public ContentNote getNote() {
+    return note;
   }
 
-  public void setNotes(List<ContentNote> notes) {
-    this.notes = notes;
+  public void setNote(ContentNote note) {
+    this.note = note;
   }
 }
