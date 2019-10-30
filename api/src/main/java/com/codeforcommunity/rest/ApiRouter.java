@@ -1,19 +1,20 @@
 package com.codeforcommunity.rest;
 
-import com.codeforcommunity.JacksonMapper;
 import com.codeforcommunity.api.IProcessor;
 import com.codeforcommunity.dto.MemberReturn;
-import com.codeforcommunity.dto.NoteReturn;
+import com.codeforcommunity.dto.FullNote;
+import com.codeforcommunity.dto.NoteRequest;
 import com.codeforcommunity.dto.NotesResponse;
 import com.codeforcommunity.validation.RequestValidator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,6 +46,8 @@ public class ApiRouter {
   public Router initializeRouter(Vertx vertx) {
     Router router = Router.router(vertx);
 
+    router.route().handler(BodyHandler.create(false));
+
     registerGetNoteRoute(router);
     registerPostNoteRoute(router);
     registerPutNoteRoute(router);
@@ -61,7 +64,7 @@ public class ApiRouter {
 
   private void registerPostNoteRoute(Router router) {
     Route postNoteRoute = router.route(HttpMethod.POST, "/api/note");
-    postNoteRoute.handler(this::handleGetMemberRoute);
+    postNoteRoute.handler(this::handlePostNoteRoute);
   }
 
   private void registerPutNoteRoute(Router router) {
@@ -77,7 +80,7 @@ public class ApiRouter {
   private void handleGetNoteRoute(RoutingContext ctx) {
     HttpServerRequest request = ctx.request();
     Optional<String> optionalNoteId = Optional.ofNullable(request.getParam("note_id"));
-    List<NoteReturn> notes;
+    List<FullNote> notes;
     if (optionalNoteId.isPresent()) {
       int noteId = Integer.parseInt(optionalNoteId.get()); //TODO: Check if exception
       notes = Collections.singletonList(processor.getANote(noteId));
@@ -86,14 +89,20 @@ public class ApiRouter {
     }
 
     NotesResponse response = new NotesResponse("OK", notes);
-    try {
-      ctx.response().setStatusCode(200)
-          .putHeader("content-type", "application/json")
-          .end(JacksonMapper.getMapper().writeValueAsString(response));
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-      ctx.response().setStatusCode(500).end(e.getMessage());
-    }
+    ctx.response().setStatusCode(200)
+        .putHeader("content-type", "application/json")
+        .end(JsonObject.mapFrom(response).encode());
+  }
+
+  private void handlePostNoteRoute(RoutingContext ctx) {
+    NoteRequest requestBody = ctx.getBodyAsJson().mapTo(NoteRequest.class); //TODO: Exception handling
+
+    List<FullNote> notes = processor.createNotes(requestBody.getNotes());
+
+    NotesResponse response = new NotesResponse("OK", notes);
+    ctx.response().setStatusCode(200)
+        .putHeader("content-type", "application/json")
+        .end(JsonObject.mapFrom(response).encode());
   }
 
   /**
@@ -111,7 +120,7 @@ public class ApiRouter {
 
     try {
       List<MemberReturn> members = processor.getAllMembers();
-      String memberJson = JacksonMapper.getMapper().writeValueAsString(members);
+      String memberJson = JsonObject.mapFrom(members).encode();
       response.setStatusCode(ok).end(memberJson);
     } catch (Exception e) {
       response.setStatusCode(server_error).end("internal server error");

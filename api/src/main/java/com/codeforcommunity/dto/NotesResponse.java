@@ -5,12 +5,14 @@ import java.util.List;
 public class NotesResponse {
 
   private String status;
-  private List<NoteReturn> notes;
+  private List<FullNote> notes;
 
-  public NotesResponse(String status, List<NoteReturn> notes) {
+  public NotesResponse(String status, List<FullNote> notes) {
     this.status = status;
     this.notes = notes;
   }
+
+  private NotesResponse() {}
 
   public String getStatus() {
     return status;
@@ -20,11 +22,11 @@ public class NotesResponse {
     this.status = status;
   }
 
-  public List<NoteReturn> getNotes() {
+  public List<FullNote> getNotes() {
     return notes;
   }
 
-  public void setNotes(List<NoteReturn> notes) {
+  public void setNotes(List<FullNote> notes) {
     this.notes = notes;
   }
 }

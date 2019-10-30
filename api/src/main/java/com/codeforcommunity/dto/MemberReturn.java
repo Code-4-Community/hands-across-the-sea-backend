@@ -9,6 +9,8 @@ public class MemberReturn {
     this.lastName = lastName;
   }
 
+  private MemberReturn() {}
+
   public String getFirstName() {
     return firstName;
   }

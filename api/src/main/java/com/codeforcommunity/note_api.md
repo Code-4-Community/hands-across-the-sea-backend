@@ -88,7 +88,7 @@ The notes were successfully created. Returns all the created notes as they would
       "date": DATE
     },
     ...
-  ],
+  ]
 }
 ```
 

@@ -1,10 +1,10 @@
 package com.codeforcommunity.api;
 
+import com.codeforcommunity.dto.ContentNote;
 import com.codeforcommunity.dto.MemberReturn;
-import com.codeforcommunity.dto.NoteReturn;
+import com.codeforcommunity.dto.FullNote;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface IProcessor {
   /**
@@ -13,7 +13,9 @@ public interface IProcessor {
   List<MemberReturn> getAllMembers();
 
 
-  List<NoteReturn> getAllNotes();
+  List<FullNote> getAllNotes();
 
-  NoteReturn getANote(int noteId);
+  FullNote getANote(int noteId);
+
+  List<FullNote> createNotes(List<ContentNote> notes);
 }
