@@ -75,8 +75,8 @@ public class ApiRouter {
   }
 
   private void registerDeleteNoteRoute(Router router) {
-    Route deleteNoteRoute = router.route(HttpMethod.DELETE, "/api/note:note_id");
-    deleteNoteRoute.handler(this::handleGetMemberRoute);
+    Route deleteNoteRoute = router.route(HttpMethod.DELETE, "/api/note/:note_id");
+    deleteNoteRoute.handler(this::handleDeleteNoteRoute);
   }
 
   private void handleGetNoteRoute(RoutingContext ctx) {
@@ -110,7 +110,7 @@ public class ApiRouter {
   private void handlePutNoteRoute(RoutingContext ctx) {
     HttpServerRequest request = ctx.request();
     NoteRequest requestBody = ctx.getBodyAsJson().mapTo(NoteRequest.class);
-    Integer noteId =  Integer.parseInt(request.getParam("note_id"));
+    int noteId = Integer.parseInt(request.getParam("note_id"));
 
     FullNote updatedNote = processor.updateNote(noteId, requestBody.getNote());
 
@@ -118,6 +118,16 @@ public class ApiRouter {
     ctx.response().setStatusCode(200)
         .putHeader("content-type", "application/json")
         .end(JsonObject.mapFrom(response).encode());
+  }
+
+  private void handleDeleteNoteRoute(RoutingContext ctx) {
+    HttpServerRequest request = ctx.request();
+    int noteId = Integer.parseInt(request.getParam("note_id"));
+
+    processor.deleteNote(noteId);
+
+    ctx.response().setStatusCode(200)
+        .end();
   }
 
 

@@ -66,6 +66,13 @@ public class ProcessorImpl implements IProcessor {
     return dbNoteToReturn(noteToUpdate.into(Note.class));
   }
 
+  @Override
+  public void deleteNote(int noteId) {
+    db.deleteFrom(Tables.NOTE)
+        .where(Tables.NOTE.ID.eq(noteId))
+        .execute();
+  }
+
   private FullNote dbNoteToReturn(Note note) {
     return new FullNote(note.getId(), note.getTitle(), note.getBody(), "10/20/2019");
   }

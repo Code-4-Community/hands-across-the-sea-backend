@@ -20,4 +20,6 @@ public interface IProcessor {
   List<FullNote> createNotes(List<ContentNote> notes);
 
   FullNote updateNote(int noteId, ContentNote newNote);
+
+  void deleteNote(int noteId);
 }
