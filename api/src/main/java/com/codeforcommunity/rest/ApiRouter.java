@@ -2,10 +2,14 @@ package com.codeforcommunity.rest;
 
 import com.codeforcommunity.JacksonMapper;
 import com.codeforcommunity.api.IProcessor;
+import com.codeforcommunity.auth.AuthProcessor;
+import com.codeforcommunity.auth.AuthProcessorImpl;
+import com.codeforcommunity.auth.exceptions.AuthException;
 import com.codeforcommunity.dto.MemberReturn;
 import com.codeforcommunity.validation.RequestValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
@@ -21,14 +25,15 @@ public class ApiRouter {
   private static int ok = 200;
   // anonymous default validator implementation checks if incoming requests contain header
   private RequestValidator getMemberRequestValidator = req -> req.headers() != null;
+  private AuthProcessor auth = new AuthProcessorImpl();
 
 
 
-  public ApiRouter(IProcessor processor) {
+  public ApiRouter(IProcessor processor) throws Exception { //todo handle this exception
     this.processor = processor;
   }
 
-  public ApiRouter(IProcessor processor, RequestValidator validator) {
+  public ApiRouter(IProcessor processor, RequestValidator validator) throws Exception { //todo handle this exception
     this(processor);
     this.getMemberRequestValidator = validator;
   }
@@ -41,6 +46,9 @@ public class ApiRouter {
 
     Route getMemberRoute = router.route().path("/api/v1/members");
     getMemberRoute.handler(this::handleGetMemberRoute);
+
+    Route postLoginRoute = router.route().path("/api/v1/user/login");
+    postLoginRoute.handler(this::handlePostUserLoginRoute);
 
     return router;
   }
@@ -66,5 +74,24 @@ public class ApiRouter {
       response.setStatusCode(server_error).end("internal server error");
       return;
     }
+  }
+
+  private void handlePostUserLoginRoute(RoutingContext ctx) {
+
+    HttpServerRequest req = ctx.request();
+    HttpServerResponse res = ctx.response();
+    //todo validate
+
+    req.bodyHandler(buffer -> {
+      String bod = buffer.getString(0, buffer.length());
+      try {
+        res.setStatusCode(ok).end(JacksonMapper.getMapper().writeValueAsString(auth.login(bod)));
+      } catch (AuthException ae) {
+        res.setStatusCode(client_error).end();
+      } catch (Exception e) {
+        res.setStatusCode(server_error).end();
+      }
+    });
+
   }
 }
