@@ -1,17 +1,27 @@
 package com.codeforcommunity.rest;
 
-import com.codeforcommunity.JacksonMapper;
 import com.codeforcommunity.api.IProcessor;
 import com.codeforcommunity.dto.MemberReturn;
+import com.codeforcommunity.dto.FullNote;
+import com.codeforcommunity.dto.NoteRequest;
+import com.codeforcommunity.dto.NoteResponse;
+import com.codeforcommunity.dto.NotesRequest;
+import com.codeforcommunity.dto.NotesResponse;
 import com.codeforcommunity.validation.RequestValidator;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class ApiRouter {
   private final IProcessor processor;
@@ -39,11 +49,88 @@ public class ApiRouter {
   public Router initializeRouter(Vertx vertx) {
     Router router = Router.router(vertx);
 
-    Route getMemberRoute = router.route().path("/api/v1/members");
-    getMemberRoute.handler(this::handleGetMemberRoute);
+    router.route().handler(BodyHandler.create(false));
+
+    registerGetNoteRoute(router);
+    registerPostNoteRoute(router);
+    registerPutNoteRoute(router);
+    registerDeleteNoteRoute(router);
 
     return router;
   }
+
+  private void registerGetNoteRoute(Router router) {
+    Route getNoteRoute = router.route(HttpMethod.GET, "/api/note");
+    getNoteRoute.handler(this::handleGetNoteRoute);
+  }
+
+  private void registerPostNoteRoute(Router router) {
+    Route postNoteRoute = router.route(HttpMethod.POST, "/api/note");
+    postNoteRoute.handler(this::handlePostNoteRoute);
+  }
+
+  private void registerPutNoteRoute(Router router) {
+    Route putNoteRoute = router.route(HttpMethod.PUT, "/api/note/:note_id");
+    putNoteRoute.handler(this::handlePutNoteRoute);
+  }
+
+  private void registerDeleteNoteRoute(Router router) {
+    Route deleteNoteRoute = router.route(HttpMethod.DELETE, "/api/note/:note_id");
+    deleteNoteRoute.handler(this::handleDeleteNoteRoute);
+  }
+
+  private void handleGetNoteRoute(RoutingContext ctx) {
+    HttpServerRequest request = ctx.request();
+    Optional<String> optionalNoteId = Optional.ofNullable(request.getParam("note_id"));
+    List<FullNote> notes;
+    if (optionalNoteId.isPresent()) {
+      int noteId = Integer.parseInt(optionalNoteId.get()); //TODO: Check if exception
+      notes = Collections.singletonList(processor.getANote(noteId));
+    } else {
+      notes = processor.getAllNotes();
+    }
+
+    NotesResponse response = new NotesResponse("OK", notes);
+    ctx.response().setStatusCode(200)
+        .putHeader("content-type", "application/json")
+        .end(JsonObject.mapFrom(response).encode());
+  }
+
+  private void handlePostNoteRoute(RoutingContext ctx) {
+    NotesRequest requestBody = ctx.getBodyAsJson().mapTo(NotesRequest.class); //TODO: Exception handling
+
+    List<FullNote> notes = processor.createNotes(requestBody.getNotes());
+
+    NotesResponse response = new NotesResponse("OK", notes);
+    ctx.response().setStatusCode(201)
+        .putHeader("content-type", "application/json")
+        .end(JsonObject.mapFrom(response).encode());
+  }
+
+  private void handlePutNoteRoute(RoutingContext ctx) {
+    HttpServerRequest request = ctx.request();
+    NoteRequest requestBody = ctx.getBodyAsJson().mapTo(NoteRequest.class);
+    int noteId = Integer.parseInt(request.getParam("note_id"));
+
+    FullNote updatedNote = processor.updateNote(noteId, requestBody.getNote());
+
+    NoteResponse response = new NoteResponse("OK", updatedNote);
+    ctx.response().setStatusCode(200)
+        .putHeader("content-type", "application/json")
+        .end(JsonObject.mapFrom(response).encode());
+  }
+
+  private void handleDeleteNoteRoute(RoutingContext ctx) {
+    HttpServerRequest request = ctx.request();
+    int noteId = Integer.parseInt(request.getParam("note_id"));
+
+    processor.deleteNote(noteId);
+
+    ctx.response().setStatusCode(200)
+        .end();
+  }
+
+
 
   /**
    * Add a handler for getting all members.
@@ -60,7 +147,7 @@ public class ApiRouter {
 
     try {
       List<MemberReturn> members = processor.getAllMembers();
-      String memberJson = JacksonMapper.getMapper().writeValueAsString(members);
+      String memberJson = JsonObject.mapFrom(members).encode();
       response.setStatusCode(ok).end(memberJson);
     } catch (Exception e) {
       response.setStatusCode(server_error).end("internal server error");

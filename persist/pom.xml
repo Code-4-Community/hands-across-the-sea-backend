@@ -70,7 +70,7 @@
                      - ? matches a single character in a directory / file name -->
                 <property>
                   <key>scripts</key>
-                  <value>persist\src\main\resources\db\migration\V1__Initial_Import.sql</value>
+                  <value>persist\src\main\resources\db\migration\*.sql</value>
                 </property>
 
                 <!-- The sort order of the scripts within a directory, where:
