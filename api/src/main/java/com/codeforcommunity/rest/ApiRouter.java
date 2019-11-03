@@ -102,7 +102,7 @@ public class ApiRouter {
     List<FullNote> notes = processor.createNotes(requestBody.getNotes());
 
     NotesResponse response = new NotesResponse("OK", notes);
-    ctx.response().setStatusCode(200)
+    ctx.response().setStatusCode(201)
         .putHeader("content-type", "application/json")
         .end(JsonObject.mapFrom(response).encode());
   }

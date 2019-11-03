@@ -73,7 +73,7 @@ Used for creating one or more notes to be stored in the database.
 
 ### Responses
 
-#### `200 OK`
+#### `201 OK`
 
 The notes were successfully created. Returns all the created notes as they would be show in a GET request so that the frontend can find out note's assigned ID numbers.
 
