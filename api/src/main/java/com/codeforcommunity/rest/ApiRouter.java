@@ -34,6 +34,7 @@ public class ApiRouter {
      * Initialize a router and register all route handlers on it.
      */
     public Router initializeRouter(Vertx vertx) {
+
         Router router = Router.router(vertx);
 
         router.route().handler(BodyHandler.create(false));
@@ -68,18 +69,24 @@ public class ApiRouter {
 
     private void handleGetNoteRoute(RoutingContext ctx) {
 
-        System.out.println("handling get request");
+        if (authorized(ctx.request())) {
+            endUnauthorized(ctx.response());
+            return;
+        }
 
-        if (!authValidator.validateRequest(ctx.request())) {
-            unauthorized(ctx.response());
+        Optional<String> optionalNoteId;
+
+        try {
+            optionalNoteId = Optional.ofNullable(ctx.request().getParam(HttpConstants.noteIdParam));
+        } catch (Exception e) {
+            endClientError(ctx.response());
+            return;
         }
 
         try {
-            HttpServerRequest request = ctx.request();
-            Optional<String> optionalNoteId = Optional.ofNullable(request.getParam(HttpConstants.noteIdParam));
             List<FullNote> notes;
             if (optionalNoteId.isPresent()) {
-                int noteId = Integer.parseInt(optionalNoteId.get()); //TODO: Check if exception
+                int noteId = Integer.parseInt(optionalNoteId.get());
                 notes = Collections.singletonList(processor.getANote(noteId));
             } else {
                 notes = processor.getAllNotes();
@@ -87,57 +94,89 @@ public class ApiRouter {
             NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
             end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
         } catch (Exception e) {
-            this.clientError(ctx.response(), e);
+            endServerError(ctx.response(), e);
         }
     }
 
     private void handlePostNoteRoute(RoutingContext ctx) {
 
-        if (!authValidator.validateRequest(ctx.request())) {
-            unauthorized(ctx.response());
+        System.out.println("handling post note");
+
+        if (authorized(ctx.request())) {
+            endUnauthorized(ctx.response());
+            return;
+        }
+
+        NotesRequest requestBody;
+
+        try {
+            requestBody = ctx.getBodyAsJson().mapTo(NotesRequest.class);
+            System.out.println(requestBody.getNotes().get(0).getContent());
+            System.out.println(requestBody.getNotes().get(0).getTitle());
+            assert requestBody != null;
+        } catch (Exception e) {
+            System.out.println("client error bb");
+            endClientError(ctx.response());
+            return;
         }
 
         try {
-            NotesRequest requestBody = ctx.getBodyAsJson().mapTo(NotesRequest.class); //TODO: Exception handling
             List<FullNote> notes = processor.createNotes(requestBody.getNotes());
             NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
             end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(response).encode());
         } catch (Exception e) {
-            this.clientError(ctx.response(), e);
+            this.endServerError(ctx.response(), e);
         }
     }
 
     private void handlePutNoteRoute(RoutingContext ctx) {
 
-        if (!authValidator.validateRequest(ctx.request())) {
-            unauthorized(ctx.response());
+        if (authorized(ctx.request())) {
+            endUnauthorized(ctx.response());
+            return;
+        }
+
+        NoteRequest requestBody;
+
+        try {
+            requestBody = ctx.getBodyAsJson().mapTo(NoteRequest.class);
+        } catch (Exception e) {
+            endClientError(ctx.response());
+            return;
         }
 
         try {
             HttpServerRequest request = ctx.request();
-            NoteRequest requestBody = ctx.getBodyAsJson().mapTo(NoteRequest.class);
             int noteId = Integer.parseInt(request.getParam(HttpConstants.noteIdParam));
             FullNote updatedNote = processor.updateNote(noteId, requestBody.getNote());
             NoteResponse response = new NoteResponse(HttpConstants.okMessage, updatedNote);
             end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
         } catch (Exception e) {
-            clientError(ctx.response(), e);
+            endServerError(ctx.response(), e);
         }
     }
 
     private void handleDeleteNoteRoute(RoutingContext ctx) {
 
-        if (!authValidator.validateRequest(ctx.request())) {
-            unauthorized(ctx.response());
+        if (authorized(ctx.request())) {
+            endUnauthorized(ctx.response());
+            return;
+        }
+
+        int noteId;
+
+        try {
+            noteId = Integer.parseInt(ctx.request().getParam(HttpConstants.noteIdParam));
+        } catch (Exception e) {
+            endClientError(ctx.response());
+            return;
         }
 
         try {
-            HttpServerRequest request = ctx.request();
-            int noteId = Integer.parseInt(request.getParam(HttpConstants.noteIdParam));
             processor.deleteNote(noteId);
             end(ctx.response(), HttpConstants.ok_code);
         } catch (Exception e) {
-            clientError(ctx.response(), e);
+            endServerError(ctx.response(), e);
         }
     }
 
@@ -146,8 +185,9 @@ public class ApiRouter {
      */
     private void handleGetMemberRoute(RoutingContext ctx) {
 
-        if (!authValidator.validateRequest(ctx.request())) {
-            unauthorized(ctx.response());
+        if (authorized(ctx.request())) {
+            endUnauthorized(ctx.response());
+            return;
         }
 
         try {
@@ -155,23 +195,33 @@ public class ApiRouter {
             String memberJson = JsonObject.mapFrom(members).encode();
             end(ctx.response(), HttpConstants.ok_code, memberJson);
         } catch (Exception e) {
-            clientError(ctx.response(), e);
+            endServerError(ctx.response(), e);
         }
     }
 
-    private void clientError(HttpServerResponse resp, Exception e) {
-        e.printStackTrace();
-        String errorResponse = JsonObject.mapFrom(new ClientErrorResponse(e.getMessage())).encode();
-        this.end(resp, HttpConstants.client_error_code, errorResponse);
+    private boolean authorized(HttpServerRequest req) {
+        return (!authValidator.validateRequest(req));
     }
 
-    private void unauthorized(HttpServerResponse resp) {
+    private void endClientError(HttpServerResponse resp) {
+        String errorResponse = JsonObject.mapFrom(new ClientErrorResponse(HttpConstants.clientErrorMessage)).encode();
+        System.out.println(errorResponse);
+        end(resp, HttpConstants.client_error_code, errorResponse);
+    }
+
+    private void endUnauthorized(HttpServerResponse resp) { //todo remove repeat code
         String errorResponse = JsonObject.mapFrom(new ClientErrorResponse(HttpConstants.unauthorizedMessage)).encode();
         end(resp, HttpConstants.unauthorized_code, errorResponse);
     }
 
+    private void endServerError(HttpServerResponse resp, Exception e) {
+        e.printStackTrace();
+        String errorResponse = JsonObject.mapFrom(new ServerErrorResponse(e.getMessage())).encode();
+        end(resp, HttpConstants.server_error_code, errorResponse);
+    }
+
     private void end(HttpServerResponse response, int statusCode) {
-        this.end(response, statusCode, null);
+        end(response, statusCode, null);
     }
 
     private void end(HttpServerResponse response, int statusCode, String jsonBody) {

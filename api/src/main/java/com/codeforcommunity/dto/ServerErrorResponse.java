@@ -1,11 +1,11 @@
 package com.codeforcommunity.dto;
 
-public class ClientErrorResponse {
+public class ServerErrorResponse {
 
-    private String status = "BAD REQUEST";
+    private String status = "SERVER ERROR";
     private String reason;
 
-    public ClientErrorResponse(String reason) {
+    public ServerErrorResponse(String reason) {
         this.reason = reason;
     }
 
