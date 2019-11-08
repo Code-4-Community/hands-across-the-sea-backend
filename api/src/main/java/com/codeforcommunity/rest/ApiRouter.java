@@ -252,33 +252,35 @@ public class ApiRouter {
 
   private void handlePostUserLoginRoute(RoutingContext ctx) {
 
+        Logger.log("handling login");
+
       AuthProcessor auth;
     try {
-         auth = new AuthProcessorImpl();
+         auth = new AuthProcessorImpl(); //todo figure this out
     } catch (Exception e) {
+        Logger.log("error");
+        Logger.log(e.getMessage());
         return;
     }
 
-    HttpServerRequest req = ctx.request();
-    HttpServerResponse res = ctx.response();
-    //todo validate
+    Logger.log(ctx.getBodyAsString());
 
-    req.bodyHandler(buffer -> {
-      String bod = new String(buffer.getString(0, buffer.length()));
-      Logger.log(bod);
+    String reqBody = ctx.getBodyAsString();
+
       try {
           String jsonReturn = JsonObject.mapFrom(new HashMap<String, String>() {{
-              put("access_token", auth.login(bod)[0]);
-              put("refresh_token", auth.login(bod)[1]);
+              put("access_token", auth.login(reqBody)[0]);
+              put("refresh_token", auth.login(reqBody)[1]);
           }}).encode();
-        res.setStatusCode(200).putHeader("Access-Control-Allow-Origin", "*")
-                .putHeader("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
-                .putHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
-                .end(jsonReturn);
+          Logger.log("json: " + jsonReturn);
+          ctx.response().setStatusCode(200).putHeader("Access-Control-Allow-Origin", "*")
+                  .putHeader("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+                  .putHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+                  .end(jsonReturn);
       } catch (AuthException ae) {
-        Logger.log(ae.getMessage());
+          Logger.log(ae.getMessage());
       } catch (Exception e) { }
-    });
+
 
   }
 }

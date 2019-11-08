@@ -38,14 +38,11 @@ public class AuthProcessorImpl implements AuthProcessor, Statics { //todo find o
         }
         if (authDataBase.validateUser(creds.getOrDefault("username", null), creds.getOrDefault("password", null))) {
            try {
-               Logger.log("passed validation");
-               Logger.log(AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(access_exp).getSigned());
                return new String[]{
                        AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(access_exp).getSigned(),
                        AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(refresh_exp).getSigned(),
                };
            } catch (Exception e) {
-               Logger.log("poop in my but");
                return null; //todo handle this
            }
         } else {

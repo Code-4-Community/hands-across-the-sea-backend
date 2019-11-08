@@ -26,18 +26,13 @@ public class SHA implements Statics {
     }
 
     public String encode64(String s, boolean padded) {
-        System.out.print("start bytes");
         byte[] b = s.getBytes();
-        System.out.print("bytes");
-        System.out.println(b);
         String ret;
         if (padded) {
             ret = en.encodeToString(b);
         } else {
             ret = en.withoutPadding().encodeToString(b);
         }
-        Logger.log("ret:");
-        Logger.log(ret);
         return ret;
     }
 
@@ -49,7 +44,7 @@ public class SHA implements Statics {
 
     public String hash(String s) {
 
-        return new String(mac.doFinal(s.getBytes()));
+        return toHexString(mac.doFinal(s.getBytes()));
 
     }
 

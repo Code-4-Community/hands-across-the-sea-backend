@@ -73,15 +73,10 @@ public class AuthTokenGenerator implements Statics { //todo generalize this to l
     private String encodeSign(String header, String body) {
 
 		try {
-			Logger.log("start");
-			Logger.log(sha.encode64(header, false));
         	String unsigned = String.format("%s.%s", sha.encode64(header, false), sha.encode64(body, false));
-       		Logger.log("yo this is unsigned: " + unsigned);
         	String signature = sha.hash(unsigned);
-        	Logger.log(signature);
-        	String poop = unsigned + "." + signature;
-        	Logger.log(poop + "yooo");
-       	 	return poop;
+        	String toReturn = unsigned + "." + signature;
+       	 	return toReturn;
         } catch (Exception e) {
         	e.printStackTrace();
         	Logger.log(e.getMessage());
