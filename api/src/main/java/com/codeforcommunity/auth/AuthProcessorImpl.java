@@ -29,16 +29,25 @@ public class AuthProcessorImpl implements AuthProcessor, Statics { //todo find o
         Map<String, String> creds;
 
         try {
+            Logger.log(credentials);
             creds = mapper.readValue(credentials, HashMap.class);
+            Logger.log(creds.get("username"));
+            Logger.log(creds.get("password"));
         } catch (Exception e) {
             throw new AuthException("invalid credentials format");
         }
         if (authDataBase.validateUser(creds.getOrDefault("username", null), creds.getOrDefault("password", null))) {
-
-            return new String[] { 
-                AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(access_exp).getSigned(),
-                AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(refresh_exp).getSigned(),
-            };
+           try {
+               Logger.log("passed validation");
+               Logger.log(AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(access_exp).getSigned());
+               return new String[]{
+                       AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(access_exp).getSigned(),
+                       AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(refresh_exp).getSigned(),
+               };
+           } catch (Exception e) {
+               Logger.log("poop in my but");
+               return null; //todo handle this
+           }
         } else {
             Logger.log("illegal login attempt");
             throw new AuthException("invalid credentials");

@@ -16,18 +16,18 @@ public class AuthTokenGenerator implements Statics { //todo generalize this to l
 
 
     private ObjectMapper mapper = new ObjectMapper();
-    private SHA sha;
+    private SHA sha = new SHA();
     private Date exp;
     private int access;
     private String username;
 
-    private AuthTokenGenerator(Builder builder) {
+    private AuthTokenGenerator(Builder builder) throws Exception {
         this.exp = createExp(builder.exp);
         this.access = builder.access;
         this.username = builder.username;
     }
 
-    private final Date createExp(long exp) { //todo how do I actually handle timestamps
+    private final Date createExp(long exp) throws Exception { //todo how do I actually handle timestamps
         Date d = new Date();
         d.setTime(d.getTime() + exp);
         return d;
@@ -35,6 +35,8 @@ public class AuthTokenGenerator implements Statics { //todo generalize this to l
 
     private final String get() throws AuthException {
         try {
+        	Logger.log(header());
+        	Logger.log(body());
             return encodeSign(header(), body());
         } catch (Exception e) {
             Logger.log("generating key:" + e.getMessage());
@@ -70,9 +72,23 @@ public class AuthTokenGenerator implements Statics { //todo generalize this to l
 
     private String encodeSign(String header, String body) {
 
-        String unsigned = String.format("%s.%s", sha.encode64(header, true), sha.encode64(body, true));
-        String signature = sha.hash(unsigned);
-        return unsigned + "." + signature;
+		try {
+			Logger.log("start");
+			Logger.log(sha.encode64(header, false));
+        	String unsigned = String.format("%s.%s", sha.encode64(header, false), sha.encode64(body, false));
+       		Logger.log("yo this is unsigned: " + unsigned);
+        	String signature = sha.hash(unsigned);
+        	Logger.log(signature);
+        	String poop = unsigned + "." + signature;
+        	Logger.log(poop + "yooo");
+       	 	return poop;
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	Logger.log(e.getMessage());
+        }
+        
+        return null;
+       
     }
 
 
@@ -97,7 +113,7 @@ public class AuthTokenGenerator implements Statics { //todo generalize this to l
             return this;
         }
 
-        public final String getSigned() throws AuthException {
+        public final String getSigned() throws Exception {
             return new AuthTokenGenerator(this).get();
         }
 

@@ -6,6 +6,7 @@ import com.codeforcommunity.auth.AuthProcessor;
 import com.codeforcommunity.auth.AuthProcessorImpl;
 import com.codeforcommunity.auth.exceptions.AuthException;
 import com.codeforcommunity.dto.MemberReturn;
+import com.codeforcommunity.utils.Logger;
 import com.codeforcommunity.validation.RequestValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vertx.core.Vertx;
@@ -26,8 +27,6 @@ public class ApiRouter {
   // anonymous default validator implementation checks if incoming requests contain header
   private RequestValidator getMemberRequestValidator = req -> req.headers() != null;
   private AuthProcessor auth = new AuthProcessorImpl();
-
-
 
   public ApiRouter(IProcessor processor) throws Exception { //todo handle this exception
     this.processor = processor;
@@ -78,15 +77,23 @@ public class ApiRouter {
 
   private void handlePostUserLoginRoute(RoutingContext ctx) {
 
+    System.out.print("poop");
+
     HttpServerRequest req = ctx.request();
     HttpServerResponse res = ctx.response();
     //todo validate
 
     req.bodyHandler(buffer -> {
-      String bod = buffer.getString(0, buffer.length());
+      Logger.log("big stuff");
+      String bod = new String(buffer.getString(0, buffer.length()));
+      Logger.log(bod);
       try {
-        res.setStatusCode(ok).end(JacksonMapper.getMapper().writeValueAsString(auth.login(bod)));
+        res.setStatusCode(ok).putHeader("Access-Control-Allow-Origin", "*")
+                .putHeader("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+                .putHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+                .end(JacksonMapper.getMapper().writeValueAsString(auth.login(bod)));
       } catch (AuthException ae) {
+        Logger.log(ae.getMessage());
         res.setStatusCode(client_error).end();
       } catch (Exception e) {
         res.setStatusCode(server_error).end();

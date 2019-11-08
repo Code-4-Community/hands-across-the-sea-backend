@@ -5,7 +5,7 @@ import java.util.Formatter;
 public interface Statics { //todo work on best place to put this so it doesn't have to be public
 
     String secret = "secret";
-    String alg = "HmacMD5";
+    String alg = "HmacSHA1";
     String type = "jwt";
 
     String issuer = "c4c_admin";
