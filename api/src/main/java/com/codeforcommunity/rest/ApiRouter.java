@@ -8,8 +8,8 @@ import com.codeforcommunity.dto.MemberReturn;
 import com.codeforcommunity.utils.Logger;
 import com.codeforcommunity.dto.*;
 import com.codeforcommunity.validation.RequestValidator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.Vertx;
 
 import io.vertx.core.http.HttpMethod;
@@ -52,6 +52,7 @@ public class ApiRouter {
         registerPutNoteRoute(router);
         registerDeleteNoteRoute(router);
         registerLoginUser(router);
+        registerRefreshUser(router);
 
 
         return router;
@@ -81,6 +82,12 @@ public class ApiRouter {
         Route loginUserRoute = router.route(HttpMethod.POST, "/api/v1/user/login");
         loginUserRoute.handler(this::handlePostUserLoginRoute);
     }
+
+    private void registerRefreshUser(Router router) {
+        Route refreshUserRoute = router.route(HttpMethod.POST, "/api/v1/user/login/refresh");
+        refreshUserRoute.handler(this::handlePostRefreshUser);
+    }
+
 
     private void handleGetNoteRoute(RoutingContext ctx) {
 
@@ -250,9 +257,9 @@ public class ApiRouter {
         }
     }
 
-  private void handlePostUserLoginRoute(RoutingContext ctx) {
+  private void handlePostUserLoginRoute(RoutingContext ctx) { //todo move above the helper methods
 
-        Logger.log("handling login");
+        //todo logger methods
 
       AuthProcessor auth;
     try {
@@ -264,13 +271,12 @@ public class ApiRouter {
     }
 
     Logger.log(ctx.getBodyAsString());
-
     String reqBody = ctx.getBodyAsString();
 
       try {
-          String jsonReturn = JsonObject.mapFrom(new HashMap<String, String>() {{
-              put("access_token", auth.login(reqBody)[0]);
-              put("refresh_token", auth.login(reqBody)[1]);
+          String jsonReturn = JsonObject.mapFrom(new HashMap<String, String>() {{ //todo refactor names in auth class
+              put("access_token", auth.login(reqBody)[0]); //todo make sure these map correctly
+              put("refresh_token", auth.login(reqBody)[1]); //todo clean this up
           }}).encode();
           Logger.log("json: " + jsonReturn);
           ctx.response().setStatusCode(200).putHeader("Access-Control-Allow-Origin", "*")
@@ -278,9 +284,35 @@ public class ApiRouter {
                   .putHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
                   .end(jsonReturn);
       } catch (AuthException ae) {
-          Logger.log(ae.getMessage());
+          endUnauthorized(ctx.response());
       } catch (Exception e) { }
 
 
+  }
+
+  private void handlePostRefreshUser(RoutingContext ctx) {
+
+      AuthProcessor auth;
+      try {
+          auth = new AuthProcessorImpl(); //todo figure this out
+      } catch (Exception e) {
+          Logger.log("error");
+          Logger.log(e.getMessage());
+          return;
+      }
+
+      try {
+
+          Map<String, String> bodyMap = new ObjectMapper().readValue(ctx.getBodyAsString(), HashMap.class);
+          String body = bodyMap.get("refresh_token");
+
+          end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(new HashMap<String, String>() {{ //todo refactor names in auth class
+              put("access_token", auth.refresh(body)); //todo make sure these map correctly
+          }}).encode()); //todo refactor to no use exceptions as flow control
+
+      } catch (Exception e) {
+          endUnauthorized(ctx.response());
+
+      }
   }
 }

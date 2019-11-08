@@ -61,7 +61,7 @@ public class AuthProcessorImpl implements AuthProcessor, Statics { //todo find o
     }
 
     @Override
-    public String refresh(String accessToken) throws AuthException{
+    public String refresh(String accessToken) throws AuthException{ //todo reimplement this
         try {
             Map<String, String> creds = parseJWTBody(accessToken);
             if (this.validate(accessToken) && (creds.get("username") != null)) {
@@ -75,10 +75,10 @@ public class AuthProcessorImpl implements AuthProcessor, Statics { //todo find o
     }
 
     private Map<String, String> parseJWTBody(String token) throws AuthException {
-        String[] jwt = sha.decode64(token).split("\\.");
+        String[] jwt = token.split("\\.");
         Map<String, String> creds;
         try {
-            creds = mapper.readValue(jwt[1], HashMap.class);
+            creds = mapper.readValue(sha.decode64(jwt[1]), HashMap.class);
             return creds;
         } catch (Exception e) {
             throw new AuthException("Invalid JWT Refresh Token");

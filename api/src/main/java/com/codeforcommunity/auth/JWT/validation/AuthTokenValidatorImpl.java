@@ -1,5 +1,6 @@
 package com.codeforcommunity.auth.JWT.validation;
 import com.codeforcommunity.auth.JWT.alg.SHA;
+import com.codeforcommunity.utils.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Date;
@@ -17,6 +18,9 @@ public class AuthTokenValidatorImpl implements AuthTokenValidator {
     }
     @Override
     public boolean valid(String token) throws Exception {
+
+        Logger.log("unchanged: " + unchanged(token));
+        Logger.log("unexpired: " + unexpired(token));
 
          return unchanged(token) && unexpired(token);
 
