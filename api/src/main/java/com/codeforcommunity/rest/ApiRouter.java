@@ -8,6 +8,8 @@ import com.codeforcommunity.dto.MemberReturn;
 import com.codeforcommunity.utils.Logger;
 import com.codeforcommunity.dto.*;
 import com.codeforcommunity.validation.RequestValidator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.vertx.core.Vertx;
 
 import io.vertx.core.http.HttpMethod;
@@ -49,6 +51,8 @@ public class ApiRouter {
         registerPostNoteRoute(router);
         registerPutNoteRoute(router);
         registerDeleteNoteRoute(router);
+        registerLoginUser(router);
+
 
         return router;
     }
@@ -71,6 +75,11 @@ public class ApiRouter {
     private void registerDeleteNoteRoute(Router router) {
         Route deleteNoteRoute = router.route(HttpMethod.DELETE, HttpConstants.noteRoute + "/:" + HttpConstants.noteIdParam);
         deleteNoteRoute.handler(this::handleDeleteNoteRoute);
+    }
+
+    private void registerLoginUser(Router router) {
+        Route loginUserRoute = router.route(HttpMethod.POST, "/api/v1/user/login");
+        loginUserRoute.handler(this::handlePostUserLoginRoute);
     }
 
     private void handleGetNoteRoute(RoutingContext ctx) {
@@ -240,31 +249,35 @@ public class ApiRouter {
             finalResponse.end(jsonBody);
         }
     }
-  }
 
   private void handlePostUserLoginRoute(RoutingContext ctx) {
 
-    System.out.print("poop");
+      AuthProcessor auth;
+    try {
+         auth = new AuthProcessorImpl();
+    } catch (Exception e) {
+        return;
+    }
 
     HttpServerRequest req = ctx.request();
     HttpServerResponse res = ctx.response();
     //todo validate
 
     req.bodyHandler(buffer -> {
-      Logger.log("big stuff");
       String bod = new String(buffer.getString(0, buffer.length()));
       Logger.log(bod);
       try {
-        res.setStatusCode(ok).putHeader("Access-Control-Allow-Origin", "*")
+          String jsonReturn = JsonObject.mapFrom(new HashMap<String, String>() {{
+              put("access_token", auth.login(bod)[0]);
+              put("refresh_token", auth.login(bod)[1]);
+          }}).encode();
+        res.setStatusCode(200).putHeader("Access-Control-Allow-Origin", "*")
                 .putHeader("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
                 .putHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
-                .end(JacksonMapper.getMapper().writeValueAsString(auth.login(bod)));
+                .end(jsonReturn);
       } catch (AuthException ae) {
         Logger.log(ae.getMessage());
-        res.setStatusCode(client_error).end();
-      } catch (Exception e) {
-        res.setStatusCode(server_error).end();
-      }
+      } catch (Exception e) { }
     });
 
   }
