@@ -3,6 +3,9 @@ package com.codeforcommunity;
 import com.codeforcommunity.api.IProcessor;
 import com.codeforcommunity.processor.ProcessorImpl;
 import com.codeforcommunity.rest.ApiRouter;
+import com.codeforcommunity.validation.RequestValidator;
+import com.codeforcommunity.validation.RequestValidatorImpl;
+
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -15,14 +18,18 @@ public class ServiceMain {
   private final Properties dbProperties = new Properties();
 
   public static void main(String[] args) {
-    ServiceMain serviceMain = new ServiceMain();
-    serviceMain.initialize();
+    try {
+      ServiceMain serviceMain = new ServiceMain();
+      serviceMain.initialize();
+    } catch (Exception e) {
+
+    }
   }
 
   /**
    * Start the server, get everything going.
    */
-  public void initialize() {
+  public void initialize() throws Exception {
     loadProperties();
     connectDb();
     initializeServer();
@@ -60,10 +67,9 @@ public class ServiceMain {
   /**
    * Initialize the server and get all the supporting classes going.
    */
-  private void initializeServer() {
+  private void initializeServer() throws Exception {
     IProcessor processor = new ProcessorImpl(this.db);
-    ApiRouter router = new ApiRouter(processor);
-
+    ApiRouter router = new ApiRouter(processor, new RequestValidatorImpl());
     startApiServer(router);
   }
 
