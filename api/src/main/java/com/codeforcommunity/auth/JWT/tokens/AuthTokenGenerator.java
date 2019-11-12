@@ -20,6 +20,7 @@ public class AuthTokenGenerator implements Statics { //todo generalize this to l
     private Date exp;
     private int access;
     private String username;
+    private boolean voided = false;
 
     private AuthTokenGenerator(Builder builder) throws Exception {
         this.exp = createExp(builder.exp);
@@ -65,6 +66,7 @@ public class AuthTokenGenerator implements Statics { //todo generalize this to l
             put("expiration", exp.toString());
             put("username", username);
             put("access", Integer.toString(access));
+            put("voided", Boolean.toString(voided));
          }};
         return mapper.writeValueAsString(body);
 
@@ -82,16 +84,16 @@ public class AuthTokenGenerator implements Statics { //todo generalize this to l
         	Logger.log(e.getMessage());
         }
         
-        return null;
+        return null; //todo figure this out
        
     }
-
 
     public static class Builder {
 
         private String username;
         private int access;
         private long exp;
+        private boolean voided;
 
         public Builder username(String username) {
             this.username = username;
@@ -110,6 +112,11 @@ public class AuthTokenGenerator implements Statics { //todo generalize this to l
 
         public final String getSigned() throws Exception {
             return new AuthTokenGenerator(this).get();
+        }
+
+        public Builder voided(boolean voided) {
+            this.voided = voided;
+            return this;
         }
 
     }

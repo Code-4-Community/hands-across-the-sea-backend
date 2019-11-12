@@ -10,4 +10,14 @@ public class AuthDataBaseDemoImpl implements AuthDataBase {
     public boolean validateUser(String user, String pass) {
         return user != null && pass != null;
     }
+
+    public boolean newUser(String username, String email, String password, String firstName, String lastName) {
+        return true;
+    }
+
+    @Override
+    public boolean registerRefresh(String signature, String username) {
+        return false;
+    }
+
 }

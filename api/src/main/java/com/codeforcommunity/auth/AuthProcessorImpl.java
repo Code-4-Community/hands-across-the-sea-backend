@@ -18,7 +18,7 @@ public class AuthProcessorImpl implements AuthProcessor, Statics { //todo find o
 
     private ObjectMapper mapper = new ObjectMapper(); //todo make this a singleton pattern
     private AuthTokenValidator validator = new AuthTokenValidatorImpl();
-    private AuthDataBase authDataBase = new AuthDataBaseDemoImpl();
+    private AuthDataBase authDataBase = new AuthDataBaseDemoImpl(); //todo this need to take in an instance of this
     private SHA sha = new SHA();
 
     public AuthProcessorImpl() throws Exception {}
