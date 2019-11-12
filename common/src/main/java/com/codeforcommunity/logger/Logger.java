@@ -1,4 +1,4 @@
-package com.codeforcommunity.utils;
+package com.codeforcommunity.logger;
 
 import java.sql.Timestamp;
 import java.time.Instant;

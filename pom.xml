@@ -12,6 +12,7 @@
     <module>api</module>
     <module>service</module>
     <module>persist</module>
+    <module>common</module>
   </modules>
 
   <properties>

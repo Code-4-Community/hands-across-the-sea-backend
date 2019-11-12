@@ -6,7 +6,7 @@ import com.codeforcommunity.dto.FullNote;
 
 import java.util.List;
 
-public interface IProcessor {
+public interface INotesProcessor {
   /**
    * Get all the members first and last names.
    */

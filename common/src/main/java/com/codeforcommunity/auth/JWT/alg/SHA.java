@@ -2,7 +2,7 @@ package com.codeforcommunity.auth.JWT.alg;
 
 import com.codeforcommunity.auth.JWT.Statics;
 import com.codeforcommunity.auth.exceptions.AuthException;
-import com.codeforcommunity.utils.Logger;
+import com.codeforcommunity.logger.Logger;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

@@ -1,6 +1,6 @@
 package com.codeforcommunity.auth.JWT.validation;
 import com.codeforcommunity.auth.JWT.alg.SHA;
-import com.codeforcommunity.utils.Logger;
+import com.codeforcommunity.logger.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Date;

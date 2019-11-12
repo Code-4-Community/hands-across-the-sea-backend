@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.codeforcommunity.auth.exceptions.AuthException;
-import com.codeforcommunity.utils.Logger;
+import com.codeforcommunity.logger.Logger;
 
 import java.util.Date;
 import java.util.HashMap;

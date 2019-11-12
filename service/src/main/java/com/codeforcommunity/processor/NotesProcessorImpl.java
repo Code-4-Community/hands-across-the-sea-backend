@@ -1,7 +1,7 @@
 package com.codeforcommunity.processor;
 
 
-import com.codeforcommunity.api.IProcessor;
+import com.codeforcommunity.api.INotesProcessor;
 import com.codeforcommunity.dto.ContentNote;
 import com.codeforcommunity.dto.MemberReturn;
 import com.codeforcommunity.dto.FullNote;
@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ProcessorImpl implements IProcessor {
+public class NotesProcessorImpl implements INotesProcessor {
 
   private final DSLContext db;
 
-  public ProcessorImpl(DSLContext db) {
+  public NotesProcessorImpl(DSLContext db) {
     this.db = db;
   }
 
