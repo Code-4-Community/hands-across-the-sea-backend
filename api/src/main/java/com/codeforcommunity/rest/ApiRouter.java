@@ -1,11 +1,10 @@
 package com.codeforcommunity.rest;
 
-import com.codeforcommunity.api.IProcessor;
-import com.codeforcommunity.auth.AuthProcessor;
-import com.codeforcommunity.auth.AuthProcessorImpl;
+import com.codeforcommunity.api.INotesProcessor;
+import com.codeforcommunity.api.IAuthProcessor;
 import com.codeforcommunity.auth.exceptions.AuthException;
 import com.codeforcommunity.dto.MemberReturn;
-import com.codeforcommunity.utils.Logger;
+import com.codeforcommunity.logger.Logger;
 import com.codeforcommunity.dto.*;
 import com.codeforcommunity.validation.RequestValidator;
 
@@ -24,17 +23,19 @@ import io.vertx.ext.web.handler.BodyHandler;
 import java.util.*;
 
 public class ApiRouter {
-    private final IProcessor processor;
+    private final INotesProcessor notesProcessor;
+    private final IAuthProcessor authProcessor;
 
     //todo replace this field with jwt auth implementation when ready
     private RequestValidator authValidator = req -> req.headers() != null;
 
-    public ApiRouter(IProcessor processor) {
-        this.processor = processor;
+    public ApiRouter(INotesProcessor notesProcessor, IAuthProcessor authProcessor) {
+        this.notesProcessor = notesProcessor;
+        this.authProcessor = authProcessor;
     }
 
-    public ApiRouter(IProcessor processor, RequestValidator validator) {
-        this(processor);
+    public ApiRouter(INotesProcessor notesProcessor, IAuthProcessor authProcessor, RequestValidator validator) {
+        this(notesProcessor, authProcessor);
         this.authValidator = validator;
     }
 
@@ -109,9 +110,9 @@ public class ApiRouter {
             List<FullNote> notes;
             if (optionalNoteId.isPresent()) {
                 int noteId = Integer.parseInt(optionalNoteId.get());
-                notes = Collections.singletonList(processor.getANote(noteId));
+                notes = Collections.singletonList(notesProcessor.getANote(noteId));
             } else {
-                notes = processor.getAllNotes();
+                notes = notesProcessor.getAllNotes();
             }
             NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
             end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
@@ -143,7 +144,7 @@ public class ApiRouter {
         }
 
         try {
-            List<FullNote> notes = processor.createNotes(requestBody.getNotes());
+            List<FullNote> notes = notesProcessor.createNotes(requestBody.getNotes());
             NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
             end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(response).encode());
         } catch (Exception e) {
@@ -170,7 +171,7 @@ public class ApiRouter {
         try {
             HttpServerRequest request = ctx.request();
             int noteId = Integer.parseInt(request.getParam(HttpConstants.noteIdParam));
-            FullNote updatedNote = processor.updateNote(noteId, requestBody.getNote());
+            FullNote updatedNote = notesProcessor.updateNote(noteId, requestBody.getNote());
             NoteResponse response = new NoteResponse(HttpConstants.okMessage, updatedNote);
             end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
         } catch (Exception e) {
@@ -195,7 +196,7 @@ public class ApiRouter {
         }
 
         try {
-            processor.deleteNote(noteId);
+            notesProcessor.deleteNote(noteId);
             end(ctx.response(), HttpConstants.ok_code);
         } catch (Exception e) {
             endServerError(ctx.response(), e);
@@ -213,7 +214,7 @@ public class ApiRouter {
         }
 
         try {
-            List<MemberReturn> members = processor.getAllMembers();
+            List<MemberReturn> members = notesProcessor.getAllMembers();
             String memberJson = JsonObject.mapFrom(members).encode();
             end(ctx.response(), HttpConstants.ok_code, memberJson);
         } catch (Exception e) {
@@ -258,25 +259,15 @@ public class ApiRouter {
     }
 
   private void handlePostUserLoginRoute(RoutingContext ctx) { //todo move above the helper methods
-
-        //todo logger methods
-
-      AuthProcessor auth;
-    try {
-         auth = new AuthProcessorImpl(); //todo figure this out
-    } catch (Exception e) {
-        Logger.log("error");
-        Logger.log(e.getMessage());
-        return;
-    }
+      // todo logger methods
 
     Logger.log(ctx.getBodyAsString());
     String reqBody = ctx.getBodyAsString();
 
       try {
           String jsonReturn = JsonObject.mapFrom(new HashMap<String, String>() {{ //todo refactor names in auth class
-              put("access_token", auth.login(reqBody)[0]); //todo make sure these map correctly
-              put("refresh_token", auth.login(reqBody)[1]); //todo clean this up
+              put("access_token", authProcessor.login(reqBody)[0]); //todo make sure these map correctly
+              put("refresh_token", authProcessor.login(reqBody)[1]); //todo clean this up
           }}).encode();
           Logger.log("json: " + jsonReturn);
           ctx.response().setStatusCode(200).putHeader("Access-Control-Allow-Origin", "*")
@@ -292,22 +283,13 @@ public class ApiRouter {
 
   private void handlePostRefreshUser(RoutingContext ctx) {
 
-      AuthProcessor auth;
-      try {
-          auth = new AuthProcessorImpl(); //todo figure this out
-      } catch (Exception e) {
-          Logger.log("error");
-          Logger.log(e.getMessage());
-          return;
-      }
-
       try {
 
           Map<String, String> bodyMap = new ObjectMapper().readValue(ctx.getBodyAsString(), HashMap.class);
           String body = bodyMap.get("refresh_token");
 
           end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(new HashMap<String, String>() {{ //todo refactor names in auth class
-              put("access_token", auth.refresh(body)); //todo make sure these map correctly
+              put("access_token", authProcessor.refresh(body)); //todo make sure these map correctly
           }}).encode()); //todo refactor to no use exceptions as flow control
 
       } catch (Exception e) {

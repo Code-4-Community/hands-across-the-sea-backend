@@ -1,6 +1,6 @@
-package com.codeforcommunity.auth;
+package com.codeforcommunity.api;
 
-public interface AuthProcessor { //todo rename
+public interface IAuthProcessor { //todo rename
 
     /**
      * Must generate 2 JWT's returned in an array of String of length 2.

@@ -1,5 +1,6 @@
-package com.codeforcommunity.auth;
+package com.codeforcommunity.processor;
 
+import com.codeforcommunity.api.IAuthProcessor;
 import com.codeforcommunity.auth.JWT.Statics;
 import com.codeforcommunity.auth.JWT.db.AuthDataBase;
 import com.codeforcommunity.auth.JWT.db.AuthDataBaseDemoImpl;
@@ -8,13 +9,13 @@ import com.codeforcommunity.auth.JWT.validation.AuthTokenValidator;
 import com.codeforcommunity.auth.JWT.validation.AuthTokenValidatorImpl;
 import com.codeforcommunity.auth.exceptions.AuthException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.codeforcommunity.utils.Logger;
+import com.codeforcommunity.logger.Logger;
 import com.codeforcommunity.auth.JWT.alg.SHA;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuthProcessorImpl implements AuthProcessor, Statics { //todo find out the best way to make this an asyschronous verticle
+public class AuthProcessorImpl implements IAuthProcessor, Statics { //todo find out the best way to make this an asyschronous verticle
 
     private ObjectMapper mapper = new ObjectMapper(); //todo make this a singleton pattern
     private AuthTokenValidator validator = new AuthTokenValidatorImpl();
