@@ -25,7 +25,7 @@ public class AuthProcessorImpl implements IAuthProcessor, Statics { //todo find 
     public AuthProcessorImpl() throws Exception {}
 
     @Override
-    public String[] login(String credentials) throws AuthException { //todo handle this exception
+    public String[] getNewUserSession(String credentials) throws AuthException { //todo handle this exception
 
         Map<String, String> creds;
 
@@ -35,25 +35,27 @@ public class AuthProcessorImpl implements IAuthProcessor, Statics { //todo find 
             Logger.log(creds.get("username"));
             Logger.log(creds.get("password"));
         } catch (Exception e) {
-            throw new AuthException("invalid credentials format");
+            throw new AuthException("invalid credentials format"); //todo clean this up
         }
-        if (authDataBase.validateUser(creds.getOrDefault("username", null), creds.getOrDefault("password", null))) {
+        if (authDataBase.isValidUser(creds.getOrDefault("username", null), creds.getOrDefault("password", null))) {
            try {
+               String refresh = AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(refresh_exp).getSigned();
+               authDataBase.recordNewRefreshToken(refresh.split("\\.")[2], creds.get("username"));
                return new String[]{
                        AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(access_exp).getSigned(),
-                       AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(refresh_exp).getSigned(),
+                       refresh,
                };
            } catch (Exception e) {
                return null; //todo handle this
            }
         } else {
-            Logger.log("illegal login attempt");
+            Logger.log("illegal getNewUserSession attempt");
             throw new AuthException("invalid credentials");
         }
     }
 
     @Override
-    public boolean validate(String token) throws AuthException { //todo abstract common code in auth classes for shaing things
+    public boolean authenticateUser(String token) throws AuthException { //todo abstract common code in auth classes for shaing things
         try {
             return validator.valid(token);
         } catch (Exception e) {
@@ -62,10 +64,11 @@ public class AuthProcessorImpl implements IAuthProcessor, Statics { //todo find 
     }
 
     @Override
-    public String refresh(String accessToken) throws AuthException{ //todo reimplement this
+    public String getNewAccessToken(String refreshToken) throws AuthException{ //todo reimplement this
+
         try {
-            Map<String, String> creds = parseJWTBody(accessToken);
-            if (this.validate(accessToken) && (creds.get("username") != null)) {
+            Map<String, String> creds = parseJWTBody(refreshToken);
+            if (this.authenticateUser(refreshToken) && (creds.get("username") != null) && authDataBase.isValidRefresh(refreshToken)) {
                 return AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(access_exp).getSigned();
             } else {
                 throw new AuthException("Invalid JWT Refresh Token");
@@ -73,6 +76,18 @@ public class AuthProcessorImpl implements IAuthProcessor, Statics { //todo find 
         } catch (Exception e) {
             throw new AuthException(e.getMessage());
         }
+    }
+
+    @Override
+    public boolean invalidateUserSession(String refreshToken) {
+
+        String signature = refreshToken.split("\\.")[2];
+        return authDataBase.invalidateRefresh(signature);
+    }
+
+    @Override
+    public boolean newUser(String username, String email, String password, String firstName, String lastName) {
+        return authDataBase.newUser(username, email, password, firstName, lastName);
     }
 
     private Map<String, String> parseJWTBody(String token) throws AuthException {

@@ -19,7 +19,7 @@ public class RequestValidatorImpl implements RequestValidator {
   @Override
   public boolean validateRequest(HttpServerRequest req) {
     try {
-      return jwtValidation.validate(req.headers().get("X-Access-Token"));
+      return jwtValidation.authenticateUser(req.headers().get("X-Access-Token"));
     } catch (Exception e) {
       return false;
     }

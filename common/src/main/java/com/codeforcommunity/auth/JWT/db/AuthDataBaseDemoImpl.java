@@ -7,7 +7,7 @@ package com.codeforcommunity.auth.JWT.db;
 public class AuthDataBaseDemoImpl implements AuthDataBase {
 
     @Override
-    public boolean validateUser(String user, String pass) {
+    public boolean isValidUser(String user, String pass) {
         return user != null && pass != null;
     }
 
@@ -16,7 +16,17 @@ public class AuthDataBaseDemoImpl implements AuthDataBase {
     }
 
     @Override
-    public boolean registerRefresh(String signature, String username) {
+    public boolean recordNewRefreshToken(String signature, String username) {
+        return false;
+    }
+
+    @Override
+    public boolean invalidateRefresh(String signature) {
+        return false;
+    }
+
+    @Override
+    public boolean isValidRefresh(String signature) {
         return false;
     }
 

@@ -8,13 +8,17 @@ public interface IAuthProcessor { //todo rename
      * @param credentials
      * @return 
      * String[0] must correspond to access token.
-     * String[1] must correspond to refresh token.
+     * String[1] must correspond to getNewAccessToken token.
      * @throws Exception
      */
-    String[] login(String credentials) throws Exception; //todo we need an object as a parameter insead of string
+    String[] getNewUserSession(String credentials) throws Exception; //todo we to parse json upstream and
 
-    boolean validate(String token) throws Exception;
+    boolean authenticateUser(String token) throws Exception;
 
-    String refresh(String accessToken) throws Exception;
+    String getNewAccessToken(String refreshToken) throws Exception;
+
+    boolean invalidateUserSession(String refreshToken);
+
+    boolean newUser(String username, String email, String password, String firstName, String lastName);
 
 }

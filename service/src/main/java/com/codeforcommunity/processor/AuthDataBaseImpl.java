@@ -2,10 +2,14 @@ package com.codeforcommunity.processor;
 
 import com.codeforcommunity.auth.JWT.alg.SHA;
 import com.codeforcommunity.auth.JWT.db.AuthDataBase;
+import org.h2.engine.SessionRemote;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.generated.Tables;
+import org.jooq.generated.tables.Sessions;
 import org.jooq.generated.tables.records.NoteUserRecord;
+import org.jooq.generated.tables.records.SessionsRecord;
 
 public class AuthDataBaseImpl implements AuthDataBase {
 
@@ -21,7 +25,7 @@ public class AuthDataBaseImpl implements AuthDataBase {
         this.db = db;
     }
 
-    public boolean validateUser(String user, String pass) {
+    public boolean isValidUser(String user, String pass) {
 
         Result<NoteUserRecord> noteUser = db.selectFrom(Tables.NOTE_USER).where(Tables.NOTE_USER.USER_NAME.eq(user)).fetch();
 
@@ -40,7 +44,7 @@ public class AuthDataBaseImpl implements AuthDataBase {
         return i == 1;
     }
     //todo add user id to jwt
-    public boolean registerRefresh(String signature, String username) {
+    public boolean recordNewRefreshToken(String signature, String username) {
 
         Result<NoteUserRecord> noteUser = db.selectFrom(Tables.NOTE_USER).where(Tables.NOTE_USER.USER_NAME.eq(username))
                 .fetch();
@@ -50,5 +54,23 @@ public class AuthDataBaseImpl implements AuthDataBase {
                 Tables.SESSIONS.REFRESH_USES).values(signature, userid, 1).execute();
 
         return i == 1;
+    }
+
+    @Override
+    public boolean invalidateRefresh(String signature) {
+
+        int i = db.update(Tables.SESSIONS).set(Tables.SESSIONS.VOIDED, true).where(Tables.SESSIONS.REFRESH_HASH.
+                eq(signature)).execute();
+
+        return i == 1; //todo implement this
+    }
+
+    public boolean isValidRefresh(String signature) {
+
+        Record record = db.select(Tables.SESSIONS.VOIDED).from(Tables.SESSIONS).where(Tables.SESSIONS.REFRESH_HASH.
+                eq(signature)).fetchAny();
+
+        return (boolean) record.getValue("voided");
+
     }
 }

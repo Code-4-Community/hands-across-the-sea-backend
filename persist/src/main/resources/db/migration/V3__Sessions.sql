@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS sessions (
 	user_id INT,
 	refresh_hash VARCHAR(64),
 	created TIMESTAMP,
-	refresh_uses INT, 
+	refresh_uses INT,
+	voided BOOLEAN,
 
 	CONSTRAINT fk_session_user FOREIGN KEY (user_id) REFERENCES note_user (id)
 
