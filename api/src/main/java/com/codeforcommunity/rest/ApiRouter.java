@@ -2,11 +2,8 @@ package com.codeforcommunity.rest;
 
 import com.codeforcommunity.api.INotesProcessor;
 import com.codeforcommunity.api.IAuthProcessor;
-import com.codeforcommunity.auth.exceptions.AuthException;
 import com.codeforcommunity.dto.MemberReturn;
-import com.codeforcommunity.logger.Logger;
 import com.codeforcommunity.dto.*;
-import com.codeforcommunity.validation.RequestValidator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.Vertx;
@@ -27,17 +24,9 @@ public class ApiRouter {
     private final INotesProcessor notesProcessor;
     private final IAuthProcessor authProcessor;
 
-    //todo replace this field with jwt auth implementation when ready
-    private RequestValidator authValidator = req -> req.headers() != null;
-
     public ApiRouter(INotesProcessor notesProcessor, IAuthProcessor authProcessor) {
         this.notesProcessor = notesProcessor;
         this.authProcessor = authProcessor;
-    }
-
-    public ApiRouter(INotesProcessor notesProcessor, IAuthProcessor authProcessor, RequestValidator validator) {
-        this(notesProcessor, authProcessor);
-        this.authValidator = validator;
     }
 
     /**
@@ -82,7 +71,7 @@ public class ApiRouter {
     }
 
     private void registerLoginUser(Router router) {
-        Route loginUserRoute = router.route(HttpMethod.POST, "/api/v1/user/getNewUserSession");
+        Route loginUserRoute = router.route(HttpMethod.POST, "/api/v1/user/getNewUserSession"); //todo add these paths to constants
         loginUserRoute.handler(this::handlePostUserLoginRoute);
     }
 
@@ -134,8 +123,6 @@ public class ApiRouter {
 
     private void handlePostNoteRoute(RoutingContext ctx) {
 
-        System.out.println("handling post note");
-
         if (authorized(ctx.request())) {
             endUnauthorized(ctx.response());
             return;
@@ -145,11 +132,8 @@ public class ApiRouter {
 
         try {
             requestBody = ctx.getBodyAsJson().mapTo(NotesRequest.class);
-            System.out.println(requestBody.getNotes().get(0).getContent());
-            System.out.println(requestBody.getNotes().get(0).getTitle());
             assert requestBody != null;
         } catch (Exception e) {
-            System.out.println("client error bb");
             endClientError(ctx.response());
             return;
         }
@@ -234,7 +218,15 @@ public class ApiRouter {
     }
 
     private boolean authorized(HttpServerRequest req) {
-        return (!authValidator.validateRequest(req));
+
+        String accessToken;
+
+        try {
+            accessToken = req.getHeader("access_token");
+            return authProcessor.authenticateUser(accessToken);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private void endClientError(HttpServerResponse resp) {
@@ -261,7 +253,10 @@ public class ApiRouter {
     private void end(HttpServerResponse response, int statusCode, String jsonBody) {
 
         HttpServerResponse finalResponse = response.setStatusCode(statusCode)
-                .putHeader(HttpConstants.contentType, HttpConstants.applicationJson);
+                .putHeader(HttpConstants.contentType, HttpConstants.applicationJson)
+                .putHeader("Access-Control-Allow-Origin", "*")
+                .putHeader("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+                .putHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
         if (jsonBody == null || jsonBody.equals("")) {
             finalResponse.end();
         } else {
@@ -269,25 +264,21 @@ public class ApiRouter {
         }
     }
 
-    private void handlePostUserLoginRoute(RoutingContext ctx) { //todo move above the helper methods
-        // todo logger methods
-
-        Logger.log(ctx.getBodyAsString());
-        String reqBody = ctx.getBodyAsString();
+    private void handlePostUserLoginRoute(RoutingContext ctx) {
 
         try {
-            String jsonReturn = JsonObject.mapFrom(new HashMap<String, String>() {{ //todo refactor names in auth class
-                put("access_token", authProcessor.getNewUserSession(reqBody)[0]); //todo make sure these map correctly
-                put("refresh_token", authProcessor.getNewUserSession(reqBody)[1]); //todo clean this up
+            String reqBody = ctx.getBodyAsString();
+
+            String[] tokens = authProcessor.getNewUserSession(reqBody);
+
+            String jsonReturn = JsonObject.mapFrom(new HashMap<String, String>() {{
+                put("access_token", tokens[0]); //todo make sure these map correctly
+                put("refresh_token", tokens[1]);
             }}).encode();
-            Logger.log("json: " + jsonReturn);
-            ctx.response().setStatusCode(200).putHeader("Access-Control-Allow-Origin", "*") //todo refactor to leverage helper methods
-                    .putHeader("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
-                    .putHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
-                    .end(jsonReturn);
-        } catch (AuthException ae) {
-            endUnauthorized(ctx.response());
+
+            end(ctx.response(), HttpConstants.ok_code, jsonReturn);
         } catch (Exception e) {
+            endUnauthorized(ctx.response());
         }
     }
 

@@ -3,7 +3,6 @@ package com.codeforcommunity.processor;
 import com.codeforcommunity.api.IAuthProcessor;
 import com.codeforcommunity.auth.JWT.Statics;
 import com.codeforcommunity.auth.JWT.db.AuthDataBase;
-import com.codeforcommunity.auth.JWT.db.AuthDataBaseDemoImpl;
 import com.codeforcommunity.auth.JWT.tokens.AuthTokenGenerator;
 import com.codeforcommunity.auth.JWT.validation.AuthTokenValidator;
 import com.codeforcommunity.auth.JWT.validation.AuthTokenValidatorImpl;
@@ -18,11 +17,19 @@ import java.util.Map;
 public class AuthProcessorImpl implements IAuthProcessor, Statics { //todo find out the best way to make this an asyschronous verticle
 
     private ObjectMapper mapper = new ObjectMapper(); //todo make this a singleton pattern
-    private AuthTokenValidator validator = new AuthTokenValidatorImpl();
-    private AuthDataBase authDataBase = new AuthDataBaseDemoImpl(); //todo this need to take in an instance of this
-    private SHA sha = new SHA();
+    private AuthTokenValidator validator;
+    private AuthDataBase authDataBase;
+    private SHA sha;
 
-    public AuthProcessorImpl() throws Exception {}
+    public AuthProcessorImpl(AuthDataBase authDataBase) {
+        try {
+            validator = new AuthTokenValidatorImpl();
+            sha = new SHA();
+        } catch (Exception e) {
+            //need to figure out what to do here
+        }
+        this.authDataBase = authDataBase;
+    }
 
     @Override
     public String[] getNewUserSession(String credentials) throws AuthException { //todo handle this exception
@@ -30,10 +37,7 @@ public class AuthProcessorImpl implements IAuthProcessor, Statics { //todo find 
         Map<String, String> creds;
 
         try {
-            Logger.log(credentials);
             creds = mapper.readValue(credentials, HashMap.class);
-            Logger.log(creds.get("username"));
-            Logger.log(creds.get("password"));
         } catch (Exception e) {
             throw new AuthException("invalid credentials format"); //todo clean this up
         }
