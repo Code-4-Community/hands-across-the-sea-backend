@@ -3,6 +3,7 @@ import com.codeforcommunity.auth.JWT.alg.SHA;
 import com.codeforcommunity.logger.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,11 +41,11 @@ public class AuthTokenValidatorImpl implements AuthTokenValidator {
 
         Map<String, String> bodyMap = mapper.readValue(body, HashMap.class);
 
-        Date d = new Date(bodyMap.get("expiration"));
+        Instant tokenExpiration = Instant.parse(bodyMap.get("expiration"));
 
-        Date now = new Date();
+        Instant now = Instant.now();
 
-        return now.getTime() < d.getTime();
+        return tokenExpiration.isAfter(now);
 
     }
 

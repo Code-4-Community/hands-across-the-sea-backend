@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.codeforcommunity.auth.exceptions.AuthException;
 import com.codeforcommunity.logger.Logger;
+import org.omg.PortableInterceptor.INACTIVE;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +19,7 @@ public class AuthTokenGenerator implements Statics { //todo generalize this to l
 
     private ObjectMapper mapper = new ObjectMapper();
     private SHA sha = new SHA();
-    private Date exp;
+    private Instant exp;
     private int access;
     private String username;
     private boolean voided = false;
@@ -28,16 +30,14 @@ public class AuthTokenGenerator implements Statics { //todo generalize this to l
         this.username = builder.username;
     }
 
-    private final Date createExp(long exp) throws Exception { //todo how do I actually handle timestamps
-        Date d = new Date();
-        d.setTime(d.getTime() + exp);
-        return d;
+    private final Instant createExp(long exp) {
+        Instant instant = Instant.now();
+        instant = instant.plusMillis(exp);
+        return instant;
     }
 
     private final String get() throws AuthException {
         try {
-        	Logger.log(header());
-        	Logger.log(body());
             return encodeSign(header(), body());
         } catch (Exception e) {
             Logger.log("generating key:" + e.getMessage());
