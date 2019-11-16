@@ -250,7 +250,7 @@ public class ApiRouter {
         end(response, statusCode, null);
     }
 
-    private void end(HttpServerResponse response, int statusCode, String jsonBody) {
+    private void end(HttpServerResponse response, int statusCode, String jsonBody) { //todo put helper methods at the end of the class
 
         HttpServerResponse finalResponse = response.setStatusCode(statusCode)
                 .putHeader(HttpConstants.contentType, HttpConstants.applicationJson)
@@ -288,9 +288,9 @@ public class ApiRouter {
             Map<String, String> bodyMap = new ObjectMapper().readValue(ctx.getBodyAsString(), HashMap.class);
             String body = bodyMap.get("refresh_token");
 
-            end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(new HashMap<String, String>() {{ //todo refactor names in auth class
+            end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(new HashMap<String, String>() {{
                 put("access_token", authProcessor.getNewAccessToken(body)); //todo make sure these map correctly
-            }}).encode()); //todo refactor to no use exceptions as flow control
+            }}).encode());
 
         } catch (Exception e) {
             endUnauthorized(ctx.response());
@@ -323,6 +323,7 @@ public class ApiRouter {
         String firstName;
         String lastName;
         Map<String, String> bodyMap;
+
         try {
             bodyMap = new ObjectMapper().readValue(ctx.getBodyAsString(), HashMap.class);
             username = bodyMap.get("username");

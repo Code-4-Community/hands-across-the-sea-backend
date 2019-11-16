@@ -72,7 +72,7 @@ public class AuthProcessorImpl implements IAuthProcessor, Statics { //todo find 
 
         try {
             Map<String, String> creds = parseJWTBody(refreshToken);
-            if (this.authenticateUser(refreshToken) && (creds.get("username") != null) && authDataBase.isValidRefresh(refreshToken)) {
+            if (this.authenticateUser(refreshToken) && authDataBase.isValidRefresh(refreshToken)) {
                 return AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(access_exp).getSigned();
             } else {
                 throw new AuthException("Invalid JWT Refresh Token");
