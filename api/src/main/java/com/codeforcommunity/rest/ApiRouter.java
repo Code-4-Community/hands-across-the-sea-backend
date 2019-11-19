@@ -17,7 +17,6 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
-import javax.xml.bind.annotation.XmlType;
 import java.util.*;
 
 public class ApiRouter {
@@ -323,6 +322,7 @@ public class ApiRouter {
         String firstName;
         String lastName;
         Map<String, String> bodyMap;
+
         try {
             bodyMap = new ObjectMapper().readValue(ctx.getBodyAsString(), HashMap.class);
             username = bodyMap.get("username");

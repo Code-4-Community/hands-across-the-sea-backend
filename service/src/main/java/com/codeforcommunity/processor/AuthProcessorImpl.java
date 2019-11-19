@@ -1,107 +1,139 @@
 package com.codeforcommunity.processor;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.Verification;
 import com.codeforcommunity.api.IAuthProcessor;
-import com.codeforcommunity.auth.JWT.Statics;
-import com.codeforcommunity.auth.JWT.db.AuthDataBase;
-import com.codeforcommunity.auth.JWT.tokens.AuthTokenGenerator;
-import com.codeforcommunity.auth.JWT.validation.AuthTokenValidator;
-import com.codeforcommunity.auth.JWT.validation.AuthTokenValidatorImpl;
+import com.codeforcommunity.auth.AuthUtils;
+import com.codeforcommunity.auth.DTO.*;
+import com.codeforcommunity.auth.IAuthDatabase;
 import com.codeforcommunity.auth.exceptions.AuthException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.codeforcommunity.logger.Logger;
-import com.codeforcommunity.auth.JWT.alg.SHA;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Instant;
+import java.util.Date;
 
-public class AuthProcessorImpl implements IAuthProcessor, Statics { //todo find out the best way to make this an asyschronous verticle
+public class AuthProcessorImpl implements IAuthProcessor {
 
-    private ObjectMapper mapper = new ObjectMapper(); //todo make this a singleton pattern
-    private AuthTokenValidator validator;
-    private AuthDataBase authDataBase;
-    private SHA sha;
+    private IAuthDatabase db;
 
-    public AuthProcessorImpl(AuthDataBase authDataBase) {
-        try {
-            validator = new AuthTokenValidatorImpl();
-            sha = new SHA();
-        } catch (Exception e) {
-            //need to figure out what to do here
-        }
-        this.authDataBase = authDataBase;
+    private static Date refreshExp = Date.from(Instant.now().plusMillis(AuthUtils.refresh_exp));
+    private static Date accessExp = Date.from(Instant.now().plusMillis(AuthUtils.access_exp));
+    private static final Algorithm algorithm = Algorithm.HMAC256("secretKey");
+    private static Verification verification = getDefaultClaimVerification();
+
+    public AuthProcessorImpl(IAuthDatabase db) {
+        this.db = db;
     }
 
+    /**
+     * Verifies that given access token is unedited and unexpired. Also will confirm any claims defined in
+     * @code this.getDefaultClaimVerification().
+     * @param accessToken token to be validated
+     * @return true if and only if all conforms to all of said conditions.
+     */
     @Override
-    public String[] getNewUserSession(String credentials) throws AuthException { //todo handle this exception
-
-        Map<String, String> creds;
-
+    public boolean isAuthorized(String accessToken) {
         try {
-            creds = mapper.readValue(credentials, HashMap.class);
-        } catch (Exception e) {
-            throw new AuthException("invalid credentials format"); //todo clean this up
-        }
-        if (authDataBase.isValidUser(creds.getOrDefault("username", null), creds.getOrDefault("password", null))) {
-           try {
-               String refresh = AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(refresh_exp).getSigned();
-               authDataBase.recordNewRefreshToken(refresh.split("\\.")[2], creds.get("username"));
-               return new String[]{
-                       AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(access_exp).getSigned(),
-                       refresh,
-               };
-           } catch (Exception e) {
-               return null; //todo handle this
-           }
-        } else {
-            Logger.log("illegal getNewUserSession attempt");
-            throw new AuthException("invalid credentials");
+            verification.build().verify(accessToken);
+            return true;
+        } catch (JWTVerificationException exception) {
+            return false;
         }
     }
 
     @Override
-    public boolean authenticateUser(String token) throws AuthException { //todo abstract common code in auth classes for shaing things
+    public SessionResponse getSession(NewSessionRequest request) throws AuthException {
+
         try {
-            return validator.valid(token);
-        } catch (Exception e) {
-            throw new AuthException(e.getMessage());
+
+            JWTCreator.Builder bld = getTokenBuilderWithCommonClaims().withClaim("username",
+                    request.getUsername());
+
+            String accessToken = getFinalToken(bld, accessExp);
+            String refreshToken = getFinalToken(bld, refreshExp);
+
+            db.recordNewRefreshToken(getSignature(refreshToken), request.getUsername());
+
+            return new SessionResponse() {{
+                setAccessToken(accessToken);
+                setRefreshToken(refreshToken);
+            }};
+
+        } catch (JWTCreationException exception) {
+            throw new AuthException(exception.getMessage());
         }
+
     }
 
     @Override
-    public String getNewAccessToken(String refreshToken) throws AuthException{ //todo reimplement this
-
-        try {
-            Map<String, String> creds = parseJWTBody(refreshToken);
-            if (this.authenticateUser(refreshToken) && (creds.get("username") != null) && authDataBase.isValidRefresh(refreshToken)) {
-                return AuthTokenGenerator.builder().access(0).username(creds.get("username")).exp(access_exp).getSigned();
-            } else {
-                throw new AuthException("Invalid JWT Refresh Token");
-            }
-        } catch (Exception e) {
-            throw new AuthException(e.getMessage());
-        }
+    public void endSession(String refreshToken) {
+        db.invalidateRefresh(getSignature(refreshToken));
     }
 
     @Override
-    public boolean invalidateUserSession(String refreshToken) {
+    public RefreshSessionResponse refreshSession(RefreshSessionRequest request) throws AuthException {
 
-        String signature = refreshToken.split("\\.")[2];
-        return authDataBase.invalidateRefresh(signature);
+        if(!db.isValidRefresh(getSignature(request.getRefreshToken()))) {
+            throw new AuthException("refresh token is voided by previous logout");
+        }
+
+        String username;
+
+        try {
+
+            DecodedJWT jwt = verification.build().verify(request.getRefreshToken());
+            username = jwt.getClaim("username").asString();
+
+        } catch (JWTVerificationException exception) {
+            throw new AuthException("unable to verify token");
+        }
+
+        String freshAccessToken = getFinalToken(getTokenBuilderWithCommonClaims()
+                .withClaim("username", username), accessExp);
+
+        return new RefreshSessionResponse() {{
+            setFreshAccessToken(freshAccessToken);
+        }};
     }
 
     @Override
-    public boolean newUser(String username, String email, String password, String firstName, String lastName) {
-        return authDataBase.newUser(username, email, password, firstName, lastName);
+    public boolean isUser(IsUserRequest request) {
+        return db.isValidUser(request.getUsername(), request.getPassword());
     }
 
-    private Map<String, String> parseJWTBody(String token) throws AuthException {
-        String[] jwt = token.split("\\.");
-        Map<String, String> creds;
-        try {
-            creds = mapper.readValue(sha.decode64(jwt[1]), HashMap.class);
-            return creds;
-        } catch (Exception e) {
-            throw new AuthException("Invalid JWT Refresh Token");
-        }
+    @Override
+    public void newUser(NewUserRequest request) {
+        db.newUser(request.getUsername(), request.getEmail(), request.getPassword(), request.getFirstName(),
+                request.getLastName());
     }
+
+    /**
+     * Creates token builder with all default claims we have decided should be in every token.
+     * @return token builder object.
+     */
+    private JWTCreator.Builder getTokenBuilderWithCommonClaims() {
+        return JWT.create()
+                .withIssuer("c4c");
+    }
+
+    private String getFinalToken(JWTCreator.Builder builder, Date expiration) {
+        return builder.withExpiresAt(expiration).sign(algorithm);
+    }
+
+    private String getSignature(String token) {
+        return token.split("\\.")[2];
+    }
+
+    /**
+     * Create verification object that ensures all default claims we have decided should be in every token are present.
+     * @return verification object.
+     */
+    private static Verification getDefaultClaimVerification() {
+        return JWT.require(algorithm).withIssuer("c4c");
+    }
+
 }

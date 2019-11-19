@@ -1,26 +1,24 @@
-package com.codeforcommunity.processor;
+package com.codeforcommunity.auth;
 
-import com.codeforcommunity.auth.JWT.alg.SHA;
-import com.codeforcommunity.auth.JWT.db.AuthDataBase;
-import org.h2.engine.SessionRemote;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.generated.Tables;
-import org.jooq.generated.tables.Sessions;
 import org.jooq.generated.tables.records.NoteUserRecord;
-import org.jooq.generated.tables.records.SessionsRecord;
 
-public class AuthDataBaseImpl implements AuthDataBase {
+import java.sql.Timestamp;
+import java.time.Instant;
+
+public class AuthDataBaseImpl implements IAuthDatabase {
 
     private final DSLContext db;
-    private SHA sha;
+    private AuthUtils sha;
 
     public AuthDataBaseImpl(DSLContext db) {
         try {
-            this.sha = new SHA();
+            this.sha = new AuthUtils();
         } catch (Exception e) {
-
+            //what to do here?
         }
         this.db = db;
     }
@@ -43,26 +41,25 @@ public class AuthDataBaseImpl implements AuthDataBase {
 
         return i == 1;
     }
-    //todo add user id to jwt
+
     public boolean recordNewRefreshToken(String signature, String username) {
 
         Result<NoteUserRecord> noteUser = db.selectFrom(Tables.NOTE_USER).where(Tables.NOTE_USER.USER_NAME.eq(username))
                 .fetch();
-
+        Timestamp timestamp = Timestamp.from(Instant.now());
         int userid = noteUser.getValue(0, Tables.NOTE_USER.ID);
-        int i = db.insertInto(Tables.SESSIONS, Tables.SESSIONS.REFRESH_HASH, Tables.SESSIONS.USER_ID, //todo figure out how to date things
-                Tables.SESSIONS.REFRESH_USES).values(signature, userid, 1).execute();
+        int i = db.insertInto(Tables.SESSIONS, Tables.SESSIONS.REFRESH_HASH, Tables.SESSIONS.USER_ID,
+                Tables.SESSIONS.REFRESH_USES, Tables.SESSIONS.CREATED).values(signature, userid, 1, timestamp).execute();
 
         return i == 1;
     }
 
-    @Override
     public boolean invalidateRefresh(String signature) {
 
         int i = db.update(Tables.SESSIONS).set(Tables.SESSIONS.VOIDED, true).where(Tables.SESSIONS.REFRESH_HASH.
                 eq(signature)).execute();
 
-        return i == 1; //todo implement this
+        return i == 1;
     }
 
     public boolean isValidRefresh(String signature) {
