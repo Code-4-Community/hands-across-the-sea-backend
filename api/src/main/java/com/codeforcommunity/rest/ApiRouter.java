@@ -2,6 +2,7 @@ package com.codeforcommunity.rest;
 
 import com.codeforcommunity.api.INotesProcessor;
 import com.codeforcommunity.api.IAuthProcessor;
+import com.codeforcommunity.auth.DTO.*;
 import com.codeforcommunity.dto.MemberReturn;
 import com.codeforcommunity.dto.*;
 
@@ -222,7 +223,7 @@ public class ApiRouter {
 
         try {
             accessToken = req.getHeader("access_token");
-            return authProcessor.authenticateUser(accessToken);
+            return authProcessor.isAuthorized(accessToken);
         } catch (Exception e) {
             return false;
         }
@@ -266,16 +267,22 @@ public class ApiRouter {
     private void handlePostUserLoginRoute(RoutingContext ctx) {
 
         try {
-            String reqBody = ctx.getBodyAsString();
+            JsonObject reqBody = ctx.getBodyAsJson();
+            //-------------------------------------------------
+            IsUserRequest userRequest = new IsUserRequest() {{ //todo this part can be chained
+                setPassword(reqBody.getString("password"));
+                setUsername(reqBody.getString("username"));
+            }};
 
-            String[] tokens = authProcessor.getNewUserSession(reqBody);
+            if(!authProcessor.isUser(userRequest)) {
+                endUnauthorized(ctx.response());
+                return;
+            }
+            //-------------------------------------------------
+            SessionResponse response = authProcessor.getSession(new NewSessionRequest()
+            {{setUsername(reqBody.getString("username"));}});
 
-            String jsonReturn = JsonObject.mapFrom(new HashMap<String, String>() {{
-                put("access_token", tokens[0]); //todo make sure these map correctly
-                put("refresh_token", tokens[1]);
-            }}).encode();
-
-            end(ctx.response(), HttpConstants.ok_code, jsonReturn);
+            end(ctx.response(), HttpConstants.ok_code, response.toJson());
         } catch (Exception e) {
             endUnauthorized(ctx.response());
         }
@@ -284,12 +291,16 @@ public class ApiRouter {
     private void handlePostRefreshUser(RoutingContext ctx) { //todo update contract to handle client errors as well as un authed errors as well as server errros
 
         try {
-            Map<String, String> bodyMap = new ObjectMapper().readValue(ctx.getBodyAsString(), HashMap.class);
-            String body = bodyMap.get("refresh_token");
 
-            end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(new HashMap<String, String>() {{ //todo refactor names in auth class
-                put("access_token", authProcessor.getNewAccessToken(body)); //todo make sure these map correctly
-            }}).encode()); //todo refactor to no use exceptions as flow control
+            String refreshToken = ctx.getBodyAsJson().getString("refresh_token");
+
+            RefreshSessionRequest request = new RefreshSessionRequest() {{
+                setRefreshToken(refreshToken);
+            }};
+
+            RefreshSessionResponse response = authProcessor.refreshSession(request);
+
+            end(ctx.response(), HttpConstants.created_code, response.toJson());
 
         } catch (Exception e) {
             endUnauthorized(ctx.response());
@@ -298,48 +309,35 @@ public class ApiRouter {
 
     private void handleDeleteLogoutUser(RoutingContext ctx) {
 
-        String body;
         try {
-            Map<String, String> bodyMap = new ObjectMapper().readValue(ctx.getBodyAsString(), HashMap.class);
-            body = bodyMap.get("refresh_token");
+            String refreshToken = ctx.getBodyAsJson().getString("refreshToken");
+            authProcessor.endSession(refreshToken);
         } catch (Exception e) {
             endClientError(ctx.response());
             return;
         }
 
-        if (authProcessor.invalidateUserSession(body)) {
-            end(ctx.response(), 204);
-        } else {
-            endUnauthorized(ctx.response());
-        }
     }
 
     private void handlePostNewUser(RoutingContext ctx) {
 
-        String username;
-        String email;
-        String password;
-        String firstName;
-        String lastName;
-        Map<String, String> bodyMap;
-
         try {
-            bodyMap = new ObjectMapper().readValue(ctx.getBodyAsString(), HashMap.class);
-            username = bodyMap.get("username");
-            email = bodyMap.get("email");
-            password = bodyMap.get("password");
-            firstName = bodyMap.get("first_name");
-            lastName = bodyMap.get("last_name");
-            assert username != null && email != null && password != null && firstName != null && lastName != null;
+
+            JsonObject body = ctx.getBodyAsJson();
+
+            NewUserRequest userRequest = new NewUserRequest() {{
+                setEmail(body.getString("email"));
+                setUsername(body.getString("username"));
+                setPassword(body.getString("password"));
+                setFirstName(body.getString("first_name"));
+                setLastName(body.getString("last_name"));
+            }};
+
+            authProcessor.newUser(userRequest);
+
         } catch (Exception e) {
             endClientError(ctx.response());
-            return;
         }
 
-        if(authProcessor.newUser(username, email, password, firstName, lastName)) {
-            end(ctx.response(), HttpConstants.created_code);
-        } else {
-            endUnauthorized(ctx.response()); //todo change status codes to match the contract
-        }
     }
 }
