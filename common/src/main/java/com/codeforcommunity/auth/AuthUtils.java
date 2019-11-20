@@ -1,6 +1,5 @@
 package com.codeforcommunity.auth;
 
-import com.codeforcommunity.auth.exceptions.AuthException;
 import com.codeforcommunity.logger.Logger;
 
 import javax.crypto.Mac;
@@ -15,7 +14,7 @@ public class AuthUtils {
     private Mac mac;
 
     // 30 min
-    public static long access_exp = 1800000; //todo make get date methods ehre
+    public static long access_exp = 1800000;
     // 7 days
     public static long refresh_exp = 604800000;
 
@@ -29,13 +28,13 @@ public class AuthUtils {
         return formatter.toString();
     }
 
-    public AuthUtils() throws AuthException {
+    public AuthUtils() throws Exception {
         try {
             this.mac = Mac.getInstance(alg);
             mac.init(signingKey);
         } catch (Exception e) {
             Logger.log("error creating sha");
-            throw new AuthException(e.getMessage());
+            throw new Exception();
         }
     }
 

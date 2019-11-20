@@ -1,5 +1,7 @@
-package com.codeforcommunity.auth;
+package com.codeforcommunity.processor;
 
+import com.codeforcommunity.auth.AuthUtils;
+import com.codeforcommunity.auth.IAuthDatabase;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;

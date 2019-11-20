@@ -1,4 +1,4 @@
-package com.codeforcommunity.auth.DTO;
+package com.codeforcommunity.dto;
 
 import io.vertx.core.json.JsonObject;
 

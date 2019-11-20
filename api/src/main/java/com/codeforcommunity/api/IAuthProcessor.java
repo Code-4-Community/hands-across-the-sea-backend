@@ -1,7 +1,7 @@
 package com.codeforcommunity.api;
 
-import com.codeforcommunity.auth.DTO.*;
-import com.codeforcommunity.auth.exceptions.AuthException;
+import com.codeforcommunity.exceptions.AuthException;
+import com.codeforcommunity.dto.*;
 
 public interface IAuthProcessor {
 

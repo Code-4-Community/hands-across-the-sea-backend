@@ -1,4 +1,4 @@
-package com.codeforcommunity.auth.DTO;
+package com.codeforcommunity.dto;
 
 public class RefreshSessionRequest {
     private String refreshToken;

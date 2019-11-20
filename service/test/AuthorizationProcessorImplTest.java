@@ -2,13 +2,13 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import com.codeforcommunity.auth.AuthDataBaseImpl;
-import com.codeforcommunity.auth.DTO.NewSessionRequest;
-import com.codeforcommunity.auth.DTO.RefreshSessionRequest;
-import com.codeforcommunity.auth.DTO.RefreshSessionResponse;
-import com.codeforcommunity.auth.DTO.SessionResponse;
+import com.codeforcommunity.processor.AuthDataBaseImpl;
+import com.codeforcommunity.dto.NewSessionRequest;
+import com.codeforcommunity.dto.RefreshSessionRequest;
+import com.codeforcommunity.dto.RefreshSessionResponse;
+import com.codeforcommunity.dto.SessionResponse;
 import com.codeforcommunity.auth.IAuthDatabase;
-import com.codeforcommunity.auth.exceptions.AuthException;
+import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.processor.AuthProcessorImpl;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -118,7 +118,6 @@ public class AuthorizationProcessorImplTest {
 
         RefreshSessionRequest request = new RefreshSessionRequest() {{
             setRefreshToken(validTestToken);
-            setUsername("luke");
         }};
 
         RefreshSessionResponse response = authorizationProcessor.refreshSession(request);
@@ -143,7 +142,6 @@ public class AuthorizationProcessorImplTest {
 
         RefreshSessionRequest request = new RefreshSessionRequest() {{
             setRefreshToken(validTestToken);
-            setUsername("luke");
         }};
 
         authorizationProcessor.refreshSession(request);
@@ -157,7 +155,6 @@ public class AuthorizationProcessorImplTest {
 
         RefreshSessionRequest request = new RefreshSessionRequest() {{
             setRefreshToken(expiredTestToken);
-            setUsername("luke");
         }};
 
         authorizationProcessor.refreshSession(request);
@@ -171,7 +168,6 @@ public class AuthorizationProcessorImplTest {
 
         RefreshSessionRequest request = new RefreshSessionRequest() {{
             setRefreshToken(tamperedTestToken);
-            setUsername("luke");
         }};
 
         authorizationProcessor.refreshSession(request);

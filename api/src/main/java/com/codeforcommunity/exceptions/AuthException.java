@@ -1,4 +1,4 @@
-package com.codeforcommunity.auth.exceptions;
+package com.codeforcommunity.exceptions;
 
 public class AuthException extends Exception {
 

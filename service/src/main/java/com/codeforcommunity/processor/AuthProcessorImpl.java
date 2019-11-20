@@ -9,9 +9,9 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.Verification;
 import com.codeforcommunity.api.IAuthProcessor;
 import com.codeforcommunity.auth.AuthUtils;
-import com.codeforcommunity.auth.DTO.*;
 import com.codeforcommunity.auth.IAuthDatabase;
-import com.codeforcommunity.auth.exceptions.AuthException;
+import com.codeforcommunity.exceptions.AuthException;
+import com.codeforcommunity.dto.*;
 
 import java.time.Instant;
 import java.util.Date;
