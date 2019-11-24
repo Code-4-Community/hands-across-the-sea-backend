@@ -3,7 +3,6 @@ package com.codeforcommunity;
 import java.util.ArrayList;
 import org.jooq.Table;
 import org.jooq.TableRecord;
-import org.jooq.generated.DefaultSchema;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,6 +10,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
+import org.jooq.generated.DefaultSchema;
 import org.jooq.impl.DSL;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.tools.jdbc.*;
@@ -26,6 +26,8 @@ public class JooqMock implements MockDataProvider {
   private Supplier<Result<? extends Record>> basicDefaultHandler;
   // DSL Context to use
   private DSLContext context;
+  // Map of class names to classes
+  private Map<String, Table> classMap;
 
   class Operations {
     private List<Supplier<UpdatableRecordImpl>> recordReturns;
@@ -46,8 +48,9 @@ public class JooqMock implements MockDataProvider {
         return recordReturns.get(location).get();
       }
 
+      TableRecord record = recordReturns.get(location).get();
       location++;
-      return recordReturns.get(location - 1).get();
+      return record;
     }
 
     int getLocation() {
@@ -60,10 +63,19 @@ public class JooqMock implements MockDataProvider {
   }
 
   /**
-   * No param constructor for JooqMock.
+   * Constructor for JooqMock.
    */
   public JooqMock() {
-    setup();
+    MockConnection connection = new MockConnection(this);
+    context = DSL.using(connection, SQLDialect.POSTGRES);
+    basicDefaultHandler = () -> context.newResult();
+    recordReturns = new HashMap<>();
+    classMap = new HashMap<>();
+    DefaultSchema schema = DefaultSchema.DEFAULT_SCHEMA;
+    List<Table<?>> tables = schema.getTables();
+    for (Table table : tables) {
+      classMap.put(table.getName(), table);
+    }
   }
 
   /**
@@ -101,21 +113,14 @@ public class JooqMock implements MockDataProvider {
    * Return count of times operation was called.
    *
    * @param operation Operation to get value for.
-   * @return Count of times operation was called.
+   * @return Count of times operation was called or -1 if key does not exist.
    */
   public int timeCalled(String operation) {
-    return recordReturns.get(operation).getCallCount();
-  }
+    if (!recordReturns.containsKey(operation)) {
+      return -1;
+    }
 
-  /**
-   * Sets the default result handlers in the defaultResultHandlers map, creates a DSLContext, and
-   * sets the basicDefaultHandler handler.
-   */
-  private void setup() {
-    MockConnection connection = new MockConnection(this);
-    context = DSL.using(connection, SQLDialect.POSTGRES);
-    basicDefaultHandler = () -> context.newResult();
-    recordReturns = new HashMap<>();
+    return recordReturns.get(operation).getCallCount();
   }
 
   /**
@@ -134,17 +139,18 @@ public class JooqMock implements MockDataProvider {
    * @return MockResult requested.
    */
   private MockResult getResult(String sql) throws SQLException {
-    MockResult mock;
-    Result<Record> result = context.newResult();
+    MockResult mock = new MockResult();
 
     if (sql.toUpperCase().startsWith("DROP"))
       throw new SQLException("Statement not supported: " + sql);
 
     else if (sql.toUpperCase().startsWith("SELECT")) {
-      result.add(recordReturns.get("SELECT").call());
-    }
+      String table = sql.split("from")[1].split("\"")[1];
+      Result<Record> result = context.newResult(classMap.get(table).fields());
 
+      result.add(recordReturns.get("SELECT").call());
       mock = new MockResult(result.size(), result);
+    }
 
     return mock;
   }

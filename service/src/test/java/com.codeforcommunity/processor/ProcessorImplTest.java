@@ -15,16 +15,18 @@ public class ProcessorImplTest {
     ProcessorImpl p = new ProcessorImpl(mockDb.getContext());
 
     NoteRecord n = new NoteRecord();
+    n.setId(0);
     n.setBody("hello");
     n.setTitle("Yellow");
-
     mockDb.addReturn("SELECT", n);
 
-    String val = p.getNoteStuff(n.getId());
+    assertEquals(0, mockDb.timeCalled("SELECT"));
+
+    String val = p.getNoteStuff(0);
 
     assertEquals("1223", val);
 
     assertEquals(2, mockDb.timeCalled("SELECT"));
-    assertEquals(1, mockDb.timeCalled("INSERT"));
+    assertEquals(-1, mockDb.timeCalled("INSERT"));
   }
 }

@@ -80,7 +80,7 @@ public class ProcessorImpl implements IProcessor {
       ret += "23";
       NoteUserRecord userRecord = db.newRecord(Tables.NOTE_USER);
       userRecord.setFirstName("Joey");
-      userRecord.store();
+      //userRecord.store();
     }
 
     return ret;
