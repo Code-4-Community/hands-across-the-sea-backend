@@ -1,11 +1,13 @@
 package main.java.com.codeforcommunity;
 
 import static org.jooq.generated.Tables.NOTE;
+import static org.jooq.generated.Tables.NOTE_USER;
 
 import java.sql.SQLException;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Record3;
 import org.jooq.Record4;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
@@ -15,7 +17,6 @@ import java.lang.String;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.function.Supplier;
-import org.jooq.generated.tables.Note;
 
 public class JooqMock implements MockDataProvider {
   // Results given by the user
@@ -187,6 +188,9 @@ public class JooqMock implements MockDataProvider {
     basicDefaultHandler = () -> context.newResult();
   }
 
+  /**
+   * Setup default result handlers.
+   */
   private void setDefaultResultHandlers() {
     this.defaultResultHandlers = new HashMap<>();
 
@@ -195,6 +199,14 @@ public class JooqMock implements MockDataProvider {
           NOTE.USER_ID, NOTE.TITLE, NOTE.BODY);
       result.add(context.newRecord(NOTE.ID, NOTE.USER_ID, NOTE.TITLE, NOTE.BODY).values(0, 0,
           "NOTE 1", "Hello World!"));
+      return result;
+    });
+
+    defaultResultHandlers.put("NoteUser", () -> {
+      Result<Record3<Integer, String, String>> result = context.newResult(NOTE_USER.ID,
+          NOTE_USER.FIRST_NAME, NOTE_USER.LAST_NAME);
+      result.add(context.newRecord(NOTE_USER.ID, NOTE_USER.FIRST_NAME, NOTE_USER.LAST_NAME)
+          .values(0, "Conner", "Nilsen"));
       return result;
     });
   }
