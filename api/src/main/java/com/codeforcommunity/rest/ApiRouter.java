@@ -5,7 +5,6 @@ import com.codeforcommunity.api.IAuthProcessor;
 import com.codeforcommunity.dto.MemberReturn;
 import com.codeforcommunity.dto.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.Vertx;
 
 import io.vertx.core.http.HttpMethod;
@@ -17,7 +16,6 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
-import javax.xml.bind.annotation.XmlType;
 import java.util.*;
 
 public class ApiRouter {
@@ -50,28 +48,32 @@ public class ApiRouter {
         return router;
     }
 
+    //protected resource
     private void registerGetNoteRoute(Router router) {
         Route getNoteRoute = router.route(HttpMethod.GET, HttpConstants.noteRoute);
-        getNoteRoute.handler(this::handleGetNoteRoute);
+        getNoteRoute.handler(this::handleAuthorizeUser).handler(this::handleGetNoteRoute);
     }
 
+    //protected resource
     private void registerPostNoteRoute(Router router) {
         Route postNoteRoute = router.route(HttpMethod.POST, HttpConstants.noteRoute);
-        postNoteRoute.handler(this::handlePostNoteRoute);
+        postNoteRoute.handler(this::handleAuthorizeUser).handler(this::handlePostNoteRoute);
     }
 
+    //protected resource
     private void registerPutNoteRoute(Router router) {
         Route putNoteRoute = router.route(HttpMethod.PUT, HttpConstants.noteRoute + "/:" + HttpConstants.noteIdParam);
-        putNoteRoute.handler(this::handlePutNoteRoute);
+        putNoteRoute.handler(this::handleAuthorizeUser).handler(this::handlePutNoteRoute);
     }
 
+    //protected resource
     private void registerDeleteNoteRoute(Router router) {
         Route deleteNoteRoute = router.route(HttpMethod.DELETE, HttpConstants.noteRoute + "/:" + HttpConstants.noteIdParam);
-        deleteNoteRoute.handler(this::handleDeleteNoteRoute);
+        deleteNoteRoute.handler(this::handleAuthorizeUser).handler(this::handleDeleteNoteRoute);
     }
 
     private void registerLoginUser(Router router) {
-        Route loginUserRoute = router.route(HttpMethod.POST, "/api/v1/user/getNewUserSession"); //todo add these paths to constants
+        Route loginUserRoute = router.route(HttpMethod.POST, "/api/v1/user/getNewUserSession");
         loginUserRoute.handler(this::handlePostUserLoginRoute);
     }
 
@@ -90,12 +92,22 @@ public class ApiRouter {
         logoutUserRoute.handler(this::handleDeleteLogoutUser);
     }
 
-    private void handleGetNoteRoute(RoutingContext ctx) {
-
+    /**
+     * A handler to be called as the first handler for any request for a protected resource. If given user is
+     * authorization this router will call the next router in which the desired response is handled. If user fails
+     * authorization this handler will end the handler with an unauthorized response to the user.
+     *
+     * @param ctx routing context to handle.
+     */
+    private void handleAuthorizeUser(RoutingContext ctx) {
         if (authorized(ctx.request())) {
+            ctx.next();
+        } else {
             endUnauthorized(ctx.response());
-            return;
         }
+    }
+
+    private void handleGetNoteRoute(RoutingContext ctx) {
 
         Optional<String> optionalNoteId;
 
@@ -123,11 +135,6 @@ public class ApiRouter {
 
     private void handlePostNoteRoute(RoutingContext ctx) {
 
-        if (authorized(ctx.request())) {
-            endUnauthorized(ctx.response());
-            return;
-        }
-
         NotesRequest requestBody;
 
         try {
@@ -148,11 +155,6 @@ public class ApiRouter {
     }
 
     private void handlePutNoteRoute(RoutingContext ctx) {
-
-        if (authorized(ctx.request())) {
-            endUnauthorized(ctx.response());
-            return;
-        }
 
         NoteRequest requestBody;
 
@@ -176,11 +178,6 @@ public class ApiRouter {
 
     private void handleDeleteNoteRoute(RoutingContext ctx) {
 
-        if (authorized(ctx.request())) {
-            endUnauthorized(ctx.response());
-            return;
-        }
-
         int noteId;
 
         try {
@@ -203,11 +200,6 @@ public class ApiRouter {
      */
     private void handleGetMemberRoute(RoutingContext ctx) {
 
-        if (authorized(ctx.request())) {
-            endUnauthorized(ctx.response());
-            return;
-        }
-
         try {
             List<MemberReturn> members = notesProcessor.getAllMembers();
             String memberJson = JsonObject.mapFrom(members).encode();
@@ -217,26 +209,100 @@ public class ApiRouter {
         }
     }
 
+    private void handlePostUserLoginRoute(RoutingContext ctx) {
+
+        try {
+            JsonObject reqBody = ctx.getBodyAsJson();
+
+            IsUserRequest userRequest = new IsUserRequest() {{
+                setPassword(reqBody.getString("password"));
+                setUsername(reqBody.getString("username"));
+            }};
+
+            if (!authProcessor.isUser(userRequest)) {
+                endUnauthorized(ctx.response());
+                return;
+            }
+            SessionResponse response = authProcessor.getSession(new NewSessionRequest() {{
+                setUsername(reqBody.getString("username"));
+            }});
+
+            end(ctx.response(), HttpConstants.ok_code, response.toJson());
+        } catch (Exception e) {
+            endUnauthorized(ctx.response());
+        }
+    }
+
+    private void handlePostRefreshUser(RoutingContext ctx) {
+
+        try {
+
+            String refreshToken = ctx.getBodyAsJson().getString("refresh_token");
+
+            RefreshSessionRequest request = new RefreshSessionRequest() {{
+                setRefreshToken(refreshToken);
+            }};
+
+            RefreshSessionResponse response = authProcessor.refreshSession(request);
+
+            end(ctx.response(), HttpConstants.created_code, response.toJson());
+
+        } catch (Exception e) {
+            endUnauthorized(ctx.response());
+        }
+    }
+
+    private void handleDeleteLogoutUser(RoutingContext ctx) {
+
+        try {
+            String refreshToken = ctx.getBodyAsJson().getString("refreshToken");
+            authProcessor.endSession(refreshToken);
+        } catch (Exception e) {
+            endClientError(ctx.response());
+        }
+
+    }
+
+    private void handlePostNewUser(RoutingContext ctx) {
+
+        try {
+
+            JsonObject body = ctx.getBodyAsJson();
+
+            NewUserRequest userRequest = new NewUserRequest() {{
+                setEmail(body.getString("email"));
+                setUsername(body.getString("username"));
+                setPassword(body.getString("password"));
+                setFirstName(body.getString("first_name"));
+                setLastName(body.getString("last_name"));
+            }};
+
+            authProcessor.newUser(userRequest);
+
+        } catch (Exception e) {
+            endClientError(ctx.response());
+        }
+    }
+
     private boolean authorized(HttpServerRequest req) {
 
         String accessToken;
 
         try {
             accessToken = req.getHeader("access_token");
-            return authProcessor.authenticateUser(accessToken);
+            return authProcessor.isAuthorized(accessToken);
         } catch (Exception e) {
             return false;
         }
     }
 
     private void endClientError(HttpServerResponse resp) {
-        String errorResponse = JsonObject.mapFrom(new ClientErrorResponse(HttpConstants.clientErrorMessage)).encode();
-        System.out.println(errorResponse);
+        String errorResponse = new ClientErrorResponse(HttpConstants.clientErrorMessage).toJson();
         end(resp, HttpConstants.client_error_code, errorResponse);
     }
 
-    private void endUnauthorized(HttpServerResponse resp) { //todo remove repeat code
-        String errorResponse = JsonObject.mapFrom(new ClientErrorResponse(HttpConstants.unauthorizedMessage)).encode();
+    private void endUnauthorized(HttpServerResponse resp) {
+        String errorResponse = new ClientErrorResponse(HttpConstants.unauthorizedMessage).toJson();
         end(resp, HttpConstants.unauthorized_code, errorResponse);
     }
 
@@ -250,7 +316,7 @@ public class ApiRouter {
         end(response, statusCode, null);
     }
 
-    private void end(HttpServerResponse response, int statusCode, String jsonBody) { //todo put helper methods at the end of the class
+    private void end(HttpServerResponse response, int statusCode, String jsonBody) {
 
         HttpServerResponse finalResponse = response.setStatusCode(statusCode)
                 .putHeader(HttpConstants.contentType, HttpConstants.applicationJson)
@@ -261,86 +327,6 @@ public class ApiRouter {
             finalResponse.end();
         } else {
             finalResponse.end(jsonBody);
-        }
-    }
-
-    private void handlePostUserLoginRoute(RoutingContext ctx) {
-
-        try {
-            String reqBody = ctx.getBodyAsString();
-
-            String[] tokens = authProcessor.getNewUserSession(reqBody);
-
-            String jsonReturn = JsonObject.mapFrom(new HashMap<String, String>() {{
-                put("access_token", tokens[0]); //todo make sure these map correctly
-                put("refresh_token", tokens[1]);
-            }}).encode();
-
-            end(ctx.response(), HttpConstants.ok_code, jsonReturn);
-        } catch (Exception e) {
-            endUnauthorized(ctx.response());
-        }
-    }
-
-    private void handlePostRefreshUser(RoutingContext ctx) { //todo update contract to handle client errors as well as un authed errors as well as server errros
-
-        try {
-            Map<String, String> bodyMap = new ObjectMapper().readValue(ctx.getBodyAsString(), HashMap.class);
-            String body = bodyMap.get("refresh_token");
-
-            end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(new HashMap<String, String>() {{
-                put("access_token", authProcessor.getNewAccessToken(body)); //todo make sure these map correctly
-            }}).encode());
-
-        } catch (Exception e) {
-            endUnauthorized(ctx.response());
-        }
-    }
-
-    private void handleDeleteLogoutUser(RoutingContext ctx) {
-
-        String body;
-        try {
-            Map<String, String> bodyMap = new ObjectMapper().readValue(ctx.getBodyAsString(), HashMap.class);
-            body = bodyMap.get("refresh_token");
-        } catch (Exception e) {
-            endClientError(ctx.response());
-            return;
-        }
-
-        if (authProcessor.invalidateUserSession(body)) {
-            end(ctx.response(), 204);
-        } else {
-            endUnauthorized(ctx.response());
-        }
-    }
-
-    private void handlePostNewUser(RoutingContext ctx) {
-
-        String username;
-        String email;
-        String password;
-        String firstName;
-        String lastName;
-        Map<String, String> bodyMap;
-
-        try {
-            bodyMap = new ObjectMapper().readValue(ctx.getBodyAsString(), HashMap.class);
-            username = bodyMap.get("username");
-            email = bodyMap.get("email");
-            password = bodyMap.get("password");
-            firstName = bodyMap.get("first_name");
-            lastName = bodyMap.get("last_name");
-            assert username != null && email != null && password != null && firstName != null && lastName != null;
-        } catch (Exception e) {
-            endClientError(ctx.response());
-            return;
-        }
-
-        if(authProcessor.newUser(username, email, password, firstName, lastName)) {
-            end(ctx.response(), HttpConstants.created_code);
-        } else {
-            endUnauthorized(ctx.response()); //todo change status codes to match the contract
         }
     }
 }
