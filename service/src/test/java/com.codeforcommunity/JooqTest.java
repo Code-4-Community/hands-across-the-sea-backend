@@ -1,4 +1,4 @@
-package java.com.codeforcommunity;
+package com.codeforcommunity;
 
 import java.sql.SQLException;
 

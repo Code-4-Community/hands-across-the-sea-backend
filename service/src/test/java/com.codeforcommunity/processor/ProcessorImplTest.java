@@ -1,9 +1,8 @@
-package java.com.codeforcommunity.processor;
+package com.codeforcommunity.processor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.codeforcommunity.processor.ProcessorImpl;
-import java.com.codeforcommunity.JooqMock;
+import com.codeforcommunity.JooqMock;
 import org.jooq.generated.tables.records.NoteRecord;
 import org.junit.jupiter.api.Test;
 

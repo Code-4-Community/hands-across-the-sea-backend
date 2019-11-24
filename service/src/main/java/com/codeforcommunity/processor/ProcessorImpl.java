@@ -67,7 +67,7 @@ public class ProcessorImpl implements IProcessor {
     return dbNoteToReturn(noteToUpdate.into(Note.class));
   }
 
-  public String getNoteStuff(int noteId) {
+  String getNoteStuff(int noteId) {
     NoteRecord note = db.fetchOne(Tables.NOTE, Tables.NOTE.ID.eq(noteId));
     String ret = "";
 
