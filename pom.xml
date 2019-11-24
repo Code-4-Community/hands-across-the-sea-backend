@@ -101,6 +101,14 @@
         <artifactId>postgresql</artifactId>
         <version>42.2.5</version>
       </dependency>
+
+      <!-- Junit -->
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.5.2</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
