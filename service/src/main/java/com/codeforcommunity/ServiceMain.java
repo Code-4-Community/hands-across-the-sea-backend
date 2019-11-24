@@ -1,8 +1,12 @@
 package com.codeforcommunity;
 
-import com.codeforcommunity.api.IProcessor;
-import com.codeforcommunity.processor.ProcessorImpl;
+import com.codeforcommunity.api.IAuthProcessor;
+import com.codeforcommunity.api.INotesProcessor;
+import com.codeforcommunity.processor.AuthDataBaseImpl;
+import com.codeforcommunity.processor.AuthProcessorImpl;
+import com.codeforcommunity.processor.NotesProcessorImpl;
 import com.codeforcommunity.rest.ApiRouter;
+
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -15,14 +19,18 @@ public class ServiceMain {
   private final Properties dbProperties = new Properties();
 
   public static void main(String[] args) {
-    ServiceMain serviceMain = new ServiceMain();
-    serviceMain.initialize();
+    try {
+      ServiceMain serviceMain = new ServiceMain();
+      serviceMain.initialize();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   /**
    * Start the server, get everything going.
    */
-  public void initialize() {
+  public void initialize() throws Exception {
     loadProperties();
     connectDb();
     initializeServer();
@@ -60,10 +68,10 @@ public class ServiceMain {
   /**
    * Initialize the server and get all the supporting classes going.
    */
-  private void initializeServer() {
-    IProcessor processor = new ProcessorImpl(this.db);
-    ApiRouter router = new ApiRouter(processor);
-
+  private void initializeServer() throws Exception {
+    INotesProcessor notesProcessor = new NotesProcessorImpl(this.db);
+    IAuthProcessor authProcessor = new AuthProcessorImpl(new AuthDataBaseImpl(this.db));
+    ApiRouter router = new ApiRouter(notesProcessor, authProcessor);
     startApiServer(router);
   }
 

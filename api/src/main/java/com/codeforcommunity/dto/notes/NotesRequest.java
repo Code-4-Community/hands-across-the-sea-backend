@@ -1,4 +1,4 @@
-package com.codeforcommunity.dto;
+package com.codeforcommunity.dto.notes;
 
 import java.util.List;
 
