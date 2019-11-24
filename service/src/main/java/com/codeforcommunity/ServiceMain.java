@@ -23,7 +23,7 @@ public class ServiceMain {
       ServiceMain serviceMain = new ServiceMain();
       serviceMain.initialize();
     } catch (Exception e) {
-
+      e.printStackTrace();
     }
   }
 

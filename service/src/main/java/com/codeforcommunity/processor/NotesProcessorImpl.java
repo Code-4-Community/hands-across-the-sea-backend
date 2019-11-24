@@ -2,16 +2,14 @@ package com.codeforcommunity.processor;
 
 
 import com.codeforcommunity.api.INotesProcessor;
-import com.codeforcommunity.dto.ContentNote;
-import com.codeforcommunity.dto.MemberReturn;
-import com.codeforcommunity.dto.FullNote;
+import com.codeforcommunity.dto.notes.ContentNote;
+import com.codeforcommunity.dto.notes.FullNote;
 import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.pojos.Note;
 import org.jooq.generated.tables.records.NoteRecord;
 import org.jooq.impl.UpdatableRecordImpl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,11 +19,6 @@ public class NotesProcessorImpl implements INotesProcessor {
 
   public NotesProcessorImpl(DSLContext db) {
     this.db = db;
-  }
-
-  @Override
-  public List<MemberReturn> getAllMembers() {
-    return new ArrayList<>();
   }
 
   @Override

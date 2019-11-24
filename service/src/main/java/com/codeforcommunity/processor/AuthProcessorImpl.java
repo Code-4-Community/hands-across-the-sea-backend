@@ -10,6 +10,11 @@ import com.auth0.jwt.interfaces.Verification;
 import com.codeforcommunity.api.IAuthProcessor;
 import com.codeforcommunity.auth.AuthUtils;
 import com.codeforcommunity.auth.IAuthDatabase;
+import com.codeforcommunity.dto.auth.IsUserRequest;
+import com.codeforcommunity.dto.auth.NewSessionRequest;
+import com.codeforcommunity.dto.auth.NewUserRequest;
+import com.codeforcommunity.dto.auth.RefreshSessionRequest;
+import com.codeforcommunity.dto.auth.RefreshSessionResponse;
 import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.dto.*;
 

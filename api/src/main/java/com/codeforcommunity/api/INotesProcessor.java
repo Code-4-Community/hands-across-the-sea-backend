@@ -1,18 +1,11 @@
 package com.codeforcommunity.api;
 
-import com.codeforcommunity.dto.ContentNote;
-import com.codeforcommunity.dto.MemberReturn;
-import com.codeforcommunity.dto.FullNote;
+import com.codeforcommunity.dto.notes.ContentNote;
+import com.codeforcommunity.dto.notes.FullNote;
 
 import java.util.List;
 
 public interface INotesProcessor {
-  /**
-   * Get all the members first and last names.
-   */
-  List<MemberReturn> getAllMembers();
-
-
   List<FullNote> getAllNotes();
 
   FullNote getANote(int noteId);
