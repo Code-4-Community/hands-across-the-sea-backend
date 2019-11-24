@@ -1,6 +1,6 @@
 package com.codeforcommunity.dto;
 
-public class ClientErrorResponse {
+public class ClientErrorResponse implements IDTO{
 
     private String status = "BAD REQUEST";
     private String reason;

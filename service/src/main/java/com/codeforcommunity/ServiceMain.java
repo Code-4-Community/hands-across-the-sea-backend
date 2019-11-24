@@ -1,10 +1,11 @@
 package com.codeforcommunity;
 
-import com.codeforcommunity.api.IProcessor;
-import com.codeforcommunity.processor.ProcessorImpl;
+import com.codeforcommunity.api.IAuthProcessor;
+import com.codeforcommunity.api.INotesProcessor;
+import com.codeforcommunity.processor.AuthDataBaseImpl;
+import com.codeforcommunity.processor.AuthProcessorImpl;
+import com.codeforcommunity.processor.NotesProcessorImpl;
 import com.codeforcommunity.rest.ApiRouter;
-import com.codeforcommunity.validation.RequestValidator;
-import com.codeforcommunity.validation.RequestValidatorImpl;
 
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -22,7 +23,7 @@ public class ServiceMain {
       ServiceMain serviceMain = new ServiceMain();
       serviceMain.initialize();
     } catch (Exception e) {
-
+      e.printStackTrace();
     }
   }
 
@@ -68,8 +69,9 @@ public class ServiceMain {
    * Initialize the server and get all the supporting classes going.
    */
   private void initializeServer() throws Exception {
-    IProcessor processor = new ProcessorImpl(this.db);
-    ApiRouter router = new ApiRouter(processor, new RequestValidatorImpl());
+    INotesProcessor notesProcessor = new NotesProcessorImpl(this.db);
+    IAuthProcessor authProcessor = new AuthProcessorImpl(new AuthDataBaseImpl(this.db));
+    ApiRouter router = new ApiRouter(notesProcessor, authProcessor);
     startApiServer(router);
   }
 

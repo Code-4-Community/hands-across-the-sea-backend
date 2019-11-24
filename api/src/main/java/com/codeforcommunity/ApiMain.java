@@ -22,7 +22,8 @@ public class ApiMain {
     Vertx vertx = Vertx.vertx();
     HttpServer server = vertx.createHttpServer();
 
-    Router router = apiRouter.initializeRouter(vertx);
+    Router router = Router.router(vertx);
+    router.mountSubRouter("/api/v1", apiRouter.initializeRouter(vertx));
 
     server.requestHandler(router).listen(8081);
   }
