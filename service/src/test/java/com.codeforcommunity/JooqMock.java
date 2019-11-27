@@ -21,6 +21,8 @@ import java.util.function.Supplier;
 public class JooqMock implements MockDataProvider {
   // Operations mapped to the list of things to walk through
   private Map<String, Operations> recordReturns;
+  // Default result to return if nothing is matched
+  private Supplier<UpdatableRecordImpl> basicDefaultHandler;
   // DSL Context to use
   private DSLContext context;
   // Map of class names to classes
@@ -119,7 +121,7 @@ public class JooqMock implements MockDataProvider {
   public JooqMock() {
     MockConnection connection = new MockConnection(this);
     context = DSL.using(connection, SQLDialect.POSTGRES);
-    basicDefaultHandler = () -> context.newResult();
+    basicDefaultHandler = () -> null;
     recordReturns = new HashMap<>();
     classMap = new HashMap<>();
     DefaultSchema schema = DefaultSchema.DEFAULT_SCHEMA;
