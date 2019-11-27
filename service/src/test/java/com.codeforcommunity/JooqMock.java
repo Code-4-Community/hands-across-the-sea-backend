@@ -3,7 +3,6 @@ package com.codeforcommunity;
 import java.util.ArrayList;
 import org.jooq.Table;
 import org.jooq.TableRecord;
-
 import java.sql.SQLException;
 import java.util.List;
 import org.jooq.DSLContext;
@@ -22,26 +21,68 @@ import java.util.function.Supplier;
 public class JooqMock implements MockDataProvider {
   // Operations mapped to the list of things to walk through
   private Map<String, Operations> recordReturns;
-  // Default result to return if nothing is matched
-  private Supplier<Result<? extends Record>> basicDefaultHandler;
   // DSL Context to use
   private DSLContext context;
   // Map of class names to classes
   private Map<String, Table> classMap;
 
+  /**
+   * A class to hold all operation handler functions and call information.
+   */
   class Operations {
+    // List of Supplier functions to call in order, acts as a queue for record Supplier functions
     private List<Supplier<UpdatableRecordImpl>> recordReturns;
+    // Current location in the recordReturns list
     private int location = 0;
+    // Count of times this operation has been called
     private int callCount = 0;
+
+    /**
+     * Constructor for Operations object that takes in a record and creates a Supplier for it while
+     *  initializing other class fields.
+     *
+     * @param record The record to be returned during the first call of this operation.
+     */
     Operations(UpdatableRecordImpl record) {
       recordReturns = new ArrayList<>();
       recordReturns.add(() -> record);
     }
 
-    void addRecord(UpdatableRecordImpl record) {
+    /**
+     * Constructor for operations object that takes in a record Supplier and initializes other class
+     *  fields.
+     *
+     * @param recordFunction The first record Supplier to be called for this operation.
+     */
+    Operations(Supplier<UpdatableRecordImpl> recordFunction) {
+      recordReturns = new ArrayList<>();
+      recordReturns.add(recordFunction);
+    }
+
+    /**
+     * Add a record to the end of the record Supplier queue by creating a Supplier for the given record.
+     *
+     * @param record Record to be returned at the end of the queue.
+     */
+    private void addRecord(UpdatableRecordImpl record) {
       recordReturns.add(() -> record);
     }
 
+    /**
+     * Add a custom record Supplier to the end of the record Supplier queue.
+     *
+     * @param recordFunction Record supplier to be called at the end of the queue.
+     */
+    private void addRecord(Supplier<UpdatableRecordImpl> recordFunction) {
+      recordReturns.add(recordFunction);
+    }
+
+    /**
+     * Increment callCount, and call next record Supplier. If currently at the final record supplier,
+     * then call the last record supplier in the queue.
+     *
+     * @return TableRecord to be returned.
+     */
     TableRecord call() {
       callCount++;
       if (location + 1 == recordReturns.size()) {
@@ -53,10 +94,20 @@ public class JooqMock implements MockDataProvider {
       return record;
     }
 
+    /**
+     * Return the current location in the record Supplier queue.
+     *
+     * @return Int representing the current location.
+     */
     int getLocation() {
       return location;
     }
 
+    /**
+     * Return the current call count for this operation.
+     *
+     * @return Int representing the current call count.
+     */
     int getCallCount() {
       return callCount;
     }
@@ -80,10 +131,10 @@ public class JooqMock implements MockDataProvider {
 
   /**
    * Add record to return during a call of execute. Will return this record after
-   *  returning all records that have been added prior to this.
+   *  returning all record (functions) that have been added prior to this.
    * The final record acts as the default record for when new records run out.
    *
-   * @param operation The operation to return this for (e.g. 'SELECT', 'INSERT').
+   * @param operation The operation to return this for (e.g. 'SELECT', 'INSERT', ...).
    * @param record The record to return
    */
   public void addReturn(String operation, UpdatableRecordImpl record) {
@@ -92,6 +143,22 @@ public class JooqMock implements MockDataProvider {
       return;
     }
     recordReturns.get(operation).addRecord(record);
+  }
+
+  /**
+   * Add custom record return function to run during call of execute. Will return record the
+   *  supplier supplies after returning all record (functions) that have been added prior to this.
+   * The final record acts as the default record for when new records run out.
+   *
+   * @param operation THe operation to run this for (e.g. 'SELECT', 'INSERT'...).
+   * @param recordFunction The function to run when execute is called.
+   */
+  public void addReturn(String operation, Supplier<UpdatableRecordImpl> recordFunction) {
+    if (!recordReturns.containsKey(operation)) {
+      recordReturns.put(operation, new Operations(recordFunction));
+      return;
+    }
+    recordReturns.get(operation).addRecord(recordFunction);
   }
 
   /**
