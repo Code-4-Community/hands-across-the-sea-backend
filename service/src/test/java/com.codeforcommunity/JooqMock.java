@@ -1,6 +1,7 @@
 package com.codeforcommunity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import org.jooq.Table;
 import org.jooq.TableRecord;
 import java.sql.SQLException;
@@ -21,8 +22,6 @@ import java.util.function.Supplier;
 public class JooqMock implements MockDataProvider {
   // Operations mapped to the list of things to walk through
   private Map<String, Operations> recordReturns;
-  // Default result to return if nothing is matched
-  private Supplier<UpdatableRecordImpl> basicDefaultHandler;
   // DSL Context to use
   private DSLContext context;
   // Map of class names to classes
@@ -38,6 +37,17 @@ public class JooqMock implements MockDataProvider {
     private int location = 0;
     // Count of times this operation has been called
     private int callCount = 0;
+    // Actual sql used for each call
+    private List<List<String>> handlerSqlCalls;
+
+    /**
+     * Constructor for 'UNKNOWN' operations.
+     */
+    Operations() {
+      recordReturns = new ArrayList<>();
+      recordReturns.add(() -> null);
+      handlerSqlCalls = new ArrayList<>();
+    }
 
     /**
      * Constructor for Operations object that takes in a record and creates a Supplier for it while
@@ -48,6 +58,7 @@ public class JooqMock implements MockDataProvider {
     Operations(UpdatableRecordImpl record) {
       recordReturns = new ArrayList<>();
       recordReturns.add(() -> record);
+      handlerSqlCalls = new ArrayList<>();
     }
 
     /**
@@ -59,6 +70,7 @@ public class JooqMock implements MockDataProvider {
     Operations(Supplier<UpdatableRecordImpl> recordFunction) {
       recordReturns = new ArrayList<>();
       recordReturns.add(recordFunction);
+      handlerSqlCalls = new ArrayList<>();
     }
 
     /**
@@ -85,13 +97,21 @@ public class JooqMock implements MockDataProvider {
      *
      * @return TableRecord to be returned.
      */
-    TableRecord call() {
+    UpdatableRecordImpl call(String sql) {
       callCount++;
+
+      if (handlerSqlCalls.size() == location) {
+        handlerSqlCalls.add(new ArrayList<>(Arrays.asList(sql)));
+      }
+      else {
+        handlerSqlCalls.get(location).add(sql);
+      }
+
       if (location + 1 == recordReturns.size()) {
         return recordReturns.get(location).get();
       }
 
-      TableRecord record = recordReturns.get(location).get();
+      UpdatableRecordImpl record = recordReturns.get(location).get();
       location++;
       return record;
     }
@@ -119,10 +139,15 @@ public class JooqMock implements MockDataProvider {
    * Constructor for JooqMock.
    */
   public JooqMock() {
+    // create DSL context
     MockConnection connection = new MockConnection(this);
     context = DSL.using(connection, SQLDialect.POSTGRES);
-    basicDefaultHandler = () -> null;
+
+    // create the recordReturns object and add the 'UNKNOWN' operation
     recordReturns = new HashMap<>();
+    recordReturns.put("UNKNOWN", new Operations());
+
+    // create the classMap object and seed with database tables
     classMap = new HashMap<>();
     DefaultSchema schema = DefaultSchema.DEFAULT_SCHEMA;
     List<Table<?>> tables = schema.getTables();
@@ -210,14 +235,21 @@ public class JooqMock implements MockDataProvider {
   private MockResult getResult(String sql) throws SQLException {
     MockResult mock = new MockResult();
 
-    if (sql.toUpperCase().startsWith("DROP"))
+    if (sql.toUpperCase().startsWith("DROP") || sql.toUpperCase().startsWith("CREATE"))
       throw new SQLException("Statement not supported: " + sql);
 
     else if (sql.toUpperCase().startsWith("SELECT")) {
       String table = sql.split("from")[1].split("\"")[1];
       Result<Record> result = context.newResult(classMap.get(table).fields());
 
-      result.add(recordReturns.get("SELECT").call());
+      result.add(recordReturns.get("SELECT").call(sql));
+      mock = new MockResult(result.size(), result);
+    }
+
+    else {
+      Result<Record> result = context.newResult();
+
+      result.add(recordReturns.get("UNKNOWN").call(sql));
       mock = new MockResult(result.size(), result);
     }
 
