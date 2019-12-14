@@ -3,7 +3,6 @@ package com.codeforcommunity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.jooq.Table;
-import org.jooq.TableRecord;
 import java.sql.SQLException;
 import java.util.List;
 import org.jooq.DSLContext;
@@ -133,6 +132,10 @@ public class JooqMock implements MockDataProvider {
     int getCallCount() {
       return callCount;
     }
+
+    List<List<String>> getSqlStrings() {
+      return this.handlerSqlCalls;
+    }
   }
 
   /**
@@ -209,12 +212,24 @@ public class JooqMock implements MockDataProvider {
    * @param operation Operation to get value for.
    * @return Count of times operation was called or -1 if key does not exist.
    */
-  public int timeCalled(String operation) {
+  public int timesCalled(String operation) {
     if (!recordReturns.containsKey(operation)) {
       return -1;
     }
 
     return recordReturns.get(operation).getCallCount();
+  }
+
+  public Map<String, List<String>> getSqlStrings() {
+    Map<String, List<String>> result = new HashMap<>();
+    recordReturns.forEach((k, v) -> {
+      List<String> opResult = new ArrayList<>();
+      for (List<String> list : v.getSqlStrings()) {
+        opResult.addAll(list);
+      }
+      result.put(k, opResult);
+    });
+    return result;
   }
 
   /**
@@ -233,7 +248,7 @@ public class JooqMock implements MockDataProvider {
    * @return MockResult requested.
    */
   private MockResult getResult(String sql) throws SQLException {
-    MockResult mock = new MockResult();
+    MockResult mock;
 
     if (sql.toUpperCase().startsWith("DROP") || sql.toUpperCase().startsWith("CREATE"))
       throw new SQLException("Statement not supported: " + sql);
@@ -248,8 +263,7 @@ public class JooqMock implements MockDataProvider {
 
     else {
       Result<Record> result = context.newResult();
-
-      result.add(recordReturns.get("UNKNOWN").call(sql));
+      recordReturns.get("UNKNOWN").call(sql);
       mock = new MockResult(result.size(), result);
     }
 

@@ -20,13 +20,13 @@ public class ProcessorImplTest {
     n.setTitle("Yellow");
     mockDb.addReturn("SELECT", n);
 
-    assertEquals(0, mockDb.timeCalled("SELECT"));
+    assertEquals(0, mockDb.timesCalled("SELECT"));
 
     String val = p.getNoteStuff(0);
 
     assertEquals("1223", val);
 
-    assertEquals(2, mockDb.timeCalled("SELECT"));
-    assertEquals(-1, mockDb.timeCalled("INSERT"));
+    assertEquals(2, mockDb.timesCalled("SELECT"));
+    assertEquals(-1, mockDb.timesCalled("INSERT"));
   }
 }
