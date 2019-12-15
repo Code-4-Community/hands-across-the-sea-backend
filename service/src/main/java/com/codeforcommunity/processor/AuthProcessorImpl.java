@@ -1,16 +1,9 @@
 package com.codeforcommunity.processor;
 
-//import com.auth0.jwt.JWT;
-//import com.auth0.jwt.JWTCreator;
-//import com.auth0.jwt.algorithms.Algorithm;
-//import com.auth0.jwt.exceptions.JWTCreationException;
-//import com.auth0.jwt.exceptions.JWTVerificationException;
-//import com.auth0.jwt.interfaces.DecodedJWT;
-//import com.auth0.jwt.interfaces.Verification;
 import com.codeforcommunity.api.IAuthProcessor;
-import com.codeforcommunity.auth.AuthUtils;
 import com.codeforcommunity.auth.IAuthDatabase;
-import com.codeforcommunity.dto.auth.IsUserRequest;
+import com.codeforcommunity.auth.JWTCreator;
+import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewSessionRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
@@ -18,63 +11,14 @@ import com.codeforcommunity.dto.auth.RefreshSessionResponse;
 import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.dto.*;
 
-import java.time.Instant;
-import java.util.Date;
-
 public class AuthProcessorImpl implements IAuthProcessor {
 
-    private IAuthDatabase db;
+    private final IAuthDatabase db;
+    private final JWTCreator jwtCreator;
 
-    private static Date refreshExp = Date.from(Instant.now().plusMillis(AuthUtils.refresh_exp));
-    private static Date accessExp = Date.from(Instant.now().plusMillis(AuthUtils.access_exp));
-
-    public AuthProcessorImpl(IAuthDatabase db) {
+    public AuthProcessorImpl(IAuthDatabase db, JWTCreator jwtCreator) {
         this.db = db;
-    }
-
-//    /**
-//     * Verifies that given access token is unedited and unexpired. Also will confirm any claims defined in
-//     * @code this.getDefaultClaimVerification().
-//     * @param accessToken token to be validated
-//     * @return true if and only if all conforms to all of said conditions.
-//     */
-//    @Override
-//    public boolean isAuthorized(String accessToken) {
-//        try {
-//            verification.build().verify(accessToken);
-//            return true;
-//        } catch (JWTVerificationException exception) {
-//            return false;
-//        }
-//    }
-
-    @Override
-    public SessionResponse getSession(NewSessionRequest request) throws AuthException {
-
-        try {
-
-            JWTCreator.Builder bld = getTokenBuilderWithCommonClaims().withClaim("username",
-                    request.getUsername());
-
-            String accessToken = getFinalToken(bld, accessExp);
-            String refreshToken = getFinalToken(bld, refreshExp);
-
-            db.recordNewRefreshToken(getSignature(refreshToken), request.getUsername());
-
-            return new SessionResponse() {{
-                setAccessToken(accessToken);
-                setRefreshToken(refreshToken);
-            }};
-
-        } catch (JWTCreationException exception) {
-            throw new AuthException(exception.getMessage());
-        }
-
-    }
-
-    @Override
-    public void endSession(String refreshToken) {
-        db.invalidateRefresh(getSignature(refreshToken));
+        this.jwtCreator = jwtCreator;
     }
 
     @Override
@@ -84,28 +28,11 @@ public class AuthProcessorImpl implements IAuthProcessor {
             throw new AuthException("refresh token is voided by previous logout");
         }
 
-        String username;
-
-        try {
-
-            DecodedJWT jwt = verification.build().verify(request.getRefreshToken());
-            username = jwt.getClaim("username").asString();
-
-        } catch (JWTVerificationException exception) {
-            throw new AuthException("unable to verify token");
-        }
-
-        String freshAccessToken = getFinalToken(getTokenBuilderWithCommonClaims()
-                .withClaim("username", username), accessExp);
+        String accessToken = jwtCreator.getNewAccessToken(request.getRefreshToken());
 
         return new RefreshSessionResponse() {{
-            setFreshAccessToken(freshAccessToken);
+            setFreshAccessToken(accessToken);
         }};
-    }
-
-    @Override
-    public boolean isUser(IsUserRequest request) {
-        return db.isValidUser(request.getUsername(), request.getPassword());
     }
 
     @Override
@@ -114,17 +41,24 @@ public class AuthProcessorImpl implements IAuthProcessor {
                 request.getLastName());
     }
 
-    /**
-     * Creates token builder with all default claims we have decided should be in every token.
-     * @return token builder object.
-     */
-    private JWTCreator.Builder getTokenBuilderWithCommonClaims() {
-        return JWT.create()
-                .withIssuer("c4c");
+    @Override
+    public SessionResponse login(LoginRequest loginRequest) throws AuthException {
+        if (db.isValidUser(loginRequest.getUsername(), loginRequest.getPassword())) {
+            String refreshToken = jwtCreator.createNewRefreshToken(loginRequest.getUsername());
+            String accessToken = jwtCreator.getNewAccessToken(refreshToken);
+
+            return new SessionResponse() {{
+                setAccessToken(accessToken);
+                setRefreshToken(refreshToken);
+            }};
+        } else {
+            throw new AuthException("Invalid user");
+        }
     }
 
-    private String getFinalToken(JWTCreator.Builder builder, Date expiration) {
-        return builder.withExpiresAt(expiration).sign(algorithm);
+    @Override
+    public void logout(String refreshToken) {
+        db.invalidateRefresh(refreshToken);
     }
 
     private String getSignature(String token) {

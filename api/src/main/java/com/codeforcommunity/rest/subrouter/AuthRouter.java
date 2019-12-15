@@ -1,7 +1,7 @@
 package com.codeforcommunity.rest.subrouter;
 
 import com.codeforcommunity.api.IAuthProcessor;
-import com.codeforcommunity.dto.auth.IsUserRequest;
+import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewSessionRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
@@ -66,18 +66,12 @@ public class AuthRouter implements IRouter {
     try {
       JsonObject reqBody = ctx.getBodyAsJson();
 
-      IsUserRequest userRequest = new IsUserRequest() {{
+      LoginRequest userRequest = new LoginRequest() {{
         setPassword(reqBody.getString("password"));
         setUsername(reqBody.getString("username"));
       }};
 
-      if (!authProcessor.isUser(userRequest)) {
-        endUnauthorized(ctx.response());
-        return;
-      }
-      SessionResponse response = authProcessor.getSession(new NewSessionRequest() {{
-        setUsername(reqBody.getString("username"));
-      }});
+      SessionResponse response = authProcessor.login(userRequest);
 
       end(ctx.response(), HttpConstants.ok_code, response.toJson());
     } catch (Exception e) {
@@ -108,7 +102,7 @@ public class AuthRouter implements IRouter {
 
     try {
       String refreshToken = ctx.getBodyAsJson().getString("refreshToken");
-      authProcessor.endSession(refreshToken);
+      authProcessor.logout(refreshToken);
     } catch (Exception e) {
       endClientError(ctx.response());
     }

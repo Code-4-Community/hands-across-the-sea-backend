@@ -46,30 +46,28 @@ public class AuthDataBaseImpl implements IAuthDatabase {
 
     public boolean recordNewRefreshToken(String signature, String username) {
 
-        Result<NoteUserRecord> noteUser = db.selectFrom(Tables.NOTE_USER).where(Tables.NOTE_USER.USER_NAME.eq(username))
-                .fetch();
-        Timestamp timestamp = Timestamp.from(Instant.now());
-        int userid = noteUser.getValue(0, Tables.NOTE_USER.ID);
-        int i = db.insertInto(Tables.SESSIONS, Tables.SESSIONS.REFRESH_HASH, Tables.SESSIONS.USER_ID,
-                Tables.SESSIONS.REFRESH_USES, Tables.SESSIONS.CREATED).values(signature, userid, 1, timestamp).execute();
-
-        return i == 1;
+//        Result<NoteUserRecord> noteUser = db.selectFrom(Tables.NOTE_USER).where(Tables.NOTE_USER.USER_NAME.eq(username))
+//                .fetch();
+//        Timestamp timestamp = Timestamp.from(Instant.now());
+//        int userid = noteUser.getValue(0, Tables.NOTE_USER.ID);
+//        int i = db.insertInto(Tables.SESSIONS, Tables.SESSIONS.REFRESH_HASH, Tables.SESSIONS.USER_ID,
+//                Tables.SESSIONS.REFRESH_USES, Tables.SESSIONS.CREATED).values(signature, userid, 1, timestamp).execute();
+//
+//        return i == 1;
+        return true;
     }
 
     public boolean invalidateRefresh(String signature) {
-
-        int i = db.update(Tables.SESSIONS).set(Tables.SESSIONS.VOIDED, true).where(Tables.SESSIONS.REFRESH_HASH.
-                eq(signature)).execute();
-
-        return i == 1;
+        return true;
     }
 
     public boolean isValidRefresh(String signature) {
 
-        Record record = db.select(Tables.SESSIONS.VOIDED).from(Tables.SESSIONS).where(Tables.SESSIONS.REFRESH_HASH.
-                eq(signature)).fetchAny();
-
-        return (boolean) record.getValue("voided");
+//        Record record = db.select(Tables.SESSIONS.VOIDED).from(Tables.SESSIONS).where(Tables.SESSIONS.REFRESH_HASH.
+//                eq(signature)).fetchAny();
+//
+//        return (boolean) record.getValue("voided");
+        return true;
 
     }
 }

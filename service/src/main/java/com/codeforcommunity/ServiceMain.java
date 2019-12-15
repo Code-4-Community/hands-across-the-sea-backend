@@ -2,6 +2,9 @@ package com.codeforcommunity;
 
 import com.codeforcommunity.api.IAuthProcessor;
 import com.codeforcommunity.api.INotesProcessor;
+import com.codeforcommunity.auth.JWTAuthorizer;
+import com.codeforcommunity.auth.JWTCreator;
+import com.codeforcommunity.auth.JWTHandler;
 import com.codeforcommunity.processor.AuthDataBaseImpl;
 import com.codeforcommunity.processor.AuthProcessorImpl;
 import com.codeforcommunity.processor.NotesProcessorImpl;
@@ -68,10 +71,14 @@ public class ServiceMain {
   /**
    * Initialize the server and get all the supporting classes going.
    */
-  private void initializeServer() throws Exception {
+  private void initializeServer() {
+    JWTHandler jwtHandler = new JWTHandler("this is secret, don't tell anyone"); //TODO: Dynamically load this
+    JWTAuthorizer jwtAuthorizer = new JWTAuthorizer(jwtHandler);
+    JWTCreator jwtCreator = new JWTCreator(jwtHandler);
+
     INotesProcessor notesProcessor = new NotesProcessorImpl(this.db);
-    IAuthProcessor authProcessor = new AuthProcessorImpl(new AuthDataBaseImpl(this.db));
-    ApiRouter router = new ApiRouter(notesProcessor, authProcessor);
+    IAuthProcessor authProcessor = new AuthProcessorImpl(new AuthDataBaseImpl(this.db), jwtCreator);
+    ApiRouter router = new ApiRouter(notesProcessor, authProcessor, jwtAuthorizer);
     startApiServer(router);
   }
 

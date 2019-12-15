@@ -1,6 +1,7 @@
 package com.codeforcommunity.rest.subrouter;
 
 import com.codeforcommunity.api.IAuthProcessor;
+import com.codeforcommunity.auth.JWTAuthorizer;
 import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.rest.IRouter;
 import io.vertx.core.Vertx;
@@ -10,9 +11,10 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
 public class CommonRouter implements IRouter {
+  private final JWTAuthorizer jwtAuthorizer;
 
-  public CommonRouter() {
-
+  public CommonRouter(JWTAuthorizer jwtAuthorizer) {
+    this.jwtAuthorizer = jwtAuthorizer;
   }
 
   @Override
@@ -61,7 +63,7 @@ public class CommonRouter implements IRouter {
 
     try {
       accessToken = req.getHeader("access_token");
-     return IAuthProcessor.isAuthorized(accessToken);
+     return jwtAuthorizer.isAuthorized(accessToken);
     } catch (Exception e) {
       return false;
     }

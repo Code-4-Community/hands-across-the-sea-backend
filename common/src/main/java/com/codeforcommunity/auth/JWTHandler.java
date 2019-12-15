@@ -1,10 +1,13 @@
 package com.codeforcommunity.auth;
 
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.Verification;
+
+import java.time.Instant;
+import java.util.Date;
 
 public class JWTHandler {
 
@@ -26,16 +29,40 @@ public class JWTHandler {
    */
   public boolean isAuthorized(String accessToken) {
     try {
-      verification.build().verify(accessToken);
+      getDecodedJWT(accessToken);
       return true;
     } catch (JWTVerificationException exception) {
       return false;
     }
   }
 
+  public String createNewRefreshToken(String username) {
+    return createToken(true, username);
+  }
 
+  public String getNewAccessToken(String refreshToken) {
+    if(isAuthorized(refreshToken)) {
+      String username = getDecodedJWT(refreshToken).getClaim("username").asString();
+      return createToken(false, username);
+    } else {
+      throw new IllegalArgumentException("invalid refresh token"); //TODO make auth exception
+    }
+  }
 
+  private DecodedJWT getDecodedJWT(String jwt) throws JWTVerificationException {
+    return verification.build().verify(jwt);
+  }
 
+  private Date getTokenExpiration(boolean isRefresh) {
+    long exp = isRefresh ? AuthUtils.refresh_exp : AuthUtils.access_exp;
+    return Date.from(Instant.now().plusMillis(exp));
+  }
+
+  private String createToken(boolean isRefresh, String username) {
+    Date date = getTokenExpiration(isRefresh);
+    return JWT.create().withClaim("username", username).withExpiresAt(date)
+        .sign(algorithm);
+  }
 
   /**
    * Create verification object that ensures all default claims we have decided should be in every token are present.
