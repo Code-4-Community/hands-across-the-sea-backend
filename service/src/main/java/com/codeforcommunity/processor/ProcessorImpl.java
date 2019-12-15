@@ -67,25 +67,6 @@ public class ProcessorImpl implements IProcessor {
     return dbNoteToReturn(noteToUpdate.into(Note.class));
   }
 
-  String getNoteStuff(int noteId) {
-    NoteRecord note = db.fetchOne(Tables.NOTE, Tables.NOTE.ID.eq(noteId));
-    String ret = "";
-
-    if (note.getBody().equals("hello")) {
-       ret += "12";
-       NoteRecord anotherNote = db.fetchOne(Tables.NOTE, Tables.NOTE.ID.eq(1));
-    }
-
-    if (note.getTitle().equals("Yellow")) {
-      ret += "23";
-      NoteUserRecord userRecord = db.newRecord(Tables.NOTE_USER);
-      userRecord.setFirstName("Joey");
-//      userRecord.store();
-    }
-
-    return ret;
-  }
-
   @Override
   public void deleteNote(int noteId) {
     db.deleteFrom(Tables.NOTE)
