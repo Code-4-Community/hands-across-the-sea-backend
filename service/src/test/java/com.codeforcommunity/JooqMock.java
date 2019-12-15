@@ -18,6 +18,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
+/**
+ * A class to mock database interactions.
+ */
 public class JooqMock implements MockDataProvider {
   // Operations mapped to the list of things to walk through
   private Map<String, Operations> recordReturns;
@@ -36,11 +39,11 @@ public class JooqMock implements MockDataProvider {
     private int location = 0;
     // Count of times this operation has been called
     private int callCount = 0;
-    // Actual sql used for each call
+    // SQL used for each call linked to each UpdatableRecordImpl returned (by position in list)
     private List<List<String>> handlerSqlCalls;
 
     /**
-     * Constructor for 'UNKNOWN' operations.
+     * Constructor for 'UNKNOWN' and 'INSERT' operations.
      */
     Operations() {
       recordReturns = new ArrayList<>();
@@ -133,22 +136,30 @@ public class JooqMock implements MockDataProvider {
       return callCount;
     }
 
+    /**
+     * Return the SQL strings used with each call linked to each UpdatableRecordImpl
+     *  returned by position in the list
+     * @return List<List<String>> of every SQL string used
+     */
     List<List<String>> getSqlStrings() {
       return this.handlerSqlCalls;
     }
   }
 
   /**
-   * Constructor for JooqMock.
+   * Constructor for JooqMock. 'UNKNOWN', 'INSERT', and 'DROP/CREATE' operations are added by
+   * default.
    */
   public JooqMock() {
     // create DSL context
     MockConnection connection = new MockConnection(this);
     context = DSL.using(connection, SQLDialect.POSTGRES);
 
-    // create the recordReturns object and add the 'UNKNOWN' operation
+    // create the recordReturns object and add the 'UNKNOWN', 'DROP/CREATE' and 'INSERT' operations
     recordReturns = new HashMap<>();
     recordReturns.put("UNKNOWN", new Operations());
+    recordReturns.put("INSERT", new Operations());
+    recordReturns.put("DROP/CREATE", new Operations());
 
     // create the classMap object and seed with database tables
     classMap = new HashMap<>();
@@ -163,6 +174,9 @@ public class JooqMock implements MockDataProvider {
    * Add record to return during a call of execute. Will return this record after
    *  returning all record (functions) that have been added prior to this.
    * The final record acts as the default record for when new records run out.
+   *
+   * The 'UNKNOWN', 'INSERT', and 'DROP/CREATE' operations are added by default since they
+   *  return nothing.
    *
    * @param operation The operation to return this for (e.g. 'SELECT', 'INSERT', ...).
    * @param record The record to return
@@ -180,6 +194,9 @@ public class JooqMock implements MockDataProvider {
    *  supplier supplies after returning all record (functions) that have been added prior to this.
    * The final record acts as the default record for when new records run out.
    *
+   * The 'UNKNOWN', 'INSERT', and 'DROP/CREATE' operations are added by default since they
+   *  return nothing.
+   *
    * @param operation THe operation to run this for (e.g. 'SELECT', 'INSERT'...).
    * @param recordFunction The function to run when execute is called.
    */
@@ -195,6 +212,9 @@ public class JooqMock implements MockDataProvider {
    * Add multiple records to return during next call of execute. Records will be returned
    *  in the order they are in the list.
    * The final record acts as the default record for when new records run out.
+   *
+   * The 'UNKNOWN', 'INSERT', and 'DROP/CREATE' operations are added by default since they
+   *  return nothing.
    *
    * @param records A map of operations to records to be returned.
    */
@@ -220,6 +240,12 @@ public class JooqMock implements MockDataProvider {
     return recordReturns.get(operation).getCallCount();
   }
 
+  /**
+   * Combines everything in the List<List<String>> into one list to be what each Operation's name
+   *  is mapped to.
+   *
+   * @return Map of each Operation to each SQL statement used
+   */
   public Map<String, List<String>> getSqlStrings() {
     Map<String, List<String>> result = new HashMap<>();
     recordReturns.forEach((k, v) -> {
@@ -248,26 +274,35 @@ public class JooqMock implements MockDataProvider {
    * @return MockResult requested.
    */
   private MockResult getResult(String sql) throws SQLException {
-    MockResult mock;
+    String operation;
 
-    if (sql.toUpperCase().startsWith("DROP") || sql.toUpperCase().startsWith("CREATE"))
-      throw new SQLException("Statement not supported: " + sql);
+    // Handle 'DROP' and 'CREATE' statements
+    if (sql.toUpperCase().startsWith("DROP") || sql.toUpperCase().startsWith("CREATE")) {
+      operation = "DROP/CREATE";
+    }
 
+    // Handle 'SELECT' statements
     else if (sql.toUpperCase().startsWith("SELECT")) {
       String table = sql.split("from")[1].split("\"")[1];
       Result<Record> result = context.newResult(classMap.get(table).fields());
 
       result.add(recordReturns.get("SELECT").call(sql));
-      mock = new MockResult(result.size(), result);
+      return new MockResult(result.size(), result);
     }
 
+    // Handle 'INSERT' statements
+    else if (sql.toUpperCase().startsWith("INSERT")) {
+      operation = "INSERT";
+    }
+
+    // Handle 'UNKNOWN' operations
     else {
-      Result<Record> result = context.newResult();
-      recordReturns.get("UNKNOWN").call(sql);
-      mock = new MockResult(result.size(), result);
+      operation = "UNKNOWN";
     }
 
-    return mock;
+    Result<Record> result = context.newResult();
+    recordReturns.get(operation).call(sql);
+    return new MockResult(result.size(), result);
   }
 
   @Override
@@ -275,20 +310,7 @@ public class JooqMock implements MockDataProvider {
     MockResult[] mock;
 
     String sql = ctx.sql();
-
-    // Will add batch capabilities eventually
-//    if (ctx.batch()) {
-//      String[] stmts = ctx.batchSQL();
-//      mock = new MockResult[stmts.length];
-//      for (int i = 0; i < stmts.length; i++) {
-//        sql = stmts[i];
-//        mock[i] = getResult(sql);
-//      }
-//    }
-
-//    else {
-      mock = new MockResult[]{ getResult(sql) };
-//    }
+    mock = new MockResult[]{ getResult(sql) };
 
     return mock;
   }
