@@ -41,6 +41,8 @@ public class JooqMock implements MockDataProvider {
     private int callCount = 0;
     // SQL used for each call linked to each UpdatableRecordImpl returned (by position in list)
     private List<List<String>> handlerSqlCalls;
+    // Bindings used for each call linked to each UpdatableRecordImpl returned
+    private List<List<Object[]>> handlerSqlBindings;
 
     /**
      * Constructor for 'UNKNOWN' and 'INSERT' operations.
@@ -49,6 +51,7 @@ public class JooqMock implements MockDataProvider {
       recordReturns = new ArrayList<>();
       recordReturns.add(() -> null);
       handlerSqlCalls = new ArrayList<>();
+      handlerSqlBindings = new ArrayList<>();
     }
 
     /**
@@ -61,6 +64,7 @@ public class JooqMock implements MockDataProvider {
       recordReturns = new ArrayList<>();
       recordReturns.add(() -> Arrays.asList(record));
       handlerSqlCalls = new ArrayList<>();
+      handlerSqlBindings = new ArrayList<>();
     }
 
     /**
@@ -73,6 +77,7 @@ public class JooqMock implements MockDataProvider {
       recordReturns = new ArrayList<>();
       recordReturns.add(() -> records);
       handlerSqlCalls = new ArrayList<>();
+      handlerSqlBindings = new ArrayList<>();
     }
 
     /**
@@ -85,6 +90,7 @@ public class JooqMock implements MockDataProvider {
       recordReturns = new ArrayList<>();
       recordReturns.add(recordFunction);
       handlerSqlCalls = new ArrayList<>();
+      handlerSqlBindings = new ArrayList<>();
     }
 
     /**
@@ -117,16 +123,21 @@ public class JooqMock implements MockDataProvider {
      * Increment callCount, and call next record Supplier. If currently at the final record supplier,
      * then call the last record supplier in the queue.
      *
+     * @param ctx The context supplied to execute.
      * @return TableRecord to be returned.
      */
-    List<UpdatableRecordImpl> call(String sql) {
+    List<UpdatableRecordImpl> call(MockExecuteContext ctx) {
       callCount++;
 
       if (handlerSqlCalls.size() == location) {
-        handlerSqlCalls.add(new ArrayList<>(Arrays.asList(sql)));
+        handlerSqlCalls.add(new ArrayList<>(Arrays.asList(ctx.sql())));
+        List<Object[]> objects = new ArrayList<>();
+        objects.add(ctx.bindings());
+        handlerSqlBindings.add(objects);
       }
       else {
-        handlerSqlCalls.get(location).add(sql);
+        handlerSqlCalls.get(location).add(ctx.sql());
+        handlerSqlBindings.get(location).add(ctx.bindings());
       }
 
       if (location + 1 == recordReturns.size()) {
@@ -158,11 +169,20 @@ public class JooqMock implements MockDataProvider {
 
     /**
      * Return the SQL strings used with each call linked to each UpdatableRecordImpl
-     *  returned by position in the list
-     * @return List<List<String>> of every SQL string used
+     *  returned by position in the list.
+     * @return List<List<String>> of every SQL string used.
      */
     List<List<String>> getSqlStrings() {
       return this.handlerSqlCalls;
+    }
+
+    /**
+     * Return the SQL bindings used with each call linked to each UpdatableRecordImpl.
+     *
+     * @return List<List<Object[]>> of all SQL bindings used.
+     */
+    List<List<Object[]>> getSqlBindings() {
+      return this.handlerSqlBindings;
     }
   }
 
@@ -298,6 +318,24 @@ public class JooqMock implements MockDataProvider {
   }
 
   /**
+   * Combines everything in the List<List<Object[]>> into one list to be what each Operation's name
+   *  is mapped to.
+   *
+   * @return Map of each Operation to each SQL binding used
+   */
+  public Map<String, List<Object[]>> getSqlBindings() {
+    Map<String, List<Object[]>> result = new HashMap<>();
+    recordReturns.forEach((k, v) -> {
+      List<Object[]> opResult = new ArrayList<>();
+      for (List<Object[]> list : v.getSqlBindings()) {
+        opResult.addAll(list);
+      }
+      result.put(k, opResult);
+    });
+    return result;
+  }
+
+  /**
    * Returns the context this class uses so that custom result handlers can be created.
    *
    * @return A mock DSLContext.
@@ -309,10 +347,11 @@ public class JooqMock implements MockDataProvider {
   /**
    * Execute a single sql statement and return result.
    *
-   * @param sql Statement to execute.
+   * @param ctx Mock context supplied to execute.
    * @return MockResult requested.
    */
-  private MockResult getResult(String sql) throws SQLException {
+  private MockResult getResult(MockExecuteContext ctx) throws SQLException {
+    String sql = ctx.sql();
     String operation;
 
     // Handle 'DROP' and 'CREATE' statements
@@ -325,7 +364,7 @@ public class JooqMock implements MockDataProvider {
       String table = sql.split("from")[1].split("\"")[1];
       Result<Record> result = context.newResult(classMap.get(table).fields());
 
-      result.addAll(recordReturns.get("SELECT").call(sql));
+      result.addAll(recordReturns.get("SELECT").call(ctx));
       return new MockResult(result.size(), result);
     }
 
@@ -340,16 +379,14 @@ public class JooqMock implements MockDataProvider {
     }
 
     Result<Record> result = context.newResult();
-    recordReturns.get(operation).call(sql);
+    recordReturns.get(operation).call(ctx);
     return new MockResult(result.size(), result);
   }
 
   @Override
   public MockResult[] execute(MockExecuteContext ctx) throws SQLException {
     MockResult[] mock;
-
-    String sql = ctx.sql();
-    mock = new MockResult[]{ getResult(sql) };
+    mock = new MockResult[]{ getResult(ctx) };
 
     return mock;
   }
