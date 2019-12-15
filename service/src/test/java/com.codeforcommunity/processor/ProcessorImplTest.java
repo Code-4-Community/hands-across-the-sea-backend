@@ -4,11 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.codeforcommunity.JooqMock;
+import com.codeforcommunity.dto.ContentNote;
 import com.codeforcommunity.dto.FullNote;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.jooq.DSLContext;
 import org.jooq.UpdatableRecord;
+import org.jooq.generated.Tables;
 import org.jooq.generated.tables.Note;
 import org.jooq.generated.tables.records.NoteRecord;
 import org.jooq.impl.UpdatableRecordImpl;
@@ -38,7 +41,6 @@ public class ProcessorImplTest {
     for (int i = 0; i < 5; i++) {
       NoteRecord n = new NoteRecord();
       n.setId(i);
-      n.setUserId(0);
       n.setTitle("Note" + i);
       n.setBody("THIS IS A NOTE");
 
@@ -48,7 +50,6 @@ public class ProcessorImplTest {
 
     NoteRecord n = new NoteRecord();
     n.setId(11);
-    n.setUserId(11);
     n.setTitle("NoTe11");
     n.setBody("nOtE11");
 
@@ -78,7 +79,6 @@ public class ProcessorImplTest {
 
     NoteRecord n = new NoteRecord();
     n.setId(0);
-    n.setUserId(0);
     n.setTitle("TITLE");
     n.setBody("SET BODY");
     mockDb.addReturn("SELECT", n);
@@ -96,48 +96,60 @@ public class ProcessorImplTest {
     assertTrue(sql.contains("select")
         && sql.contains("from \"note\" where \"note\".\"id\" = ?"));
     assertEquals(5, bindings[0]);
+    assertEquals(1, mockDb.timesCalled("SELECT"));
   }
 
-//  an example test using the JooqMock mock db
-//  @Test
-//  public void testGetNoteStuff() {
-//    JooqMock mockDb = new JooqMock();
-//    ProcessorImpl p = new ProcessorImpl(mockDb.getContext());
-//
-//    NoteRecord n = new NoteRecord();
-//    n.setId(0);
-//    n.setBody("hello");
-//    n.setTitle("Yellow");
-//    mockDb.addReturn("SELECT", n);
-//
-//    assertEquals(0, mockDb.timesCalled("SELECT"));
-//
-//    String val = p.getNoteStuff(0);
-//
-//    assertEquals("1223", val);
-//
-//    assertEquals(2, mockDb.timesCalled("SELECT"));
-//    assertEquals(0, mockDb.timesCalled("INSERT"));
-//    System.out.println(mockDb.getSqlStrings());
-//  }
-//
-//  Some possible operation
-//  String getNoteStuff(int noteId) {
-//    NoteRecord note = db.fetchOne(Tables.NOTE, Tables.NOTE.ID.eq(noteId));
-//    String ret = "";
-//
-//    if (note.getBody().equals("hello")) {
-//      ret += "12";
-//      NoteRecord anotherNote = db.fetchOne(Tables.NOTE, Tables.NOTE.ID.eq(1));
-//    }
-//
-//    if (note.getTitle().equals("Yellow")) {
-//      ret += "23";
-//      NoteUserRecord userRecord = db.newRecord(Tables.NOTE_USER);
-//      userRecord.setFirstName("Joey");
-//      userRecord.store();
-//    }
-//
-//    return ret;
-//  }
+  @Test
+  public void testInsertNotes() {
+    setup();
+    DSLContext ctx = mockDb.getContext();
+
+    NoteRecord primer = ctx.newRecord(Tables.NOTE);
+    primer.setId(0);
+    mockDb.addReturn("INSERT", primer);
+
+    NoteRecord record = ctx.newRecord(Tables.NOTE);
+    record.setTitle("Hello");
+    record.setBody("World");
+    assertEquals(1, record.store());
+
+    assertEquals(1, mockDb.timesCalled("INSERT"));
+    String sql = mockDb.getSqlStrings().get("INSERT").get(0);
+    Object[] bindings = mockDb.getSqlBindings().get("INSERT").get(0);
+    assertEquals("insert into \"note\" (\"title\", \"body\") values (?, ?) returning "
+        + "\"note\".\"id\"", sql);
+    assertEquals(2, bindings.length);
+    assertEquals("Hello", bindings[0]);
+    assertEquals("World", bindings[1]);
+  }
+
+  @Test
+  public void testCreateNotes() {
+    setup();
+    DSLContext ctx = mockDb.getContext();
+
+    List<ContentNote> notes = new ArrayList<>();
+    for (int i = 0; i < 3; i++) {
+      ContentNote n = new ContentNote("Note" + i, "HELLO WORLD");
+      notes.add(n);
+
+      NoteRecord primer = ctx.newRecord(Tables.NOTE);
+      primer.setId(i);
+      mockDb.addReturn("INSERT", primer);
+    }
+
+    List<FullNote> returnNotes = processor.createNotes(notes);
+    assertEquals(3, mockDb.timesCalled("INSERT"));
+    for (int i = 0; i < 3; i++) {
+      String sql = mockDb.getSqlStrings().get("INSERT").get(i);
+      Object[] bindings = mockDb.getSqlBindings().get("INSERT").get(i);
+
+      assertEquals(2, bindings.length);
+      assertEquals("insert into \"note\" (\"title\", \"body\") values (?, ?) returning "
+        + "\"note\".\"id\"", sql);
+      assertEquals("Note" + i, bindings[0]);
+      assertEquals("HELLO WORLD", bindings[1]);
+      assertEquals(i, returnNotes.get(i).getId());
+    }
+  }
 }
