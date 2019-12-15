@@ -401,7 +401,7 @@ public class JooqMock implements MockDataProvider {
       result.addAll(recordReturns.get(operation).call(ctx));
     }
     catch (NullPointerException e) {
-      throw new NullPointerException("You probably forgot to prime your "
+      throw new IllegalStateException("You probably forgot to prime your "
           + "JooqMock by calling addReturn (with one of SELECT/INSERT/UPDATE/DELETE as "
           + "your operation.");
     }
