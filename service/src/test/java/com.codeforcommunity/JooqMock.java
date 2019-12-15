@@ -34,7 +34,7 @@ public class JooqMock implements MockDataProvider {
    */
   class Operations {
     // List of Supplier functions to call in order, acts as a queue for record Supplier functions
-    private List<Supplier<UpdatableRecordImpl>> recordReturns;
+    private List<Supplier<List<UpdatableRecordImpl>>> recordReturns;
     // Current location in the recordReturns list
     private int location = 0;
     // Count of times this operation has been called
@@ -59,7 +59,19 @@ public class JooqMock implements MockDataProvider {
      */
     Operations(UpdatableRecordImpl record) {
       recordReturns = new ArrayList<>();
-      recordReturns.add(() -> record);
+      recordReturns.add(() -> Arrays.asList(record));
+      handlerSqlCalls = new ArrayList<>();
+    }
+
+    /**
+     * Constructor for operations object that takes in a List of records and creates a supplier
+     *  for it while initializing other class fields.
+     *
+     * @param records The record to be returned during the first call of this operation.
+     */
+    Operations(List<UpdatableRecordImpl> records) {
+      recordReturns = new ArrayList<>();
+      recordReturns.add(() -> records);
       handlerSqlCalls = new ArrayList<>();
     }
 
@@ -69,7 +81,7 @@ public class JooqMock implements MockDataProvider {
      *
      * @param recordFunction The first record Supplier to be called for this operation.
      */
-    Operations(Supplier<UpdatableRecordImpl> recordFunction) {
+    Operations(Supplier<List<UpdatableRecordImpl>> recordFunction) {
       recordReturns = new ArrayList<>();
       recordReturns.add(recordFunction);
       handlerSqlCalls = new ArrayList<>();
@@ -81,7 +93,15 @@ public class JooqMock implements MockDataProvider {
      * @param record Record to be returned at the end of the queue.
      */
     private void addRecord(UpdatableRecordImpl record) {
-      recordReturns.add(() -> record);
+      recordReturns.add(() -> Arrays.asList(record));
+    }
+
+    /**
+     * Add a record to the end of the record Supplier queue by creating a Supplier for the given record.
+     * @param records
+     */
+    private void addRecord(List<UpdatableRecordImpl> records) {
+      recordReturns.add(() -> records);
     }
 
     /**
@@ -89,7 +109,7 @@ public class JooqMock implements MockDataProvider {
      *
      * @param recordFunction Record supplier to be called at the end of the queue.
      */
-    private void addRecord(Supplier<UpdatableRecordImpl> recordFunction) {
+    private void addRecord(Supplier<List<UpdatableRecordImpl>> recordFunction) {
       recordReturns.add(recordFunction);
     }
 
@@ -99,7 +119,7 @@ public class JooqMock implements MockDataProvider {
      *
      * @return TableRecord to be returned.
      */
-    UpdatableRecordImpl call(String sql) {
+    List<UpdatableRecordImpl> call(String sql) {
       callCount++;
 
       if (handlerSqlCalls.size() == location) {
@@ -113,7 +133,7 @@ public class JooqMock implements MockDataProvider {
         return recordReturns.get(location).get();
       }
 
-      UpdatableRecordImpl record = recordReturns.get(location).get();
+      List<UpdatableRecordImpl> record = recordReturns.get(location).get();
       location++;
       return record;
     }
@@ -189,6 +209,25 @@ public class JooqMock implements MockDataProvider {
     recordReturns.get(operation).addRecord(record);
   }
 
+/**
+ * Add List of records to return during a call of execute. Will return this list after
+ *  returning all record (functions) that have been added prior to this.
+ * The final record acts as the default record for when new records run out.
+ *
+ * The 'UNKNOWN', 'INSERT', and 'DROP/CREATE' operations are added by default since they
+ *  return nothing.
+ *
+ * @param operation The operation to return this for (e.g. 'SELECT', 'INSERT', ...).
+ * @param records The List of records to return
+ */
+  public void addReturn(String operation, List<UpdatableRecordImpl> records) {
+    if (!recordReturns.containsKey(operation)) {
+      recordReturns.put(operation, new Operations(records));
+      return;
+    }
+    recordReturns.get(operation).addRecord(records);
+  }
+
   /**
    * Add custom record return function to run during call of execute. Will return record the
    *  supplier supplies after returning all record (functions) that have been added prior to this.
@@ -200,7 +239,7 @@ public class JooqMock implements MockDataProvider {
    * @param operation THe operation to run this for (e.g. 'SELECT', 'INSERT'...).
    * @param recordFunction The function to run when execute is called.
    */
-  public void addReturn(String operation, Supplier<UpdatableRecordImpl> recordFunction) {
+  public void addReturn(String operation, Supplier<List<UpdatableRecordImpl>> recordFunction) {
     if (!recordReturns.containsKey(operation)) {
       recordReturns.put(operation, new Operations(recordFunction));
       return;
@@ -286,7 +325,7 @@ public class JooqMock implements MockDataProvider {
       String table = sql.split("from")[1].split("\"")[1];
       Result<Record> result = context.newResult(classMap.get(table).fields());
 
-      result.add(recordReturns.get("SELECT").call(sql));
+      result.addAll(recordReturns.get("SELECT").call(sql));
       return new MockResult(result.size(), result);
     }
 
