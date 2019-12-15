@@ -9,7 +9,6 @@ import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.pojos.Note;
 import org.jooq.generated.tables.records.NoteRecord;
-import org.jooq.generated.tables.records.NoteUserRecord;
 import org.jooq.impl.UpdatableRecordImpl;
 
 import java.util.ArrayList;
