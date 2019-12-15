@@ -45,7 +45,7 @@ public class JooqMock implements MockDataProvider {
     private List<List<Object[]>> handlerSqlBindings;
 
     /**
-     * Constructor for 'UNKNOWN' and 'INSERT' operations.
+     * Constructor for 'UNKNOWN' and 'DROP/CREATE' operations.
      */
     Operations() {
       recordReturns = new ArrayList<>();
@@ -129,17 +129,20 @@ public class JooqMock implements MockDataProvider {
     List<UpdatableRecordImpl> call(MockExecuteContext ctx) {
       callCount++;
 
+      // handle creating new arrays and adding sql/bindings if first call at location in list
       if (handlerSqlCalls.size() == location) {
         handlerSqlCalls.add(new ArrayList<>(Arrays.asList(ctx.sql())));
         List<Object[]> objects = new ArrayList<>();
         objects.add(ctx.bindings());
         handlerSqlBindings.add(objects);
       }
+      // handle adding sql/bindings if not first call for this position
       else {
         handlerSqlCalls.get(location).add(ctx.sql());
         handlerSqlBindings.get(location).add(ctx.bindings());
       }
 
+      // if at end of list, repeatedly return the same thing every time called
       if (location + 1 == recordReturns.size()) {
         return recordReturns.get(location).get();
       }
@@ -195,7 +198,7 @@ public class JooqMock implements MockDataProvider {
     MockConnection connection = new MockConnection(this);
     context = DSL.using(connection, SQLDialect.POSTGRES);
 
-    // create the recordReturns object and add the 'UNKNOWN', 'DROP/CREATE' and 'INSERT' operations
+    // create the recordReturns object and add the 'UNKNOWN' and 'DROP/CREATE' operations
     recordReturns = new HashMap<>();
     recordReturns.put("UNKNOWN", new Operations());
     recordReturns.put("DROP/CREATE", new Operations());
@@ -351,8 +354,8 @@ public class JooqMock implements MockDataProvider {
    */
   private MockResult getResult(MockExecuteContext ctx) throws SQLException {
     String sql = ctx.sql();
-    String operation = "";
-    String table = "";
+    String operation;
+    String table;
 
     // Handle 'DROP' and 'CREATE' statements
     if (sql.toUpperCase().startsWith("DROP") || sql.toUpperCase().startsWith("CREATE")) {
@@ -373,11 +376,19 @@ public class JooqMock implements MockDataProvider {
       operation = "INSERT";
     }
 
+    // Handle 'UPDATE' statements
     else if (sql.toUpperCase().startsWith("UPDATE")) {
       table = sql.split("\"")[1];
       operation = "UPDATE";
     }
 
+    // Handle 'DELETE' statements
+    else if (sql.toUpperCase().startsWith("DELETE")) {
+      table = sql.split("from")[1].split("\"")[1];
+      operation = "DELETE";
+    }
+
+    // Handle 'UNKNOWN' statements
     else {
       Result<Record> result = context.newResult();
       recordReturns.get("UNKNOWN").call(ctx);
@@ -385,6 +396,7 @@ public class JooqMock implements MockDataProvider {
     }
 
     Result<Record> result = context.newResult(classMap.get(table).fields());
+    // catch and rethrow exception if return not primed
     try {
       result.addAll(recordReturns.get(operation).call(ctx));
     }
