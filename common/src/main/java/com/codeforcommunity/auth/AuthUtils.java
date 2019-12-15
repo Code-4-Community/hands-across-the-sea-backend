@@ -14,9 +14,9 @@ public class AuthUtils {
     private Mac mac;
 
     // 30 min
-    public static long access_exp = 1800000;
+    public static final long access_exp = 1800000;
     // 7 days
-    public static long refresh_exp = 604800000;
+    public static final long refresh_exp = 604800000;
 
     public String toHexString(byte[] bytes) {
         Formatter formatter = new Formatter();
@@ -28,13 +28,13 @@ public class AuthUtils {
         return formatter.toString();
     }
 
-    public AuthUtils() throws Exception {
+    public AuthUtils() {
         try {
             this.mac = Mac.getInstance(alg);
             mac.init(signingKey);
         } catch (Exception e) {
             Logger.log("error creating sha");
-            throw new Exception();
+            throw new IllegalStateException("AuthUtils failed starting up", e);
         }
     }
 

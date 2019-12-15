@@ -1,5 +1,6 @@
 package com.codeforcommunity.api;
 
+import com.codeforcommunity.auth.AuthUtils;
 import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
@@ -13,7 +14,7 @@ public interface IAuthProcessor {
      * Creates a new user to be known to our application.
      * @param request request object containing new user information.
      */
-    void newUser(NewUserRequest request);
+    SessionResponse signUp(NewUserRequest request) throws AuthException;
 
     /**
      * Logs in. TODO

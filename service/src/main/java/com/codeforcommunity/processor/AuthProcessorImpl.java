@@ -1,49 +1,54 @@
 package com.codeforcommunity.processor;
 
 import com.codeforcommunity.api.IAuthProcessor;
-import com.codeforcommunity.auth.IAuthDatabase;
 import com.codeforcommunity.auth.JWTCreator;
 import com.codeforcommunity.dto.auth.LoginRequest;
-import com.codeforcommunity.dto.auth.NewSessionRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
 import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.dto.*;
+import org.jooq.DSLContext;
 
 public class AuthProcessorImpl implements IAuthProcessor {
 
-    private final IAuthDatabase db;
+    private final AuthDatabase authDatabase;
     private final JWTCreator jwtCreator;
 
-    public AuthProcessorImpl(IAuthDatabase db, JWTCreator jwtCreator) {
-        this.db = db;
+    public AuthProcessorImpl(DSLContext db, JWTCreator jwtCreator) {
+        this.authDatabase = new AuthDatabase(db);
         this.jwtCreator = jwtCreator;
     }
 
+    //TODO how will we handle/check for clashes in usernames and such
     @Override
-    public RefreshSessionResponse refreshSession(RefreshSessionRequest request) throws AuthException {
+    public SessionResponse signUp(NewUserRequest request) {
+        // Check that inputs are valid ??
+        // Create new user database row *uses database
+        // Create new refresh jwt
+        // Create new access jwt
+        // Return jwts
 
-        if(!db.isValidRefresh(getSignature(request.getRefreshToken()))) {
-            throw new AuthException("refresh token is voided by previous logout");
-        }
+        authDatabase.createNewUser(request.getUsername(), request.getEmail(), request.getPassword(),
+            request.getFirstName(), request.getLastName());
 
-        String accessToken = jwtCreator.getNewAccessToken(request.getRefreshToken());
+        String refreshToken = jwtCreator.createNewRefreshToken(request.getUsername());
+        String accessToken = jwtCreator.getNewAccessToken(refreshToken);
 
-        return new RefreshSessionResponse() {{
-            setFreshAccessToken(accessToken);
+        return new SessionResponse() {{
+            setRefreshToken(refreshToken);
+            setAccessToken(accessToken);
         }};
     }
 
     @Override
-    public void newUser(NewUserRequest request) {
-        db.newUser(request.getUsername(), request.getEmail(), request.getPassword(), request.getFirstName(),
-                request.getLastName());
-    }
-
-    @Override
     public SessionResponse login(LoginRequest loginRequest) throws AuthException {
-        if (db.isValidUser(loginRequest.getUsername(), loginRequest.getPassword())) {
+        // Check if username password combination is good *uses database
+        // Create new refresh jwt
+        // Create new access jwt
+        // Return jwts
+
+        if (authDatabase.isValidLogin(loginRequest.getUsername(), loginRequest.getPassword())) {
             String refreshToken = jwtCreator.createNewRefreshToken(loginRequest.getUsername());
             String accessToken = jwtCreator.getNewAccessToken(refreshToken);
 
@@ -58,7 +63,27 @@ public class AuthProcessorImpl implements IAuthProcessor {
 
     @Override
     public void logout(String refreshToken) {
-        db.invalidateRefresh(refreshToken);
+        // Add refresh jwt to blacklist *uses database
+
+        authDatabase.addToBlackList(getSignature(refreshToken));
+    }
+
+    @Override
+    public RefreshSessionResponse refreshSession(RefreshSessionRequest request) throws AuthException {
+        // Check if refresh jwt is valid
+        // Check if refresh jwt is blacklisted *uses database
+        // Create new access jwt
+        // Return access jwt
+
+        if(authDatabase.isOnBlackList(getSignature(request.getRefreshToken()))) {
+            throw new AuthException("refresh token is voided by previous logout");
+        }
+
+        String accessToken = jwtCreator.getNewAccessToken(request.getRefreshToken());
+
+        return new RefreshSessionResponse() {{
+            setFreshAccessToken(accessToken);
+        }};
     }
 
     private String getSignature(String token) {

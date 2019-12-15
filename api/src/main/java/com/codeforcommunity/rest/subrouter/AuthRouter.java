@@ -2,7 +2,6 @@ package com.codeforcommunity.rest.subrouter;
 
 import com.codeforcommunity.api.IAuthProcessor;
 import com.codeforcommunity.dto.auth.LoginRequest;
-import com.codeforcommunity.dto.auth.NewSessionRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
@@ -123,7 +122,7 @@ public class AuthRouter implements IRouter {
         setLastName(body.getString("last_name"));
       }};
 
-      authProcessor.newUser(userRequest);
+      authProcessor.signUp(userRequest);
 
     } catch (Exception e) {
       endClientError(ctx.response());

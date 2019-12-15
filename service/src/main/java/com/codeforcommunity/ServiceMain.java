@@ -5,7 +5,6 @@ import com.codeforcommunity.api.INotesProcessor;
 import com.codeforcommunity.auth.JWTAuthorizer;
 import com.codeforcommunity.auth.JWTCreator;
 import com.codeforcommunity.auth.JWTHandler;
-import com.codeforcommunity.processor.AuthDataBaseImpl;
 import com.codeforcommunity.processor.AuthProcessorImpl;
 import com.codeforcommunity.processor.NotesProcessorImpl;
 import com.codeforcommunity.rest.ApiRouter;
@@ -77,7 +76,7 @@ public class ServiceMain {
     JWTCreator jwtCreator = new JWTCreator(jwtHandler);
 
     INotesProcessor notesProcessor = new NotesProcessorImpl(this.db);
-    IAuthProcessor authProcessor = new AuthProcessorImpl(new AuthDataBaseImpl(this.db), jwtCreator);
+    IAuthProcessor authProcessor = new AuthProcessorImpl(this.db, jwtCreator);
     ApiRouter router = new ApiRouter(notesProcessor, authProcessor, jwtAuthorizer);
     startApiServer(router);
   }
