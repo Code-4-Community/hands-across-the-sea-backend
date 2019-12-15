@@ -1,11 +1,13 @@
 package com.codeforcommunity.processor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.codeforcommunity.JooqMock;
 import com.codeforcommunity.dto.FullNote;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.jooq.UpdatableRecord;
 import org.jooq.generated.tables.Note;
 import org.jooq.generated.tables.records.NoteRecord;
@@ -66,6 +68,34 @@ public class ProcessorImplTest {
     assertEquals("NoTe11", notes.get(0).getTitle());
     assertEquals("nOtE11", notes.get(0).getContent());
     assertEquals("10/20/2019", notes.get(0).getDate());
+
+    assertEquals(2, mockDb.timesCalled("SELECT"));
+  }
+
+  @Test
+  public void testGetANote() {
+    setup();
+
+    NoteRecord n = new NoteRecord();
+    n.setId(0);
+    n.setUserId(0);
+    n.setTitle("TITLE");
+    n.setBody("SET BODY");
+    mockDb.addReturn("SELECT", n);
+
+    FullNote note = processor.getANote(5);
+
+    assertEquals(0, note.getId());
+    assertEquals(1, mockDb.timesCalled("SELECT"));
+
+    String sql = mockDb.getSqlStrings().get("SELECT").get(0);
+    Object[] bindings = mockDb.getSqlBindings().get("SELECT").get(0);
+
+    // certify count of bindings
+    assertEquals(1, bindings.length);
+    assertTrue(sql.contains("select")
+        && sql.contains("from \"note\" where \"note\".\"id\" = ?"));
+    assertEquals(5, bindings[0]);
   }
 
 //  an example test using the JooqMock mock db
@@ -87,7 +117,7 @@ public class ProcessorImplTest {
 //    assertEquals("1223", val);
 //
 //    assertEquals(2, mockDb.timesCalled("SELECT"));
-//    assertEquals(-1, mockDb.timesCalled("INSERT"));
+//    assertEquals(0, mockDb.timesCalled("INSERT"));
 //    System.out.println(mockDb.getSqlStrings());
 //  }
 //
