@@ -1,5 +1,7 @@
 package com.codeforcommunity.rest.subrouter;
 
+import com.codeforcommunity.api.IAuthProcessor;
+import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.rest.IRouter;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
@@ -17,11 +19,26 @@ public class CommonRouter implements IRouter {
   public Router initializeRouter(Vertx vertx) {
     Router router = Router.router(vertx);
 
-    router.route().handler(BodyHandler.create(false));
+    router.route().handler(BodyHandler.create(false)); //Add body handling
 
-    router.routeWithRegex(".*/authorized/.*").handler(this::handleAuthorizeUser);
+    router.route().failureHandler(this::handleFailures); //Add failure handling
+
+    router.routeWithRegex(".*/authorized/.*").handler(this::handleAuthorizeUser); //Add auth checking
 
     return router;
+  }
+
+  /**
+   * TODO: When is this activated
+   */
+  private void handleFailures(RoutingContext ctx) {
+    Throwable exceptionThrown = ctx.failure();
+
+    if (exceptionThrown instanceof AuthException) {
+      ctx.response().setStatusCode(401).end();
+    } else if (exceptionThrown instanceof IllegalStateException) {
+      ctx.response().setStatusCode(400).end();
+    }
   }
 
   /**
@@ -35,7 +52,7 @@ public class CommonRouter implements IRouter {
     if (authorized(ctx.request())) {
       ctx.next();
     } else {
-      ctx.fail(401, new IllegalArgumentException("AAAAAAAAAAAAHHHH!!!!!!!!!!!"));
+      ctx.fail(new AuthException("Unauthorized user"));
     }
   }
 
@@ -44,7 +61,7 @@ public class CommonRouter implements IRouter {
 
     try {
       accessToken = req.getHeader("access_token");
-      return true; //TODO: Validate
+     return IAuthProcessor.isAuthorized(accessToken);
     } catch (Exception e) {
       return false;
     }

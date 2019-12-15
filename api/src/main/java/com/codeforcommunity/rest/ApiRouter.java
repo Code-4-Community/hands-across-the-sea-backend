@@ -37,8 +37,8 @@ public class ApiRouter implements IRouter {
     public Router initializeRouter(Vertx vertx) {
         Router router = commonRouter.initializeRouter(vertx);
 
-        router.mountSubRouter("/authorized/notes", notesRouter.initializeRouter(vertx));
-        router.mountSubRouter("/user/login", authRouter.initializeRouter(vertx));
+        router.mountSubRouter("/notes", notesRouter.initializeRouter(vertx));
+        router.mountSubRouter("/user", authRouter.initializeRouter(vertx));
 
         return router;
     }

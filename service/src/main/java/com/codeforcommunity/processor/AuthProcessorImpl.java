@@ -1,12 +1,12 @@
 package com.codeforcommunity.processor;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTCreator;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.auth0.jwt.interfaces.Verification;
+//import com.auth0.jwt.JWT;
+//import com.auth0.jwt.JWTCreator;
+//import com.auth0.jwt.algorithms.Algorithm;
+//import com.auth0.jwt.exceptions.JWTCreationException;
+//import com.auth0.jwt.exceptions.JWTVerificationException;
+//import com.auth0.jwt.interfaces.DecodedJWT;
+//import com.auth0.jwt.interfaces.Verification;
 import com.codeforcommunity.api.IAuthProcessor;
 import com.codeforcommunity.auth.AuthUtils;
 import com.codeforcommunity.auth.IAuthDatabase;
@@ -27,28 +27,26 @@ public class AuthProcessorImpl implements IAuthProcessor {
 
     private static Date refreshExp = Date.from(Instant.now().plusMillis(AuthUtils.refresh_exp));
     private static Date accessExp = Date.from(Instant.now().plusMillis(AuthUtils.access_exp));
-    private static final Algorithm algorithm = Algorithm.HMAC256("secretKey");
-    private static Verification verification = getDefaultClaimVerification();
 
     public AuthProcessorImpl(IAuthDatabase db) {
         this.db = db;
     }
 
-    /**
-     * Verifies that given access token is unedited and unexpired. Also will confirm any claims defined in
-     * @code this.getDefaultClaimVerification().
-     * @param accessToken token to be validated
-     * @return true if and only if all conforms to all of said conditions.
-     */
-    @Override
-    public boolean isAuthorized(String accessToken) {
-        try {
-            verification.build().verify(accessToken);
-            return true;
-        } catch (JWTVerificationException exception) {
-            return false;
-        }
-    }
+//    /**
+//     * Verifies that given access token is unedited and unexpired. Also will confirm any claims defined in
+//     * @code this.getDefaultClaimVerification().
+//     * @param accessToken token to be validated
+//     * @return true if and only if all conforms to all of said conditions.
+//     */
+//    @Override
+//    public boolean isAuthorized(String accessToken) {
+//        try {
+//            verification.build().verify(accessToken);
+//            return true;
+//        } catch (JWTVerificationException exception) {
+//            return false;
+//        }
+//    }
 
     @Override
     public SessionResponse getSession(NewSessionRequest request) throws AuthException {
@@ -131,14 +129,6 @@ public class AuthProcessorImpl implements IAuthProcessor {
 
     private String getSignature(String token) {
         return token.split("\\.")[2];
-    }
-
-    /**
-     * Create verification object that ensures all default claims we have decided should be in every token are present.
-     * @return verification object.
-     */
-    private static Verification getDefaultClaimVerification() {
-        return JWT.require(algorithm).withIssuer("c4c");
     }
 
 }
