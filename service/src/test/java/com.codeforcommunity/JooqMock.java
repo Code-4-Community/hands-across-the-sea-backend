@@ -351,38 +351,48 @@ public class JooqMock implements MockDataProvider {
    */
   private MockResult getResult(MockExecuteContext ctx) throws SQLException {
     String sql = ctx.sql();
-    String operation;
+    String operation = "";
+    String table = "";
 
     // Handle 'DROP' and 'CREATE' statements
     if (sql.toUpperCase().startsWith("DROP") || sql.toUpperCase().startsWith("CREATE")) {
-      operation = "DROP/CREATE";
+      Result<Record> result = context.newResult();
+      recordReturns.get("DROP/CREATE").call(ctx);
+      return new MockResult(result.size(), result);
     }
 
     // Handle 'SELECT' statements
-    else if (sql.toUpperCase().startsWith("SELECT")) {
-      String table = sql.split("from")[1].split("\"")[1];
-      Result<Record> result = context.newResult(classMap.get(table).fields());
-
-      result.addAll(recordReturns.get("SELECT").call(ctx));
-      return new MockResult(result.size(), result);
+    if (sql.toUpperCase().startsWith("SELECT")) {
+      table = sql.split("from")[1].split("\"")[1];
+      operation = "SELECT";
     }
 
     // Handle 'INSERT' statements
     else if (sql.toUpperCase().startsWith("INSERT")) {
-      String table = sql.split("into")[1].split("\"")[1];
-      Result<Record> result = context.newResult(classMap.get(table).fields());
+      table = sql.split("into")[1].split("\"")[1];
+      operation = "INSERT";
+    }
 
-      result.addAll(recordReturns.get("INSERT").call(ctx));
+    else if (sql.toUpperCase().startsWith("UPDATE")) {
+      table = sql.split("\"")[1];
+      operation = "UPDATE";
+    }
+
+    else {
+      Result<Record> result = context.newResult();
+      recordReturns.get("UNKNOWN").call(ctx);
       return new MockResult(result.size(), result);
     }
 
-    // Handle 'UNKNOWN' operations
-    else {
-      operation = "UNKNOWN";
+    Result<Record> result = context.newResult(classMap.get(table).fields());
+    try {
+      result.addAll(recordReturns.get(operation).call(ctx));
     }
-
-    Result<Record> result = context.newResult();
-    recordReturns.get(operation).call(ctx);
+    catch (NullPointerException e) {
+      throw new NullPointerException("You probably forgot to prime your "
+          + "JooqMock by calling addReturn (with one of SELECT/INSERT/UPDATE/DELETE as "
+          + "your operation.");
+    }
     return new MockResult(result.size(), result);
   }
 
