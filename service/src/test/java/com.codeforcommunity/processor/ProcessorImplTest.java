@@ -138,6 +138,7 @@ public class ProcessorImplTest {
       mockDb.addReturn("INSERT", primer);
     }
 
+    assertEquals(0, mockDb.timesCalled("INSERT"));
     List<FullNote> returnNotes = processor.createNotes(notes);
     assertEquals(3, mockDb.timesCalled("INSERT"));
     for (int i = 0; i < 3; i++) {
@@ -152,4 +153,34 @@ public class ProcessorImplTest {
       assertEquals(i, returnNotes.get(i).getId());
     }
   }
+
+  @Test
+  public void testUpdateNote() {
+    setup();
+
+    NoteRecord primer = new NoteRecord();
+    primer.setId(0);
+    primer.setTitle("TITLE");
+    primer.setBody("SET BODY");
+    mockDb.addReturn("SELECT", primer);
+    mockDb.addReturn("UPDATE", primer);
+
+    ContentNote n = new ContentNote("TITLE", "SET BODY");
+    FullNote returnNote = processor.updateNote(0, n);
+
+    assertEquals(-1, mockDb.timesCalled("INSERT"));
+    assertEquals(1, mockDb.timesCalled("UPDATE"));
+    assertEquals(1, mockDb.timesCalled("SELECT"));
+    assertEquals("TITLE", returnNote.getTitle());
+    assertEquals("SET BODY", returnNote.getContent());
+    String sql = mockDb.getSqlStrings().get("UPDATE").get(0);
+    Object[] bindings = mockDb.getSqlBindings().get("UPDATE").get(0);
+
+    assertEquals("update \"note\" set \"title\" = ?, \"body\" = ? where \"note\""
+        + ".\"id\" = ?", sql);
+    assertEquals("TITLE", bindings[0]);
+    assertEquals("SET BODY", bindings[1]);
+  }
+
+  @Test
 }
