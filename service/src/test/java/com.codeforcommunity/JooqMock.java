@@ -187,7 +187,7 @@ public class JooqMock implements MockDataProvider {
   }
 
   /**
-   * Constructor for JooqMock. 'UNKNOWN', 'INSERT', and 'DROP/CREATE' operations are added by
+   * Constructor for JooqMock. 'UNKNOWN' and 'DROP/CREATE' operations are added by
    * default.
    */
   public JooqMock() {
@@ -198,7 +198,6 @@ public class JooqMock implements MockDataProvider {
     // create the recordReturns object and add the 'UNKNOWN', 'DROP/CREATE' and 'INSERT' operations
     recordReturns = new HashMap<>();
     recordReturns.put("UNKNOWN", new Operations());
-    recordReturns.put("INSERT", new Operations());
     recordReturns.put("DROP/CREATE", new Operations());
 
     // create the classMap object and seed with database tables
@@ -215,7 +214,7 @@ public class JooqMock implements MockDataProvider {
    *  returning all record (functions) that have been added prior to this.
    * The final record acts as the default record for when new records run out.
    *
-   * The 'UNKNOWN', 'INSERT', and 'DROP/CREATE' operations are added by default since they
+   * The 'UNKNOWN' and 'DROP/CREATE' operations are added by default since they
    *  return nothing.
    *
    * @param operation The operation to return this for (e.g. 'SELECT', 'INSERT', ...).
@@ -234,7 +233,7 @@ public class JooqMock implements MockDataProvider {
  *  returning all record (functions) that have been added prior to this.
  * The final record acts as the default record for when new records run out.
  *
- * The 'UNKNOWN', 'INSERT', and 'DROP/CREATE' operations are added by default since they
+ * The 'UNKNOWN' and 'DROP/CREATE' operations are added by default since they
  *  return nothing.
  *
  * @param operation The operation to return this for (e.g. 'SELECT', 'INSERT', ...).
@@ -253,7 +252,7 @@ public class JooqMock implements MockDataProvider {
    *  supplier supplies after returning all record (functions) that have been added prior to this.
    * The final record acts as the default record for when new records run out.
    *
-   * The 'UNKNOWN', 'INSERT', and 'DROP/CREATE' operations are added by default since they
+   * The 'UNKNOWN' and 'DROP/CREATE' operations are added by default since they
    *  return nothing.
    *
    * @param operation THe operation to run this for (e.g. 'SELECT', 'INSERT'...).
@@ -272,7 +271,7 @@ public class JooqMock implements MockDataProvider {
    *  in the order they are in the list.
    * The final record acts as the default record for when new records run out.
    *
-   * The 'UNKNOWN', 'INSERT', and 'DROP/CREATE' operations are added by default since they
+   * The 'UNKNOWN' and 'DROP/CREATE' operations are added by default since they
    *  return nothing.
    *
    * @param records A map of operations to records to be returned.
@@ -370,7 +369,11 @@ public class JooqMock implements MockDataProvider {
 
     // Handle 'INSERT' statements
     else if (sql.toUpperCase().startsWith("INSERT")) {
-      operation = "INSERT";
+      String table = sql.split("into")[1].split("\"")[1];
+      Result<Record> result = context.newResult(classMap.get(table).fields());
+
+      result.addAll(recordReturns.get("INSERT").call(ctx));
+      return new MockResult(result.size(), result);
     }
 
     // Handle 'UNKNOWN' operations
