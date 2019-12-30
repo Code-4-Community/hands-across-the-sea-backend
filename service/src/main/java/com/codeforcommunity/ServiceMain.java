@@ -32,7 +32,7 @@ public class ServiceMain {
   /**
    * Start the server, get everything going.
    */
-  public void initialize() throws Exception {
+  public void initialize() {
     loadProperties();
     connectDb();
     initializeServer();
@@ -61,7 +61,6 @@ public class ServiceMain {
       e.printStackTrace();
     }
 
-    //TODO: These arguments should be read out of a properties file
     DSLContext db = DSL.using(dbProperties.getProperty("database.url"),
         dbProperties.getProperty("database.username"), dbProperties.getProperty("database.password"));
     this.db = db;

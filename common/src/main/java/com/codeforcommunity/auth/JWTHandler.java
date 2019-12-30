@@ -50,6 +50,9 @@ public class JWTHandler {
   }
 
   private DecodedJWT getDecodedJWT(String jwt) throws JWTVerificationException {
+    if (jwt == null) {
+      throw new JWTVerificationException("Given a null jwt string");
+    }
     return verification.build().verify(jwt);
   }
 
@@ -60,7 +63,10 @@ public class JWTHandler {
 
   private String createToken(boolean isRefresh, String username) {
     Date date = getTokenExpiration(isRefresh);
-    return JWT.create().withClaim("username", username).withExpiresAt(date)
+    return JWT.create()
+        .withClaim("username", username)
+        .withExpiresAt(date)
+        .withIssuer(C4C_ISSUER)
         .sign(algorithm);
   }
 

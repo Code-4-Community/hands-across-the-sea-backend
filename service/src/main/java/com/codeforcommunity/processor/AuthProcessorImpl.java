@@ -24,16 +24,16 @@ public class AuthProcessorImpl implements IAuthProcessor {
     @Override
     public SessionResponse signUp(NewUserRequest request) {
         // Check that inputs are valid ??
-        // Create new user database row *uses database
         // Create new refresh jwt
         // Create new access jwt
+        // Create new user database row *uses database
         // Return jwts
-
-        authDatabase.createNewUser(request.getUsername(), request.getEmail(), request.getPassword(),
-            request.getFirstName(), request.getLastName());
 
         String refreshToken = jwtCreator.createNewRefreshToken(request.getUsername());
         String accessToken = jwtCreator.getNewAccessToken(refreshToken);
+
+        authDatabase.createNewUser(request.getUsername(), request.getEmail(), request.getPassword(),
+            request.getFirstName(), request.getLastName());
 
         return new SessionResponse() {{
             setRefreshToken(refreshToken);

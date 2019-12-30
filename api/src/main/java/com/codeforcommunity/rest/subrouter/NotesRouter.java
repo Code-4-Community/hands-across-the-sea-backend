@@ -36,7 +36,8 @@ public class NotesRouter implements IRouter {
   public Router initializeRouter(Vertx vertx) {
     Router router = Router.router(vertx);
 
-    registerGetNoteRoute(router);
+    registerGetANoteRoute(router);
+    registerGetNotesRoute(router);
     registerPostNoteRoute(router);
     registerPutNoteRoute(router);
     registerDeleteNoteRoute(router);
@@ -44,51 +45,45 @@ public class NotesRouter implements IRouter {
     return router;
   }
 
+  private void registerGetANoteRoute(Router router) {
+    Route getNoteRoute = router.get("/:note_id");
+    getNoteRoute.handler(this::handleGetANoteRoute);
+  }
 
   //protected resource
-  private void registerGetNoteRoute(Router router) {
-    Route getNoteRoute = router.route(HttpMethod.GET, HttpConstants.noteRoute);
-    getNoteRoute.handler(this::handleGetNoteRoute);
+  private void registerGetNotesRoute(Router router) {
+    Route getNoteRoute = router.get("/");
+    getNoteRoute.handler(this::handleGetNotesRoute);
   }
 
   //protected resource
   private void registerPostNoteRoute(Router router) {
-    Route postNoteRoute = router.route(HttpMethod.POST, HttpConstants.noteRoute);
+    Route postNoteRoute = router.post("/");
     postNoteRoute.handler(this::handlePostNoteRoute);
   }
 
   //protected resource
   private void registerPutNoteRoute(Router router) {
-    Route putNoteRoute = router.route(HttpMethod.PUT, HttpConstants.noteRoute + "/:" + HttpConstants.noteIdParam);
+    Route putNoteRoute = router.put("/:note_id");
     putNoteRoute.handler(this::handlePutNoteRoute);
   }
 
   //protected resource
   private void registerDeleteNoteRoute(Router router) {
-    Route deleteNoteRoute = router.route(HttpMethod.DELETE, HttpConstants.noteRoute + "/:" + HttpConstants.noteIdParam);
+    Route deleteNoteRoute = router.delete("/:note_id");
     deleteNoteRoute.handler(this::handleDeleteNoteRoute);
   }
 
+  private void handleGetANoteRoute(RoutingContext ctx) {
+    int noteId = Integer.parseInt(ctx.request().getParam("note_id"));
+    List<FullNote> notes = Collections.singletonList(notesProcessor.getANote(noteId));
+    NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
+    end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
+  }
 
-  private void handleGetNoteRoute(RoutingContext ctx) {
-
-    Optional<String> optionalNoteId;
-
+  private void handleGetNotesRoute(RoutingContext ctx) {
     try {
-      optionalNoteId = Optional.ofNullable(ctx.request().getParam(HttpConstants.noteIdParam));
-    } catch (Exception e) {
-      endClientError(ctx.response());
-      return;
-    }
-
-    try {
-      List<FullNote> notes;
-      if (optionalNoteId.isPresent()) {
-        int noteId = Integer.parseInt(optionalNoteId.get());
-        notes = Collections.singletonList(notesProcessor.getANote(noteId));
-      } else {
-        notes = notesProcessor.getAllNotes();
-      }
+      List<FullNote> notes = notesProcessor.getAllNotes();
       NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
       end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
     } catch (Exception e) {
@@ -97,7 +92,6 @@ public class NotesRouter implements IRouter {
   }
 
   private void handlePostNoteRoute(RoutingContext ctx) {
-
     NotesRequest requestBody;
 
     try {
@@ -107,8 +101,6 @@ public class NotesRouter implements IRouter {
       endClientError(ctx.response());
       return;
     }
-
-
 
     try {
       List<FullNote> notes = notesProcessor.createNotes(requestBody.getNotes());
@@ -120,7 +112,6 @@ public class NotesRouter implements IRouter {
   }
 
   private void handlePutNoteRoute(RoutingContext ctx) {
-
     NoteRequest requestBody;
 
     try {
@@ -142,7 +133,6 @@ public class NotesRouter implements IRouter {
   }
 
   private void handleDeleteNoteRoute(RoutingContext ctx) {
-
     int noteId;
 
     try {
