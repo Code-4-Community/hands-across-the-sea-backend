@@ -2,7 +2,7 @@ package com.codeforcommunity.dto.auth;
 
 import com.codeforcommunity.dto.IDTO;
 
-public class IsUserRequest implements IDTO {
+public class LoginRequest implements IDTO {
 
     private String username;
     private String password;

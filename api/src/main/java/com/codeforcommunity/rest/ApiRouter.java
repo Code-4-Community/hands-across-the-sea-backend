@@ -2,6 +2,7 @@ package com.codeforcommunity.rest;
 
 import com.codeforcommunity.api.INotesProcessor;
 import com.codeforcommunity.api.IAuthProcessor;
+import com.codeforcommunity.auth.JWTAuthorizer;
 import com.codeforcommunity.dto.*;
 
 import com.codeforcommunity.rest.subrouter.AuthRouter;
@@ -9,8 +10,6 @@ import com.codeforcommunity.rest.subrouter.CommonRouter;
 import com.codeforcommunity.rest.subrouter.NotesRouter;
 import io.vertx.core.Vertx;
 
-import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
@@ -25,8 +24,8 @@ public class ApiRouter implements IRouter {
     private final NotesRouter notesRouter;
     private final AuthRouter authRouter;
 
-    public ApiRouter(INotesProcessor notesProcessor, IAuthProcessor authProcessor) {
-        this.commonRouter = new CommonRouter();
+    public ApiRouter(INotesProcessor notesProcessor, IAuthProcessor authProcessor, JWTAuthorizer jwtAuthorizer) {
+        this.commonRouter = new CommonRouter(jwtAuthorizer);
         this.notesRouter = new NotesRouter(notesProcessor);
         this.authRouter = new AuthRouter(authProcessor);
     }
@@ -37,8 +36,8 @@ public class ApiRouter implements IRouter {
     public Router initializeRouter(Vertx vertx) {
         Router router = commonRouter.initializeRouter(vertx);
 
-        router.mountSubRouter("/authorized/notes", notesRouter.initializeRouter(vertx));
-        router.mountSubRouter("/user/login", authRouter.initializeRouter(vertx));
+        router.mountSubRouter("/notes", notesRouter.initializeRouter(vertx));
+        router.mountSubRouter("/user", authRouter.initializeRouter(vertx));
 
         return router;
     }

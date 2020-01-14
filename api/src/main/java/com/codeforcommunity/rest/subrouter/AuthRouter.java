@@ -1,8 +1,7 @@
 package com.codeforcommunity.rest.subrouter;
 
 import com.codeforcommunity.api.IAuthProcessor;
-import com.codeforcommunity.dto.auth.IsUserRequest;
-import com.codeforcommunity.dto.auth.NewSessionRequest;
+import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
@@ -41,63 +40,46 @@ public class AuthRouter implements IRouter {
 
 
   private void registerLoginUser(Router router) {
-    Route loginUserRoute = router.route(HttpMethod.POST, "/api/v1/user/getNewUserSession");
+    Route loginUserRoute = router.post("/login");
     loginUserRoute.handler(this::handlePostUserLoginRoute);
   }
 
   private void registerRefreshUser(Router router) {
-    Route refreshUserRoute = router.route(HttpMethod.POST, "/api/v1/user/getNewUserSession/getNewAccessToken");
+    Route refreshUserRoute = router.post("/login/refresh");
     refreshUserRoute.handler(this::handlePostRefreshUser);
   }
 
   private void registerNewUser(Router router) {
-    Route newUserRoute = router.route(HttpMethod.POST, "/api/v1/user/signup");
+    Route newUserRoute = router.post("/signup");
     newUserRoute.handler(this::handlePostNewUser);
   }
 
   private void registerLogoutUser(Router router) {
-    Route logoutUserRoute = router.route(HttpMethod.DELETE, "/api/v1/user/login");
+    Route logoutUserRoute = router.delete( "/login");
     logoutUserRoute.handler(this::handleDeleteLogoutUser);
   }
 
 
   private void handlePostUserLoginRoute(RoutingContext ctx) {
-
     try {
-      JsonObject reqBody = ctx.getBodyAsJson();
+      LoginRequest userRequest = ctx.getBodyAsJson().mapTo(LoginRequest.class);
 
-      IsUserRequest userRequest = new IsUserRequest() {{
-        setPassword(reqBody.getString("password"));
-        setUsername(reqBody.getString("username"));
-      }};
+      SessionResponse response = authProcessor.login(userRequest);
 
-      if (!authProcessor.isUser(userRequest)) {
-        endUnauthorized(ctx.response());
-        return;
-      }
-      SessionResponse response = authProcessor.getSession(new NewSessionRequest() {{
-        setUsername(reqBody.getString("username"));
-      }});
-
-      end(ctx.response(), HttpConstants.ok_code, response.toJson());
+      end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
     } catch (Exception e) {
       endUnauthorized(ctx.response());
     }
   }
 
   private void handlePostRefreshUser(RoutingContext ctx) {
-
     try {
-
-      String refreshToken = ctx.getBodyAsJson().getString("refresh_token");
-
-      RefreshSessionRequest request = new RefreshSessionRequest() {{
-        setRefreshToken(refreshToken);
-      }};
+      String refreshToken = ctx.request().getHeader("refresh_token");
+      RefreshSessionRequest request = new RefreshSessionRequest(refreshToken);
 
       RefreshSessionResponse response = authProcessor.refreshSession(request);
 
-      end(ctx.response(), HttpConstants.created_code, response.toJson());
+      end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(response).toString());
 
     } catch (Exception e) {
       endUnauthorized(ctx.response());
@@ -105,32 +87,22 @@ public class AuthRouter implements IRouter {
   }
 
   private void handleDeleteLogoutUser(RoutingContext ctx) {
-
     try {
-      String refreshToken = ctx.getBodyAsJson().getString("refreshToken");
-      authProcessor.endSession(refreshToken);
+      String refreshToken = ctx.request().getHeader("refreshToken");
+      authProcessor.logout(refreshToken);
+      end(ctx.response(), 204);
     } catch (Exception e) {
       endClientError(ctx.response());
     }
-
   }
 
   private void handlePostNewUser(RoutingContext ctx) {
-
     try {
+      NewUserRequest request = ctx.getBodyAsJson().mapTo(NewUserRequest.class);
 
-      JsonObject body = ctx.getBodyAsJson();
+      SessionResponse response = authProcessor.signUp(request);
 
-      NewUserRequest userRequest = new NewUserRequest() {{
-        setEmail(body.getString("email"));
-        setUsername(body.getString("username"));
-        setPassword(body.getString("password"));
-        setFirstName(body.getString("first_name"));
-        setLastName(body.getString("last_name"));
-      }};
-
-      authProcessor.newUser(userRequest);
-
+      end(ctx.response(), 201, JsonObject.mapFrom(response).toString());
     } catch (Exception e) {
       endClientError(ctx.response());
     }

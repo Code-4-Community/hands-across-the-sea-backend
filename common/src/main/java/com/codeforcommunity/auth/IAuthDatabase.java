@@ -2,7 +2,7 @@ package com.codeforcommunity.auth;
 
 public interface IAuthDatabase {
 
-    boolean isValidUser(String user, String pass);
+    boolean isValidLogin(String user, String pass);
 
     boolean newUser(String username, String email, String password, String firstName, String lastName);
 
