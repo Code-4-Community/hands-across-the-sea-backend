@@ -9,7 +9,6 @@ import com.codeforcommunity.dto.SessionResponse;
 import com.codeforcommunity.rest.HttpConstants;
 import com.codeforcommunity.rest.IRouter;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
@@ -59,6 +58,11 @@ public class AuthRouter implements IRouter {
     logoutUserRoute.handler(this::handleDeleteLogoutUser);
   }
 
+  private void verifySecretKey(Router router) {
+    Route verifySecretKeyRoute = router.get("/verify/:secret_key");
+    verifySecretKeyRoute.handler(this::handleVerifySecretKey);
+  }
+
 
   private void handlePostUserLoginRoute(RoutingContext ctx) {
     try {
@@ -106,5 +110,11 @@ public class AuthRouter implements IRouter {
     } catch (Exception e) {
       endClientError(ctx.response());
     }
+  }
+
+  private void handleVerifySecretKey(RoutingContext ctx) {
+    String secret = ctx.pathParam("secret_key");
+
+
   }
 }

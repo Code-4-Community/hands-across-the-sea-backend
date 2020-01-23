@@ -4,4 +4,4 @@ CREATE TABLE IF NOT EXISTS verification_keys (
 
   CONSTRAINT verification_keys_pk
     PRIMARY KEY (id)
-)
+);
