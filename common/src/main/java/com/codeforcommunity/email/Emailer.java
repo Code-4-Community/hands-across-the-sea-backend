@@ -1,6 +1,7 @@
 package com.codeforcommunity.email;
 
 import com.codeforcommunity.logger.Logger;
+import com.codeforcommunity.propertiesLoader.PropertiesLoader;
 
 import javax.mail.*;
 import javax.mail.internet.AddressException;
@@ -13,28 +14,32 @@ import java.util.Properties;
 
 public class Emailer {
 
+  private static Emailer emailer;
   private Session session;
-  private String sender;
+  private String user;
   private String password;
 
-  /**
-   * Constructor for Emailer class.
-   * @param host stmp server that will handle sending this emails, for example "stmp.gmail.com"
-   * @param sender email address from which emails will be sent.
-   * @param password password of email address.
-   */
-  public Emailer(String host, String sender, String password) {
-    this.sender = sender;
-    this.password = password;
-    Properties props = System.getProperties();
-    props.put("mail.smtp.host", host);
-    props.put("mail.smtp.auth", "true");
-    props.put("mail.smtp.port", "465");
-    props.put("mail.debug", "true");
-    props.put("mail.smtp.socketFactory.port", "465");
-    props.put("mail.smtp.socketFactory.class","javax.net.ssl.SSLSocketFactory");
-    props.put("mail.smtp.socketFactory.fallback", "false");
-    this.session = Session.getInstance(props, null);
+  public static void main(String args[]) {
+    Emailer em = new Emailer();
+  }
+
+  public static Emailer getInstance() {
+    if(emailer == null) {
+      emailer = new Emailer();
+    }
+    return emailer;
+  }
+
+  private Emailer() {
+    Properties pr;
+    try {
+      pr = PropertiesLoader.getProperties(this.getClass()); //what to do here
+    } catch (Exception e) {
+      pr = new Properties(); //fix this idfk
+    }
+    this.user = pr.getProperty("user");
+    this.password = pr.getProperty("password");
+    this.session = Session.getInstance(pr, null);
   }
 
   /**
@@ -48,13 +53,13 @@ public class Emailer {
 
     try {
       MimeMessage msg = new MimeMessage(session);
-      msg.setFrom(sender);
+      msg.setFrom(user); //do I also need this?
       msg.setRecipients(Message.RecipientType.TO,
               parseRecipients(recipients));
       msg.setSubject(subject);
       msg.setSentDate(new Date());
       msg.setText(body);
-      Transport.send(msg, sender, password);
+      Transport.send(msg, user, password); //these will read from secrets file
     } catch (MessagingException mex) {
       Logger.log("send failed, exception: " + mex);
     }
