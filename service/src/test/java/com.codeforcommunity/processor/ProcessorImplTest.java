@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.codeforcommunity.JooqMock;
-import com.codeforcommunity.dto.ContentNote;
-import com.codeforcommunity.dto.FullNote;
+import com.codeforcommunity.dto.notes.ContentNote;
+import com.codeforcommunity.dto.notes.FullNote;
 import java.util.ArrayList;
 import java.util.List;
 import org.jooq.DSLContext;
@@ -23,25 +23,14 @@ public class ProcessorImplTest {
   // the JooqMock to use for testing
   JooqMock mockDb;
   // the ProcessorImpl to use for testing
-  ProcessorImpl processor;
+  NotesProcessorImpl processor;
 
   /**
    * Method to setup mockDb and processor.
    */
   void setup() {
     mockDb = new JooqMock();
-    processor = new ProcessorImpl(mockDb.getContext());
-  }
-
-  /**
-   * Method to test getAllMembers.
-   */
-  @Test
-  public void testGetAllMembers() {
-    setup();
-
-    // currently only returns an empty list
-    assertEquals(0, processor.getAllMembers().size());
+    processor = new NotesProcessorImpl(mockDb.getContext());
   }
 
   /**
