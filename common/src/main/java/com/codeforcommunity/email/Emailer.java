@@ -8,7 +8,6 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -52,7 +51,7 @@ public class Emailer {
       MimeMessage msg = new MimeMessage(session);
       msg.setFrom(user);
       msg.setRecipients(Message.RecipientType.TO,
-              parseRecipients(recipients.toArray(String[]::new)));
+              parseRecipients(recipients));
       msg.setSubject(subject);
       msg.setSentDate(new Date());
       msg.setText(body);
@@ -63,9 +62,9 @@ public class Emailer {
   }
 
 
-  private Address[] parseRecipients(String[] recipients) {
+  private Address[] parseRecipients(List<String> recipients) {
 
-      return Arrays.stream(recipients)
+      return recipients.stream()
               .map(r -> {
                 try {
                   return new InternetAddress(r);
