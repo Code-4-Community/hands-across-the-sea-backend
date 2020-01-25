@@ -42,8 +42,6 @@ public class ApiRouter implements IRouter {
         return router;
     }
 
-
-
     public static void endClientError(HttpServerResponse resp) {
         String errorResponse = new ClientErrorResponse(HttpConstants.clientErrorMessage).toJson();
         end(resp, HttpConstants.client_error_code, errorResponse);

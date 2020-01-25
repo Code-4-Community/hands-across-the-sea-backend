@@ -19,10 +19,6 @@ public class Emailer {
   private String user;
   private String password;
 
-  public static void main(String args[]) {
-    Emailer em = new Emailer();
-  }
-
   public static Emailer getInstance() {
     if(emailer == null) {
       emailer = new Emailer();
@@ -33,9 +29,9 @@ public class Emailer {
   private Emailer() {
     Properties pr;
     try {
-      pr = PropertiesLoader.getProperties(this.getClass()); //what to do here
+      pr = PropertiesLoader.getEmailerProperties();
     } catch (Exception e) {
-      pr = new Properties(); //fix this idfk
+      pr = new Properties();
     }
     this.user = pr.getProperty("user");
     this.password = pr.getProperty("password");

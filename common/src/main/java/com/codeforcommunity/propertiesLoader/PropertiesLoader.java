@@ -6,19 +6,23 @@ import java.util.Properties;
 
 public class PropertiesLoader {
 
-  public static Properties getProperties(Class cl) throws Exception {
+  private static Properties getProperties(String file) {
 
-    String propertiesFile = cl.getSimpleName().toLowerCase().concat(".properties");
-
-    try (InputStream input = cl.getClassLoader().getResourceAsStream(propertiesFile)) {
+    try (InputStream input = PropertiesLoader.class.getClassLoader().
+            getResourceAsStream(file)) {
       Properties prop = new Properties();
       prop.load(input);
       return prop;
     } catch (IOException ex) {
-      ex.printStackTrace();
+      throw new IllegalArgumentException("cannot find file".concat(file), ex);
     }
-    throw new Exception();
-
   }
 
+  public static Properties getEmailerProperties() {
+    return getProperties("emailer.properties");
+  }
+
+  public static Properties getDbProperties() {
+    return getProperties("db.properties");
+  }
 }

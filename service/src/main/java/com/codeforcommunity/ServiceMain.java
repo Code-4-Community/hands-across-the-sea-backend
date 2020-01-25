@@ -7,6 +7,7 @@ import com.codeforcommunity.auth.JWTCreator;
 import com.codeforcommunity.auth.JWTHandler;
 import com.codeforcommunity.processor.AuthProcessorImpl;
 import com.codeforcommunity.processor.NotesProcessorImpl;
+import com.codeforcommunity.propertiesLoader.PropertiesLoader;
 import com.codeforcommunity.rest.ApiRouter;
 
 import org.jooq.DSLContext;
@@ -18,7 +19,7 @@ import java.util.Properties;
 
 public class ServiceMain {
   private DSLContext db;
-  private final Properties dbProperties = new Properties();
+  private final Properties dbProperties = PropertiesLoader.getDbProperties();
 
   public static void main(String[] args) {
     try {
@@ -33,21 +34,8 @@ public class ServiceMain {
    * Start the server, get everything going.
    */
   public void initialize() {
-    loadProperties();
     connectDb();
     initializeServer();
-  }
-
-  /**
-   * Load properties from a db.properties file into a Properties field.
-   */
-  private void loadProperties() {
-    InputStream propertiesStream = this.getClass().getClassLoader().getResourceAsStream("db.properties");
-    try {
-      dbProperties.load(propertiesStream);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
   }
 
   /**
