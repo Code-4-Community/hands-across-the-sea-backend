@@ -70,7 +70,7 @@
                      - ? matches a single character in a directory / file name -->
                 <property>
                   <key>scripts</key>
-		  <value>persist\src\main\resources\db\migration\*.sql</value>
+		  <value>..\common\src\main\resources\db\migration\*.sql</value>
 
 		</property>
 
