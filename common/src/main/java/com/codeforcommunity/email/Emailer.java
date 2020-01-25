@@ -10,6 +10,7 @@ import javax.mail.internet.MimeMessage;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 public class Emailer {
@@ -35,7 +36,7 @@ public class Emailer {
     }
     this.user = pr.getProperty("user");
     this.password = pr.getProperty("password");
-    this.session = Session.getInstance(pr, null);
+    this.session = Session.getInstance(pr);
   }
 
   /**
@@ -45,13 +46,13 @@ public class Emailer {
    * @param body String body of message to send. This can be HTML or plaintext.
    * @param recipients list of email addresses to send message to.
    */
-  public void send(String subject, String body, String[] recipients) {
+  public void send(String subject, String body, List<String> recipients) {
 
     try {
       MimeMessage msg = new MimeMessage(session);
       msg.setFrom(user); //do I also need this?
       msg.setRecipients(Message.RecipientType.TO,
-              parseRecipients(recipients));
+              parseRecipients(recipients.toArray(String[]::new)));
       msg.setSubject(subject);
       msg.setSentDate(new Date());
       msg.setText(body);
