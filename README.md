@@ -4,7 +4,7 @@ This project is the Java backend api scaffold for Code4Community. It is meant to
 
 ### Running the Backend
 
-1. Update the properties file in `/persist/src/main/resources/db.properties` to contain your database connection information
+1. Update the properties file in `common/src/main/resources/db.properties` to contain your database connection information
 2. Run `mvn clean install` from the root directory
 3. Either run the `ServiceMain.java` file directly or run the command `mvn exec:java` from the /service module.
 4. Query the API from `localhost:8081`

@@ -14,14 +14,13 @@ public class PropertiesLoader {
       prop.load(input);
       return prop;
     } catch (IOException ex) {
-      throw new IllegalArgumentException("cannot find file".concat(file), ex);
+      throw new IllegalArgumentException("Cannot find file: " + file, ex);
     }
   }
 
   public static Properties getEmailerProperties() {
     return getProperties("emailer.properties");
   }
-
   public static Properties getDbProperties() {
     return getProperties("db.properties");
   }

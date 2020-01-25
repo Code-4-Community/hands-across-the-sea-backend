@@ -50,13 +50,13 @@ public class Emailer {
 
     try {
       MimeMessage msg = new MimeMessage(session);
-      msg.setFrom(user); //do I also need this?
+      msg.setFrom(user);
       msg.setRecipients(Message.RecipientType.TO,
               parseRecipients(recipients.toArray(String[]::new)));
       msg.setSubject(subject);
       msg.setSentDate(new Date());
       msg.setText(body);
-      Transport.send(msg, user, password); //these will read from secrets file
+      Transport.send(msg, user, password);
     } catch (MessagingException mex) {
       Logger.log("send failed, exception: " + mex);
     }
