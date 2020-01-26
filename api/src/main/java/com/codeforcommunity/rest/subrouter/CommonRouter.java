@@ -24,7 +24,7 @@ public class CommonRouter implements IRouter {
 
     router.route().failureHandler(this::handleFailures); //Add failure handling
 
-    router.routeWithRegex(".*/authorized/.*").handler(this::handleAuthorizeUser); //Add auth checking
+    router.routeWithRegex(".*/protected/.*").handler(this::handleAuthorizeUser); //Add auth checking
 
     return router;
   }

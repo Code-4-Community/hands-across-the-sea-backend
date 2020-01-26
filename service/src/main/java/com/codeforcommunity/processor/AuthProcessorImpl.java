@@ -20,15 +20,18 @@ public class AuthProcessorImpl implements IAuthProcessor {
         this.jwtCreator = jwtCreator;
     }
 
-    //TODO how will we handle/check for clashes in usernames and such
+    /**
+     * Check that inputs are valid with the database
+     * Creates a new refresh jwt
+     * Creates a new access jwt
+     * Creates a new user database row
+     * Return the new jwts
+     *
+     * @throws com.codeforcommunity.exceptions.CreateUserException if the given username or email
+     *   are already used.
+     */
     @Override
     public SessionResponse signUp(NewUserRequest request) {
-        // Check that inputs are valid ??
-        // Create new refresh jwt
-        // Create new access jwt
-        // Create new user database row *uses database
-        // Return jwts
-
         String refreshToken = jwtCreator.createNewRefreshToken(request.getUsername());
         String accessToken = jwtCreator.getNewAccessToken(refreshToken);
 
@@ -41,13 +44,16 @@ public class AuthProcessorImpl implements IAuthProcessor {
         }};
     }
 
+    /**
+     * Checks if username password combination is valid with database
+     * Creates a new refresh jwt
+     * Creates a new access jwt
+     * Return the access and refresh jwts
+     *
+     * @throws AuthException if the given username password combination is invalid.
+     */
     @Override
     public SessionResponse login(LoginRequest loginRequest) throws AuthException {
-        // Check if username password combination is good *uses database
-        // Create new refresh jwt
-        // Create new access jwt
-        // Return jwts
-
         if (authDatabase.isValidLogin(loginRequest.getUsername(), loginRequest.getPassword())) {
             String refreshToken = jwtCreator.createNewRefreshToken(loginRequest.getUsername());
             String accessToken = jwtCreator.getNewAccessToken(refreshToken);
@@ -57,26 +63,30 @@ public class AuthProcessorImpl implements IAuthProcessor {
                 setRefreshToken(refreshToken);
             }};
         } else {
-            throw new AuthException("Invalid user");
+            throw new AuthException("Could not validate username password combination");
         }
     }
 
+    /**
+     * Add refresh jwt to the blacklist token database table
+     */
     @Override
     public void logout(String refreshToken) {
-        // Add refresh jwt to blacklist *uses database
-
         authDatabase.addToBlackList(getSignature(refreshToken));
     }
 
+    /**
+     * Checks if refresh jwt is valid
+     * Checks if refresh jwt is blacklisted *uses database
+     * Creates a new access jwt
+     * Returns the access jwt
+     *
+     * @throws AuthException if the given refresh token is invalid.
+     */
     @Override
     public RefreshSessionResponse refreshSession(RefreshSessionRequest request) throws AuthException {
-        // Check if refresh jwt is valid
-        // Check if refresh jwt is blacklisted *uses database
-        // Create new access jwt
-        // Return access jwt
-
         if(authDatabase.isOnBlackList(getSignature(request.getRefreshToken()))) {
-            throw new AuthException("refresh token is voided by previous logout");
+            throw new AuthException("The refresh token has been invalidated by a previous logout");
         }
 
         String accessToken = jwtCreator.getNewAccessToken(request.getRefreshToken());
@@ -86,6 +96,10 @@ public class AuthProcessorImpl implements IAuthProcessor {
         }};
     }
 
+    /**
+     * Gets the signature of a given JWT string. Will be the third segment of a JWT that is
+     * partitioned by "." characters.
+     */
     private String getSignature(String token) {
         return token.split("\\.")[2];
     }
