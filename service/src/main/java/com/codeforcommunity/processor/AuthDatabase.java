@@ -2,8 +2,6 @@ package com.codeforcommunity.processor;
 
 import com.codeforcommunity.auth.AuthUtils;
 import org.jooq.DSLContext;
-import org.jooq.Result;
-import org.jooq.exception.DataAccessException;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.records.NoteUserRecord;
 
@@ -23,12 +21,11 @@ public class AuthDatabase {
     }
 
     public boolean isValidLogin(String user, String pass) {
+        //NOTE: Will throw DataAccessException if the username is not present
+        String passHash = db.selectFrom(NOTE_USER)
+            .where(NOTE_USER.USER_NAME.eq(user)).fetchOne().getPassHash();
 
-        Result<NoteUserRecord> noteUser = db.selectFrom(NOTE_USER).where(NOTE_USER.USER_NAME.eq(user)).fetch();
-
-        String pass_hash = noteUser.getValue(0, NOTE_USER.PASS_HASH);
-
-        return sha.hash(pass).equals(pass_hash);
+        return sha.hash(pass).equals(passHash);
     }
 
     public void createNewUser(String username, String email, String password, String firstName, String lastName) {
@@ -40,24 +37,27 @@ public class AuthDatabase {
         }
 
         String pass_hash = sha.hash(password);
-        db.insertInto(NOTE_USER, NOTE_USER.USER_NAME, NOTE_USER.EMAIL, NOTE_USER.PASS_HASH,
-            NOTE_USER.FIRST_NAME, NOTE_USER.LAST_NAME).values(username, email, pass_hash,
-            firstName, lastName).execute();
+        NoteUserRecord newUser = db.newRecord(NOTE_USER);
+        newUser.setUserName(username);
+        newUser.setEmail(email);
+        newUser.setPassHash(pass_hash);
+        newUser.setFirstName(firstName);
+        newUser.setLastName(lastName);
+        newUser.store();
     }
 
     public void addToBlackList(String signature) {
-        Timestamp timestamp = Timestamp.from(Instant.now().plusMillis(AuthUtils.refresh_exp));
-        db.insertInto(Tables.BLACKLISTED_REFRESHES, Tables.BLACKLISTED_REFRESHES.REFRESH_HASH,
-            Tables.BLACKLISTED_REFRESHES.EXPIRES).values(signature, timestamp).execute();
+        Timestamp expirationTimestamp = Timestamp.from(Instant.now().plusMillis(AuthUtils.refresh_exp));
+        db.newRecord(Tables.BLACKLISTED_REFRESHES)
+            .values(signature, expirationTimestamp)
+            .store();
     }
 
     public boolean isOnBlackList(String signature) {
+        int count = db.fetchCount(
+            Tables.BLACKLISTED_REFRESHES
+                .where(Tables.BLACKLISTED_REFRESHES.REFRESH_HASH.eq(signature)));
 
-        int count = db.selectCount().from(Tables.BLACKLISTED_REFRESHES)
-            .where(Tables.BLACKLISTED_REFRESHES.REFRESH_HASH.eq(signature))
-            .fetchOne(0, int.class);
-
-        return count == 1;
-
+        return count >= 1;
     }
 }
