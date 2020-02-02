@@ -5,6 +5,7 @@ import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
+import com.sun.org.apache.bcel.internal.generic.FADD;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
@@ -14,9 +15,11 @@ import io.vertx.ext.web.handler.BodyHandler;
 
 public class CommonRouter implements IRouter {
   private final JWTAuthorizer jwtAuthorizer;
+  private final FailureHandler failureHandler;
 
-  public CommonRouter(JWTAuthorizer jwtAuthorizer) {
+  public CommonRouter(JWTAuthorizer jwtAuthorizer, FailureHandler failureHandler) {
     this.jwtAuthorizer = jwtAuthorizer;
+    this.failureHandler = failureHandler;
   }
 
   @Override
@@ -25,28 +28,11 @@ public class CommonRouter implements IRouter {
 
     router.route().handler(BodyHandler.create(false)); //Add body handling
 
-    router.route().failureHandler(this::handleFailures); //Add failure handling
+    router.route().failureHandler(failureHandler::handleFailure); //Add failure handling
 
     router.routeWithRegex(".*/protected/.*").handler(this::handleAuthorizeUser); //Add auth checking
 
     return router;
-  }
-
-  /**
-   * Handles any exceptions that may have been thrown while handling an API request.
-   */
-  private void handleFailures(RoutingContext ctx) { //todo remove this once handler is in place
-    Throwable exceptionThrown = ctx.failure();
-
-    if (exceptionThrown instanceof AuthException) {
-      ctx.response().setStatusCode(401).end();
-    } else if (exceptionThrown instanceof IllegalStateException) {
-      ctx.response().setStatusCode(400).end();
-    } else {
-      ctx.response().setStatusCode(500).end(String.format("Uncaught exception thrown:\n%s\n%s",
-          exceptionThrown.getClass(),
-          exceptionThrown.getMessage()));
-    }
   }
 
   /**
@@ -67,7 +53,7 @@ public class CommonRouter implements IRouter {
 
   private boolean authorized(HttpServerRequest req) {
     String accessToken = RestFunctions.getNullableString(req.getHeader("access_token"),
-            new MissingHeaderException());
+            new MissingHeaderException("access_token"));
     return jwtAuthorizer.isAuthorized(accessToken);
   }
 }

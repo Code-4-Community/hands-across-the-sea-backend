@@ -10,7 +10,6 @@ import com.codeforcommunity.exceptions.MissingParameterException;
 import com.codeforcommunity.rest.HttpConstants;
 import com.codeforcommunity.rest.IRouter;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
@@ -71,7 +70,7 @@ public class NotesRouter implements IRouter {
 
   private void handleGetANoteRoute(RoutingContext ctx) {
     int noteId = getNullableStringAsInt(ctx.request().getParam(HttpConstants.noteIdParam),
-            new MissingParameterException());
+            new MissingParameterException("note_id"));
     List<FullNote> notes = Collections.singletonList(notesProcessor.getANote(noteId));
     NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
     end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
@@ -94,7 +93,7 @@ public class NotesRouter implements IRouter {
   private void handlePutNoteRoute(RoutingContext ctx) {
     NoteRequest requestBody = getJsonBodyAsClass(ctx, NoteRequest.class);
     int noteId = getNullableStringAsInt(ctx.request().getParam(HttpConstants.noteIdParam),
-            new MissingParameterException());
+            new MissingParameterException("note_id"));
     FullNote updatedNote = notesProcessor.updateNote(noteId, requestBody.getNote());
     NoteResponse response = new NoteResponse(HttpConstants.okMessage, updatedNote);
     end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
@@ -103,7 +102,7 @@ public class NotesRouter implements IRouter {
   private void handleDeleteNoteRoute(RoutingContext ctx) {
 
     int noteId = getNullableStringAsInt(ctx.request().getParam(HttpConstants.noteIdParam),
-            new MissingParameterException());
+            new MissingParameterException("note_id"));
 
     notesProcessor.deleteNote(noteId);
     end(ctx.response(), HttpConstants.ok_code);

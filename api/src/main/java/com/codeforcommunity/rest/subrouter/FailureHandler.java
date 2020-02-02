@@ -2,12 +2,18 @@ package com.codeforcommunity.rest.subrouter;
 
 import com.codeforcommunity.exceptions.CreateUserException;
 import com.codeforcommunity.exceptions.HandledException;
+import com.codeforcommunity.exceptions.MissingHeaderException;
+import com.codeforcommunity.exceptions.MissingParameterException;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 import io.vertx.ext.web.RoutingContext;
 
 public class FailureHandler { //todo where should this file live?
 
-  public void handleFailure(RoutingContext ctx) {
+   public void handleFailure(RoutingContext ctx) {
     Throwable throwable = ctx.failure();
 
     if(throwable instanceof HandledException) {
@@ -18,31 +24,47 @@ public class FailureHandler { //todo where should this file live?
   }
 
   public void handleAuth(RoutingContext ctx) {
-    //todo implement
+    end(ctx, "unauthorized user", 401);
   }
 
-  public void handleMissingParameter(RoutingContext ctx) {
-    //todo implement
+  public void handleMissingParameter(RoutingContext ctx, MissingParameterException e) {
+    String message = String.format("Missing required path parameter: %s", e.getMissingParameterName());
+    end(ctx, "missing required path parameter", 400);
   }
 
-  public void handleMissingHeader(RoutingContext ctx) {
-    //todo implement
+  public void handleMissingHeader(RoutingContext ctx, MissingHeaderException e) {
+    String message = String.format("Missing required request header: %s", e.getMissingHeaderName());
+    end(ctx, message, 400);
   }
 
   public void handleRequestBodyMapping(RoutingContext ctx) {
-    //todo implement
+    String message = "Malformed json request body";
+    end(ctx, message, 400);
   }
 
   public void handleMissingBody(RoutingContext ctx) {
-    //todo implement
+    String message = "Missing required request body";
+    end(ctx, message, 400);
   }
 
   public void handleCreateUser(RoutingContext ctx, CreateUserException exception) {
-    //todo implement
+    CreateUserException.UsedField reason = exception.getUsedField();
+
+    String reasonMessage = reason.equals(CreateUserException.UsedField.BOTH) ? "email and user name":
+            reason.toString();
+
+    String message = String.format("Error creating new user, given %s already used", reasonMessage);
+
+    end(ctx, message, 409);
   }
 
   private void handleUncaughtError(RoutingContext ctx, Throwable throwable){
-    //todo implement 500 error handling
+    String message = "Internal server error";
+    end(ctx, message, 500);
+  }
+
+  private void end(RoutingContext ctx, String message, int statusCode) {
+    ctx.response().setStatusCode(statusCode).end(message);
   }
 
 }
