@@ -1,9 +1,11 @@
 package com.codeforcommunity.processor;
 
 import com.codeforcommunity.auth.AuthUtils;
+import com.codeforcommunity.exceptions.AuthException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import org.jooq.DSLContext;
 import org.jooq.Result;
-import org.jooq.exception.DataAccessException;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.VerificationKeys;
 import org.jooq.generated.tables.records.NoteUserRecord;
@@ -64,17 +66,36 @@ public class AuthDatabase {
 
     }
 
-    public Integer validateSecretKey(String secretKey) {
+    public void createSecretKey(int userId, String token) throws AuthException {
+        if (!doesUserExist(userId)) {
+            throw new AuthException("User does not exist.");
+        }
+
+        db.insertInto(Tables.VERIFICATION_KEYS).columns(VERIFICATION_KEYS.ID, VERIFICATION_KEYS.USER_ID)
+            .values(token, userId).execute();
+    }
+
+    private boolean doesUserExist(int userId) {
+        Result<NoteUserRecord> userRecord = db.selectFrom(Tables.NOTE_USER).where(NOTE_USER.ID.eq(userId)).fetch();
+        return userRecord.isNotEmpty();
+    }
+
+    public int validateSecretKey(String secretKey) throws AuthException {
+        Timestamp cutoffDate = Timestamp.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant());
         Result<VerificationKeysRecord> veriKey = db.selectFrom(Tables.VERIFICATION_KEYS)
             .where(VERIFICATION_KEYS.ID.eq(secretKey)
                 .and(VERIFICATION_KEYS.USED.eq((short)0))).fetch();
 
-        if (veriKey.isNotEmpty()) {
-            int userId = veriKey.get(0).getUserId();
-          db.update(Tables.VERIFICATION_KEYS).set(VERIFICATION_KEYS.USED, (short)1).execute();
-          return userId;
+        if (veriKey.isEmpty()) {
+            throw new AuthException("Token is invalid.");
         }
 
-        return null;
+        if (veriKey.get(0).getCreated().before(cutoffDate)) {
+            throw new AuthException("Token has expired.");
+        }
+
+        int userId = veriKey.get(0).getUserId();
+        db.update(Tables.VERIFICATION_KEYS).set(VERIFICATION_KEYS.USED, (short)1).execute();
+        return userId;
     }
 }

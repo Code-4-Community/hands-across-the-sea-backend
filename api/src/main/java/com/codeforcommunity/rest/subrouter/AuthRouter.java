@@ -7,6 +7,7 @@ import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
 import com.codeforcommunity.dto.SessionResponse;
 import com.codeforcommunity.dto.auth.VerifySecretKeyResponse;
+import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.rest.HttpConstants;
 import com.codeforcommunity.rest.IRouter;
 import io.vertx.core.Vertx;
@@ -35,6 +36,7 @@ public class AuthRouter implements IRouter {
     registerNewUser(router);
     registerLogoutUser(router);
     registerVerifySecretKey(router);
+    registerCreateSecretKey(router);
 
     return router;
   }
@@ -63,6 +65,11 @@ public class AuthRouter implements IRouter {
   private void registerVerifySecretKey(Router router) {
     Route verifySecretKeyRoute = router.get("/verify/:secret_key");
     verifySecretKeyRoute.handler(this::handleVerifySecretKey);
+  }
+
+  private void registerCreateSecretKey(Router router) {
+    Route createSecretKeyRoute = router.get("/create_secret/:user_id");
+    ((Route) createSecretKeyRoute).handler(this::createSecretKey);
   }
 
 
@@ -117,15 +124,27 @@ public class AuthRouter implements IRouter {
   private void handleVerifySecretKey(RoutingContext ctx) {
     String secret = ctx.pathParam("secret_key");
 
+    VerifySecretKeyResponse response = authProcessor.validateSecretKey(secret);
+
+    int status = 200;
+    if (response.getUserId() == -1) {
+      status = 401;
+    }
+
+    end(ctx.response(), status, JsonObject.mapFrom(response).toString());
+  }
+
+  private void createSecretKey(RoutingContext ctx) {
+    int userId = Integer.valueOf(ctx.pathParam("user_id"));
+
     try {
-
-      VerifySecretKeyResponse response = authProcessor.validateSecretKey(secret);
-
-      end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
+      String token = authProcessor.createSecretKey(userId);
+      System.out.println(token);
     }
-    catch (Exception e) {
-      VerifySecretKeyResponse response = new VerifySecretKeyResponse().setMessage(e.getMessage()).setUserId(-1);
-      end(ctx.response(), 401, JsonObject.mapFrom(response).toString());
+    catch (AuthException e) {
+      e.printStackTrace();
+      e.getMessage();
     }
+    end(ctx.response(), 418, "Not set up yet");
   }
 }

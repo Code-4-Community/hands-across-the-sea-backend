@@ -2,6 +2,7 @@ package com.codeforcommunity.processor;
 
 import com.codeforcommunity.api.IAuthProcessor;
 import com.codeforcommunity.auth.JWTCreator;
+import com.codeforcommunity.auth.Passwords;
 import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
@@ -92,12 +93,24 @@ public class AuthProcessorImpl implements IAuthProcessor {
     }
 
     @Override
-    public VerifySecretKeyResponse validateSecretKey(String secretKey) throws AuthException {
-      Integer userId = authDatabase.validateSecretKey(secretKey);
-
-      if (userId == null) {
-          throw new AuthException("Secret Key is invalid.");
+    public VerifySecretKeyResponse validateSecretKey(String secretKey) {
+      int userId;
+      try {
+          userId = authDatabase.validateSecretKey(secretKey);
       }
-      return new VerifySecretKeyResponse().setUserId(userId).setMessage("User email validated.");
+      catch (AuthException e) {
+          return new VerifySecretKeyResponse().setUserId(-1).setMessage(e.getMessage());
+      }
+
+        return new VerifySecretKeyResponse().setUserId(userId).setMessage("User email validated.");
+    }
+
+    @Override
+    public String createSecretKey(int userId) throws AuthException {
+       String token = Passwords.generateRandomPassword(50);
+
+       authDatabase.createSecretKey(userId, token);
+
+       return token;
     }
 }

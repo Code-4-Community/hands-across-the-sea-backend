@@ -42,6 +42,12 @@ public interface IAuthProcessor {
      * @param secretKey string of user's verificaiton token.
      * @return a boolean representing whether or not the token was able to be verified.
      */
-    VerifySecretKeyResponse validateSecretKey(String secretKey) throws AuthException;
+    VerifySecretKeyResponse validateSecretKey(String secretKey);
 
+    /**
+     * Creates a secret key to validate a user's email and stores it in the verification_keys table.
+     * @param userId the id for the given user.
+     * @return the token created for the given user.
+     */
+    String createSecretKey(int userId) throws AuthException;
 }
