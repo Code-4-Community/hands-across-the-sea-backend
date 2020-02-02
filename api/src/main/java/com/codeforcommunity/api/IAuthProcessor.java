@@ -5,6 +5,7 @@ import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
+import com.codeforcommunity.dto.auth.VerifySecretKeyResponse;
 import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.dto.*;
 
@@ -35,5 +36,12 @@ public interface IAuthProcessor {
      * @throws AuthException if given refresh token is invalid.
      */
     RefreshSessionResponse refreshSession(RefreshSessionRequest request) throws AuthException;
+
+    /**
+     * Allows clients to submit a secret key in order to verify their email.
+     * @param secretKey string of user's verificaiton token.
+     * @return a boolean representing whether or not the token was able to be verified.
+     */
+    VerifySecretKeyResponse validateSecretKey(String secretKey) throws AuthException;
 
 }

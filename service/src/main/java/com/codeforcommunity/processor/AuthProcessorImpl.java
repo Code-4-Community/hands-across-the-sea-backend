@@ -6,6 +6,7 @@ import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
+import com.codeforcommunity.dto.auth.VerifySecretKeyResponse;
 import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.dto.*;
 import org.jooq.DSLContext;
@@ -90,4 +91,13 @@ public class AuthProcessorImpl implements IAuthProcessor {
         return token.split("\\.")[2];
     }
 
+    @Override
+    public VerifySecretKeyResponse validateSecretKey(String secretKey) throws AuthException {
+      Integer userId = authDatabase.validateSecretKey(secretKey);
+
+      if (userId == null) {
+          throw new AuthException("Secret Key is invalid.");
+      }
+      return new VerifySecretKeyResponse().setUserId(userId);
+    }
 }

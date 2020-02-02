@@ -6,6 +6,7 @@ import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
 import com.codeforcommunity.dto.SessionResponse;
+import com.codeforcommunity.dto.auth.VerifySecretKeyResponse;
 import com.codeforcommunity.rest.HttpConstants;
 import com.codeforcommunity.rest.IRouter;
 import io.vertx.core.Vertx;
@@ -115,6 +116,17 @@ public class AuthRouter implements IRouter {
   private void handleVerifySecretKey(RoutingContext ctx) {
     String secret = ctx.pathParam("secret_key");
 
+    System.out.println("Verify Secret Key");
 
+    try {
+
+      VerifySecretKeyResponse response = authProcessor.validateSecretKey(secret);
+
+      end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
+    }
+    catch (Exception e) {
+      VerifySecretKeyResponse response = new VerifySecretKeyResponse().setMessage(e.getMessage());
+      end(ctx.response(), 401, JsonObject.mapFrom(response).toString());
+    }
   }
 }

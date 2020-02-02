@@ -12,12 +12,7 @@ import io.vertx.core.Vertx;
 
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
-
-import java.util.*;
 
 public class ApiRouter implements IRouter {
     private final CommonRouter commonRouter;

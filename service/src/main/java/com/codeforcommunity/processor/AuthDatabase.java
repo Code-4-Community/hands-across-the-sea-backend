@@ -5,12 +5,15 @@ import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 import org.jooq.generated.Tables;
+import org.jooq.generated.tables.VerificationKeys;
 import org.jooq.generated.tables.records.NoteUserRecord;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import org.jooq.generated.tables.records.VerificationKeysRecord;
 
 import static org.jooq.generated.Tables.NOTE_USER;
+import static org.jooq.generated.Tables.VERIFICATION_KEYS;
 
 public class AuthDatabase {
 
@@ -59,5 +62,18 @@ public class AuthDatabase {
 
         return count == 1;
 
+    }
+
+    public Integer validateSecretKey(String secretKey) {
+        Result<VerificationKeysRecord> veriKey = db.selectFrom(Tables.VERIFICATION_KEYS).where(VERIFICATION_KEYS.ID.eq(secretKey)).fetch();
+
+        if (veriKey.isNotEmpty()) {
+            int userId = veriKey.get(0).getUserId();
+          db.deleteFrom(Tables.VERIFICATION_KEYS).where(VERIFICATION_KEYS.USER_ID.eq(userId)).execute();
+          db.update(Tables.NOTE_USER).set(NOTE_USER.VERIFIED, (short)1);
+          return userId;
+        }
+
+        return null;
     }
 }
