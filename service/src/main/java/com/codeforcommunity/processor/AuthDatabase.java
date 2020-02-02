@@ -65,12 +65,13 @@ public class AuthDatabase {
     }
 
     public Integer validateSecretKey(String secretKey) {
-        Result<VerificationKeysRecord> veriKey = db.selectFrom(Tables.VERIFICATION_KEYS).where(VERIFICATION_KEYS.ID.eq(secretKey)).fetch();
+        Result<VerificationKeysRecord> veriKey = db.selectFrom(Tables.VERIFICATION_KEYS)
+            .where(VERIFICATION_KEYS.ID.eq(secretKey)
+                .and(VERIFICATION_KEYS.USED.eq((short)0))).fetch();
 
         if (veriKey.isNotEmpty()) {
             int userId = veriKey.get(0).getUserId();
-          db.deleteFrom(Tables.VERIFICATION_KEYS).where(VERIFICATION_KEYS.USER_ID.eq(userId)).execute();
-          db.update(Tables.NOTE_USER).set(NOTE_USER.VERIFIED, (short)1);
+          db.update(Tables.VERIFICATION_KEYS).set(VERIFICATION_KEYS.USED, (short)1).execute();
           return userId;
         }
 

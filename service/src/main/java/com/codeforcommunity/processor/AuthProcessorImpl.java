@@ -98,6 +98,6 @@ public class AuthProcessorImpl implements IAuthProcessor {
       if (userId == null) {
           throw new AuthException("Secret Key is invalid.");
       }
-      return new VerifySecretKeyResponse().setUserId(userId);
+      return new VerifySecretKeyResponse().setUserId(userId).setMessage("User email validated.");
     }
 }

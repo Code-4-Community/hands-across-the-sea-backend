@@ -34,6 +34,7 @@ public class AuthRouter implements IRouter {
     registerRefreshUser(router);
     registerNewUser(router);
     registerLogoutUser(router);
+    registerVerifySecretKey(router);
 
     return router;
   }
@@ -59,7 +60,7 @@ public class AuthRouter implements IRouter {
     logoutUserRoute.handler(this::handleDeleteLogoutUser);
   }
 
-  private void verifySecretKey(Router router) {
+  private void registerVerifySecretKey(Router router) {
     Route verifySecretKeyRoute = router.get("/verify/:secret_key");
     verifySecretKeyRoute.handler(this::handleVerifySecretKey);
   }
@@ -116,8 +117,6 @@ public class AuthRouter implements IRouter {
   private void handleVerifySecretKey(RoutingContext ctx) {
     String secret = ctx.pathParam("secret_key");
 
-    System.out.println("Verify Secret Key");
-
     try {
 
       VerifySecretKeyResponse response = authProcessor.validateSecretKey(secret);
@@ -125,7 +124,7 @@ public class AuthRouter implements IRouter {
       end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
     }
     catch (Exception e) {
-      VerifySecretKeyResponse response = new VerifySecretKeyResponse().setMessage(e.getMessage());
+      VerifySecretKeyResponse response = new VerifySecretKeyResponse().setMessage(e.getMessage()).setUserId(-1);
       end(ctx.response(), 401, JsonObject.mapFrom(response).toString());
     }
   }
