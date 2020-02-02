@@ -6,6 +6,7 @@ import com.codeforcommunity.dto.notes.NoteRequest;
 import com.codeforcommunity.dto.notes.NoteResponse;
 import com.codeforcommunity.dto.notes.NotesRequest;
 import com.codeforcommunity.dto.notes.NotesResponse;
+import com.codeforcommunity.exceptions.MissingParameterException;
 import com.codeforcommunity.rest.HttpConstants;
 import com.codeforcommunity.rest.IRouter;
 import io.vertx.core.Vertx;
@@ -19,7 +20,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.codeforcommunity.rest.ApiRouter.end;
-import static com.codeforcommunity.rest.ApiRouter.getJsonBodyAsClass;
+import static com.codeforcommunity.rest.RestFunctions.getJsonBodyAsClass;
+import static com.codeforcommunity.rest.RestFunctions.getNullableStringAsInt;
 
 public class NotesRouter implements IRouter {
 
@@ -68,7 +70,8 @@ public class NotesRouter implements IRouter {
   }
 
   private void handleGetANoteRoute(RoutingContext ctx) {
-    int noteId = Integer.parseInt(ctx.request().getParam("note_id"));
+    int noteId = getNullableStringAsInt(ctx.request().getParam(HttpConstants.noteIdParam),
+            new MissingParameterException());
     List<FullNote> notes = Collections.singletonList(notesProcessor.getANote(noteId));
     NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
     end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
@@ -90,18 +93,17 @@ public class NotesRouter implements IRouter {
 
   private void handlePutNoteRoute(RoutingContext ctx) {
     NoteRequest requestBody = getJsonBodyAsClass(ctx, NoteRequest.class);
-
-    HttpServerRequest request = ctx.request();
-    int noteId = Integer.parseInt(request.getParam(HttpConstants.noteIdParam));
+    int noteId = getNullableStringAsInt(ctx.request().getParam(HttpConstants.noteIdParam),
+            new MissingParameterException());
     FullNote updatedNote = notesProcessor.updateNote(noteId, requestBody.getNote());
     NoteResponse response = new NoteResponse(HttpConstants.okMessage, updatedNote);
     end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
   }
 
   private void handleDeleteNoteRoute(RoutingContext ctx) {
-    int noteId;
 
-    noteId = Integer.parseInt(ctx.request().getParam(HttpConstants.noteIdParam));
+    int noteId = getNullableStringAsInt(ctx.request().getParam(HttpConstants.noteIdParam),
+            new MissingParameterException());
 
     notesProcessor.deleteNote(noteId);
     end(ctx.response(), HttpConstants.ok_code);

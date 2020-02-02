@@ -2,7 +2,10 @@ package com.codeforcommunity.rest.subrouter;
 
 import com.codeforcommunity.auth.JWTAuthorizer;
 import com.codeforcommunity.exceptions.AuthException;
+import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.rest.IRouter;
+import com.codeforcommunity.rest.RestFunctions;
+
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
@@ -32,7 +35,7 @@ public class CommonRouter implements IRouter {
   /**
    * Handles any exceptions that may have been thrown while handling an API request.
    */
-  private void handleFailures(RoutingContext ctx) {
+  private void handleFailures(RoutingContext ctx) { //todo remove this once handler is in place
     Throwable exceptionThrown = ctx.failure();
 
     if (exceptionThrown instanceof AuthException) {
@@ -63,7 +66,8 @@ public class CommonRouter implements IRouter {
   }
 
   private boolean authorized(HttpServerRequest req) {
-    String accessToken = req.getHeader("access_token");
+    String accessToken = RestFunctions.getNullableString(req.getHeader("access_token"),
+            new MissingHeaderException());
     return jwtAuthorizer.isAuthorized(accessToken);
   }
 }
