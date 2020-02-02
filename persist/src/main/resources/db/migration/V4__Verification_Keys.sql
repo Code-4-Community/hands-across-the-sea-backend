@@ -1,7 +1,10 @@
 CREATE TABLE IF NOT EXISTS verification_keys (
-  id      VARCHAR(36)   NOT NULL,
-  user_id VARCHAR(255)  NOT NULL,
+  id      VARCHAR(50) NOT NULL,
+  user_id int NOT NULL,
 
   CONSTRAINT verification_keys_pk
     PRIMARY KEY (id)
 );
+
+ALTER TABLE note_user
+  ADD COLUMN verified smallint DEFAULT 0
