@@ -1,5 +1,6 @@
 package com.codeforcommunity.rest.subrouter;
 
+import com.codeforcommunity.exceptions.CreateUserException;
 import com.codeforcommunity.exceptions.HandledException;
 
 import io.vertx.ext.web.RoutingContext;
@@ -12,7 +13,7 @@ public class FailureHandler { //todo where should this file live?
     if(throwable instanceof HandledException) {
       ((HandledException) throwable).callHandler(this, ctx);
     } else {
-      this.handleUncaughtError(ctx);
+      this.handleUncaughtError(ctx, throwable);
     }
   }
 
@@ -32,12 +33,16 @@ public class FailureHandler { //todo where should this file live?
     //todo implement
   }
 
-  private void handleUncaughtError(RoutingContext ctx){
-    //todo implement 500 error handling
-  }
-
   public void handleMissingBody(RoutingContext ctx) {
     //todo implement
+  }
+
+  public void handleCreateUser(RoutingContext ctx, CreateUserException exception) {
+    //todo implement
+  }
+
+  private void handleUncaughtError(RoutingContext ctx, Throwable throwable){
+    //todo implement 500 error handling
   }
 
 }
