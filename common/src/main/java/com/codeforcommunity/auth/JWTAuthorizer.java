@@ -11,6 +11,4 @@ public class JWTAuthorizer {
     return handler.isAuthorized(accessToken);
   }
 
-
-
 }

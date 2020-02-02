@@ -9,7 +9,6 @@ import com.codeforcommunity.dto.notes.NotesResponse;
 import com.codeforcommunity.rest.HttpConstants;
 import com.codeforcommunity.rest.IRouter;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
@@ -18,11 +17,9 @@ import io.vertx.ext.web.RoutingContext;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static com.codeforcommunity.rest.ApiRouter.end;
-import static com.codeforcommunity.rest.ApiRouter.endClientError;
-import static com.codeforcommunity.rest.ApiRouter.endServerError;
+import static com.codeforcommunity.rest.ApiRouter.getJsonBodyAsClass;
 
 public class NotesRouter implements IRouter {
 
@@ -50,25 +47,21 @@ public class NotesRouter implements IRouter {
     getNoteRoute.handler(this::handleGetANoteRoute);
   }
 
-  //protected resource
   private void registerGetNotesRoute(Router router) {
     Route getNoteRoute = router.get("/");
     getNoteRoute.handler(this::handleGetNotesRoute);
   }
 
-  //protected resource
   private void registerPostNoteRoute(Router router) {
     Route postNoteRoute = router.post("/");
     postNoteRoute.handler(this::handlePostNoteRoute);
   }
 
-  //protected resource
   private void registerPutNoteRoute(Router router) {
     Route putNoteRoute = router.put("/:note_id");
     putNoteRoute.handler(this::handlePutNoteRoute);
   }
 
-  //protected resource
   private void registerDeleteNoteRoute(Router router) {
     Route deleteNoteRoute = router.delete("/:note_id");
     deleteNoteRoute.handler(this::handleDeleteNoteRoute);
@@ -82,71 +75,35 @@ public class NotesRouter implements IRouter {
   }
 
   private void handleGetNotesRoute(RoutingContext ctx) {
-    try {
-      List<FullNote> notes = notesProcessor.getAllNotes();
-      NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
-      end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
-    } catch (Exception e) {
-      endServerError(ctx.response(), e);
-    }
+    List<FullNote> notes = notesProcessor.getAllNotes();
+    NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
+    end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
   }
 
   private void handlePostNoteRoute(RoutingContext ctx) {
-    NotesRequest requestBody;
+    NotesRequest requestBody = getJsonBodyAsClass(ctx, NotesRequest.class);
 
-    try {
-      requestBody = ctx.getBodyAsJson().mapTo(NotesRequest.class);
-      assert requestBody != null;
-    } catch (Exception e) {
-      endClientError(ctx.response());
-      return;
-    }
-
-    try {
-      List<FullNote> notes = notesProcessor.createNotes(requestBody.getNotes());
-      NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
-      end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(response).encode());
-    } catch (Exception e) {
-      endServerError(ctx.response(), e);
-    }
+    List<FullNote> notes = notesProcessor.createNotes(requestBody.getNotes());
+    NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
+    end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(response).encode());
   }
 
   private void handlePutNoteRoute(RoutingContext ctx) {
-    NoteRequest requestBody;
+    NoteRequest requestBody = getJsonBodyAsClass(ctx, NoteRequest.class);
 
-    try {
-      requestBody = ctx.getBodyAsJson().mapTo(NoteRequest.class);
-    } catch (Exception e) {
-      endClientError(ctx.response());
-      return;
-    }
-
-    try {
-      HttpServerRequest request = ctx.request();
-      int noteId = Integer.parseInt(request.getParam(HttpConstants.noteIdParam));
-      FullNote updatedNote = notesProcessor.updateNote(noteId, requestBody.getNote());
-      NoteResponse response = new NoteResponse(HttpConstants.okMessage, updatedNote);
-      end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
-    } catch (Exception e) {
-      endServerError(ctx.response(), e);
-    }
+    HttpServerRequest request = ctx.request();
+    int noteId = Integer.parseInt(request.getParam(HttpConstants.noteIdParam));
+    FullNote updatedNote = notesProcessor.updateNote(noteId, requestBody.getNote());
+    NoteResponse response = new NoteResponse(HttpConstants.okMessage, updatedNote);
+    end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
   }
 
   private void handleDeleteNoteRoute(RoutingContext ctx) {
     int noteId;
 
-    try {
-      noteId = Integer.parseInt(ctx.request().getParam(HttpConstants.noteIdParam));
-    } catch (Exception e) {
-      endClientError(ctx.response());
-      return;
-    }
+    noteId = Integer.parseInt(ctx.request().getParam(HttpConstants.noteIdParam));
 
-    try {
-      notesProcessor.deleteNote(noteId);
-      end(ctx.response(), HttpConstants.ok_code);
-    } catch (Exception e) {
-      endServerError(ctx.response(), e);
-    }
+    notesProcessor.deleteNote(noteId);
+    end(ctx.response(), HttpConstants.ok_code);
   }
 }

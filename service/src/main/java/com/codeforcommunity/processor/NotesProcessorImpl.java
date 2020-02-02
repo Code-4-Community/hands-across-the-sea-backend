@@ -1,6 +1,5 @@
 package com.codeforcommunity.processor;
 
-
 import com.codeforcommunity.api.INotesProcessor;
 import com.codeforcommunity.dto.notes.ContentNote;
 import com.codeforcommunity.dto.notes.FullNote;

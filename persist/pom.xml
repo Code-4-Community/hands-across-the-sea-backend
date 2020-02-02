@@ -30,13 +30,12 @@
             </goals>
             <configuration>
               <files>
-                <file>src\main\resources\db.properties</file>
+                <file>..\common\src\main\resources\db.properties</file>
               </files>
             </configuration>
           </execution>
         </executions>
       </plugin>
-
 
       <!-- Generate jOOQ classes from our sql file -->
       <plugin>
