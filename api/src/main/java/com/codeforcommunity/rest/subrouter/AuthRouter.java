@@ -68,8 +68,7 @@ public class AuthRouter implements IRouter {
   }
 
   private void handlePostRefreshUser(RoutingContext ctx) {
-    String refreshToken = RestFunctions.getNullableString(ctx.request().getHeader("refresh_token"),
-            new MissingHeaderException("refresh_token"));
+    String refreshToken = RestFunctions.getRequestHeader(ctx.request(), "refresh_token");
     RefreshSessionRequest request = new RefreshSessionRequest(refreshToken);
 
     RefreshSessionResponse response = authProcessor.refreshSession(request);
@@ -78,8 +77,7 @@ public class AuthRouter implements IRouter {
   }
 
   private void handleDeleteLogoutUser(RoutingContext ctx) {
-    String refreshToken = RestFunctions.getNullableString(ctx.request().getHeader( "refresh_token"),
-            new MissingHeaderException("refresh_token"));
+    String refreshToken = RestFunctions.getRequestHeader(ctx.request(), "refresh_token");
     authProcessor.logout(refreshToken);
     end(ctx.response(), 204);
   }

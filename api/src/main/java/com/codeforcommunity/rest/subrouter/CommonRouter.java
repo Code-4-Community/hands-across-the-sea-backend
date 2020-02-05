@@ -52,8 +52,7 @@ public class CommonRouter implements IRouter {
   }
 
   private boolean authorized(HttpServerRequest req) {
-    String accessToken = RestFunctions.getNullableString(req.getHeader("access_token"),
-            new MissingHeaderException("access_token"));
+    String accessToken = RestFunctions.getRequestHeader(req, "access_token");
     return jwtAuthorizer.isAuthorized(accessToken);
   }
 }

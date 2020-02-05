@@ -18,6 +18,6 @@ public class MissingParameterException extends RuntimeException implements Handl
 
   @Override
   public void callHandler(FailureHandler handler, RoutingContext ctx) {
-    handler.handleMissingParameter(ctx);
+    handler.handleMissingParameter(ctx, this);
   }
 }

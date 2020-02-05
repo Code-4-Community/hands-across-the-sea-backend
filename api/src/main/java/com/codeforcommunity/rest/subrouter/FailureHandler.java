@@ -24,12 +24,12 @@ public class FailureHandler { //todo where should this file live?
   }
 
   public void handleAuth(RoutingContext ctx) {
-    end(ctx, "unauthorized user", 401);
+    end(ctx, "Unauthorized user", 401);
   }
 
   public void handleMissingParameter(RoutingContext ctx, MissingParameterException e) {
     String message = String.format("Missing required path parameter: %s", e.getMissingParameterName());
-    end(ctx, "missing required path parameter", 400);
+    end(ctx, message, 400);
   }
 
   public void handleMissingHeader(RoutingContext ctx, MissingHeaderException e) {

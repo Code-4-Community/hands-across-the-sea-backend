@@ -6,6 +6,7 @@ import com.codeforcommunity.auth.JWTAuthorizer;
 
 import com.codeforcommunity.rest.subrouter.AuthRouter;
 import com.codeforcommunity.rest.subrouter.CommonRouter;
+import com.codeforcommunity.rest.subrouter.FailureHandler;
 import com.codeforcommunity.rest.subrouter.NotesRouter;
 import io.vertx.core.Vertx;
 
@@ -18,8 +19,8 @@ public class ApiRouter implements IRouter {
     private final NotesRouter notesRouter;
     private final AuthRouter authRouter;
 
-    public ApiRouter(INotesProcessor notesProcessor, IAuthProcessor authProcessor, JWTAuthorizer jwtAuthorizer) {
-        this.commonRouter = new CommonRouter(jwtAuthorizer);
+    public ApiRouter(INotesProcessor notesProcessor, IAuthProcessor authProcessor, JWTAuthorizer jwtAuthorizer, FailureHandler failureHandler) {
+        this.commonRouter = new CommonRouter(jwtAuthorizer, failureHandler);
         this.notesRouter = new NotesRouter(notesProcessor);
         this.authRouter = new AuthRouter(authProcessor);
     }

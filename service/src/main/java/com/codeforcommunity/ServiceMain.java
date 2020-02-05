@@ -9,6 +9,7 @@ import com.codeforcommunity.processor.AuthProcessorImpl;
 import com.codeforcommunity.processor.NotesProcessorImpl;
 import com.codeforcommunity.propertiesLoader.PropertiesLoader;
 import com.codeforcommunity.rest.ApiRouter;
+import com.codeforcommunity.rest.subrouter.FailureHandler;
 
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -61,10 +62,11 @@ public class ServiceMain {
     JWTHandler jwtHandler = new JWTHandler("this is secret, don't tell anyone"); //TODO: Dynamically load this
     JWTAuthorizer jwtAuthorizer = new JWTAuthorizer(jwtHandler);
     JWTCreator jwtCreator = new JWTCreator(jwtHandler);
+    FailureHandler failureHandler = new FailureHandler();
 
     INotesProcessor notesProcessor = new NotesProcessorImpl(this.db);
     IAuthProcessor authProcessor = new AuthProcessorImpl(this.db, jwtCreator);
-    ApiRouter router = new ApiRouter(notesProcessor, authProcessor, jwtAuthorizer);
+    ApiRouter router = new ApiRouter(notesProcessor, authProcessor, jwtAuthorizer, failureHandler);
     startApiServer(router);
   }
 

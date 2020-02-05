@@ -20,7 +20,7 @@ import java.util.List;
 
 import static com.codeforcommunity.rest.ApiRouter.end;
 import static com.codeforcommunity.rest.RestFunctions.getJsonBodyAsClass;
-import static com.codeforcommunity.rest.RestFunctions.getNullableStringAsInt;
+import static com.codeforcommunity.rest.RestFunctions.getRequestParameterAsInt;
 
 public class NotesRouter implements IRouter {
 
@@ -69,8 +69,7 @@ public class NotesRouter implements IRouter {
   }
 
   private void handleGetANoteRoute(RoutingContext ctx) {
-    int noteId = getNullableStringAsInt(ctx.request().getParam(HttpConstants.noteIdParam),
-            new MissingParameterException("note_id"));
+    int noteId = getRequestParameterAsInt(ctx.request(), "note_id");
     List<FullNote> notes = Collections.singletonList(notesProcessor.getANote(noteId));
     NotesResponse response = new NotesResponse(HttpConstants.okMessage, notes);
     end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
@@ -92,8 +91,7 @@ public class NotesRouter implements IRouter {
 
   private void handlePutNoteRoute(RoutingContext ctx) {
     NoteRequest requestBody = getJsonBodyAsClass(ctx, NoteRequest.class);
-    int noteId = getNullableStringAsInt(ctx.request().getParam(HttpConstants.noteIdParam),
-            new MissingParameterException("note_id"));
+    int noteId = getRequestParameterAsInt(ctx.request(), "note_id");
     FullNote updatedNote = notesProcessor.updateNote(noteId, requestBody.getNote());
     NoteResponse response = new NoteResponse(HttpConstants.okMessage, updatedNote);
     end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
@@ -101,8 +99,7 @@ public class NotesRouter implements IRouter {
 
   private void handleDeleteNoteRoute(RoutingContext ctx) {
 
-    int noteId = getNullableStringAsInt(ctx.request().getParam(HttpConstants.noteIdParam),
-            new MissingParameterException("note_id"));
+    int noteId = getRequestParameterAsInt(ctx.request(), "note_id");
 
     notesProcessor.deleteNote(noteId);
     end(ctx.response(), HttpConstants.ok_code);
