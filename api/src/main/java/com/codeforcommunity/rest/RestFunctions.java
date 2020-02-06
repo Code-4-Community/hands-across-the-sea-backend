@@ -46,7 +46,7 @@ public interface RestFunctions {
     try {
       return Integer.valueOf(paramValue);
     } catch (NumberFormatException ex) {
-      throw new MalformedParameterException();
+      throw new MalformedParameterException(name);
     }
   }
 
