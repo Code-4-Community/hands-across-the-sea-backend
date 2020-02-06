@@ -2,6 +2,7 @@ package com.codeforcommunity.rest.subrouter;
 
 import com.codeforcommunity.exceptions.CreateUserException;
 import com.codeforcommunity.exceptions.HandledException;
+import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
 
@@ -11,7 +12,7 @@ import java.util.Map;
 
 import io.vertx.ext.web.RoutingContext;
 
-public class FailureHandler { //todo where should this file live?
+public class FailureHandler {
 
    public void handleFailure(RoutingContext ctx) {
     Throwable throwable = ctx.failure();
@@ -58,8 +59,14 @@ public class FailureHandler { //todo where should this file live?
     end(ctx, message, 409);
   }
 
+  public void handleMalformedParameter(RoutingContext ctx, MalformedParameterException exception) {
+     String message = String.format("Given parameter %s is malformed", exception.getParameterName());
+     end(ctx, message, 400);
+  }
+
+
   private void handleUncaughtError(RoutingContext ctx, Throwable throwable){
-    String message = "Internal server error";
+    String message = String.format("Internal server error caused by: %s", throwable.getMessage());
     end(ctx, message, 500);
   }
 

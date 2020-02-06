@@ -62,11 +62,10 @@ public class ServiceMain {
     JWTHandler jwtHandler = new JWTHandler("this is secret, don't tell anyone"); //TODO: Dynamically load this
     JWTAuthorizer jwtAuthorizer = new JWTAuthorizer(jwtHandler);
     JWTCreator jwtCreator = new JWTCreator(jwtHandler);
-    FailureHandler failureHandler = new FailureHandler();
 
     INotesProcessor notesProcessor = new NotesProcessorImpl(this.db);
     IAuthProcessor authProcessor = new AuthProcessorImpl(this.db, jwtCreator);
-    ApiRouter router = new ApiRouter(notesProcessor, authProcessor, jwtAuthorizer, failureHandler);
+    ApiRouter router = new ApiRouter(notesProcessor, authProcessor, jwtAuthorizer);
     startApiServer(router);
   }
 

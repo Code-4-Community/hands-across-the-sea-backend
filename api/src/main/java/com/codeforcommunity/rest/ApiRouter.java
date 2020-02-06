@@ -19,8 +19,8 @@ public class ApiRouter implements IRouter {
     private final NotesRouter notesRouter;
     private final AuthRouter authRouter;
 
-    public ApiRouter(INotesProcessor notesProcessor, IAuthProcessor authProcessor, JWTAuthorizer jwtAuthorizer, FailureHandler failureHandler) {
-        this.commonRouter = new CommonRouter(jwtAuthorizer, failureHandler);
+    public ApiRouter(INotesProcessor notesProcessor, IAuthProcessor authProcessor, JWTAuthorizer jwtAuthorizer) {
+        this.commonRouter = new CommonRouter(jwtAuthorizer);
         this.notesRouter = new NotesRouter(notesProcessor);
         this.authRouter = new AuthRouter(authProcessor);
     }

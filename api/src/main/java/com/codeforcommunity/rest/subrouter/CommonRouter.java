@@ -15,11 +15,10 @@ import io.vertx.ext.web.handler.BodyHandler;
 
 public class CommonRouter implements IRouter {
   private final JWTAuthorizer jwtAuthorizer;
-  private final FailureHandler failureHandler;
+  private final FailureHandler failureHandler = new FailureHandler();
 
-  public CommonRouter(JWTAuthorizer jwtAuthorizer, FailureHandler failureHandler) {
+  public CommonRouter(JWTAuthorizer jwtAuthorizer) {
     this.jwtAuthorizer = jwtAuthorizer;
-    this.failureHandler = failureHandler;
   }
 
   @Override
