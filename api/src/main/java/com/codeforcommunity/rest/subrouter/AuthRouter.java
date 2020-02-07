@@ -6,8 +6,11 @@ import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
 import com.codeforcommunity.dto.SessionResponse;
+import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.rest.HttpConstants;
 import com.codeforcommunity.rest.IRouter;
+import com.codeforcommunity.rest.RestFunctions;
+
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
@@ -15,7 +18,6 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
 import static com.codeforcommunity.rest.ApiRouter.end;
-import static com.codeforcommunity.rest.ApiRouter.getJsonBodyAsClass;
 
 public class AuthRouter implements IRouter {
   private final IAuthProcessor authProcessor;
@@ -57,9 +59,8 @@ public class AuthRouter implements IRouter {
     logoutUserRoute.handler(this::handleDeleteLogoutUser);
   }
 
-
   private void handlePostUserLoginRoute(RoutingContext ctx) {
-    LoginRequest userRequest = getJsonBodyAsClass(ctx, LoginRequest.class);
+    LoginRequest userRequest = RestFunctions.getJsonBodyAsClass(ctx, LoginRequest.class);
 
     SessionResponse response = authProcessor.login(userRequest);
 
@@ -67,7 +68,7 @@ public class AuthRouter implements IRouter {
   }
 
   private void handlePostRefreshUser(RoutingContext ctx) {
-    String refreshToken = ctx.request().getHeader("refresh_token");
+    String refreshToken = RestFunctions.getRequestHeader(ctx.request(), "refresh_token");
     RefreshSessionRequest request = new RefreshSessionRequest(refreshToken);
 
     RefreshSessionResponse response = authProcessor.refreshSession(request);
@@ -76,14 +77,13 @@ public class AuthRouter implements IRouter {
   }
 
   private void handleDeleteLogoutUser(RoutingContext ctx) {
-    String refreshToken = ctx.request().getHeader("refreshToken");
+    String refreshToken = RestFunctions.getRequestHeader(ctx.request(), "refresh_token");
     authProcessor.logout(refreshToken);
     end(ctx.response(), 204);
   }
 
   private void handlePostNewUser(RoutingContext ctx) {
-    NewUserRequest request = getJsonBodyAsClass(ctx, NewUserRequest.class);
-
+    NewUserRequest request = RestFunctions.getJsonBodyAsClass(ctx, NewUserRequest.class);
     SessionResponse response = authProcessor.signUp(request);
 
     end(ctx.response(), 201, JsonObject.mapFrom(response).toString());
