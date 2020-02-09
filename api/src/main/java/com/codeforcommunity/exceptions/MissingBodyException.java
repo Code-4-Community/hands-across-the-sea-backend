@@ -4,10 +4,9 @@ import com.codeforcommunity.rest.subrouter.FailureHandler;
 
 import io.vertx.ext.web.RoutingContext;
 
-public class RequestBodyMappingException extends RuntimeException implements HandledException  {
-
+public class MissingBodyException extends RuntimeException  implements HandledException {
   @Override
   public void callHandler(FailureHandler handler, RoutingContext ctx) {
-    handler.handleRequestBodyMapping(ctx);
+      handler.handleMissingBody(ctx);
   }
 }
