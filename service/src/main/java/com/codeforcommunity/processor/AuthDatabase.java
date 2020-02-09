@@ -2,8 +2,6 @@ package com.codeforcommunity.processor;
 
 import com.codeforcommunity.auth.AuthUtils;
 import com.codeforcommunity.exceptions.AuthException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.jooq.generated.Tables;
@@ -18,6 +16,8 @@ import static org.jooq.generated.Tables.VERIFICATION_KEYS;
 
 public class AuthDatabase {
 
+
+    public static final int CUTOFF_TIME = 86400;
     private final DSLContext db;
     private AuthUtils sha;
 
@@ -68,35 +68,41 @@ public class AuthDatabase {
     }
 
     public void createSecretKey(int userId, String token) throws AuthException {
-        if (!doesUserExist(userId)) {
+        if (!db.fetchExists(Tables.NOTE_USER.where(NOTE_USER.ID.eq(userId)))) {
             throw new AuthException("User does not exist.");
         }
 
-        db.insertInto(Tables.VERIFICATION_KEYS).columns(VERIFICATION_KEYS.ID, VERIFICATION_KEYS.USER_ID)
-            .values(token, userId).execute();
+        VerificationKeysRecord keysRecord = db.newRecord(Tables.VERIFICATION_KEYS);
+        keysRecord.setId(token);
+        keysRecord.setUserId(userId);
+        keysRecord.store();
     }
 
-    private boolean doesUserExist(int userId) {
-        Result<NoteUserRecord> userRecord = db.selectFrom(Tables.NOTE_USER).where(NOTE_USER.ID.eq(userId)).fetch();
-        return userRecord.isNotEmpty();
+    private boolean isTokenDateValid(VerificationKeysRecord tokenResult) {
+        Timestamp cutoffDate = Timestamp.from(Instant.now().minusSeconds(CUTOFF_TIME));
+        if (tokenResult.getCreated().before(cutoffDate)) {
+            return false;
+        }
+
+        return true;
     }
 
     public int validateSecretKey(String secretKey) throws AuthException {
-        Timestamp cutoffDate = Timestamp.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant());
-        Result<VerificationKeysRecord> veriKey = db.selectFrom(Tables.VERIFICATION_KEYS)
+        VerificationKeysRecord veriKey = db.selectFrom(Tables.VERIFICATION_KEYS)
             .where(VERIFICATION_KEYS.ID.eq(secretKey)
-                .and(VERIFICATION_KEYS.USED.eq((short)0))).fetch();
+                .and(VERIFICATION_KEYS.USED.eq((short)0))).fetchOneInto(VerificationKeysRecord.class);
 
-        if (veriKey.isEmpty()) {
+        if (veriKey == null) {
             throw new AuthException("Token is invalid.");
         }
 
-        if (veriKey.get(0).getCreated().before(cutoffDate)) {
+        if (!isTokenDateValid(veriKey)) {
             throw new AuthException("Token has expired.");
         }
 
-        int userId = veriKey.get(0).getUserId();
-        db.update(Tables.VERIFICATION_KEYS).set(VERIFICATION_KEYS.USED, (short)1).execute();
-        return userId;
+        veriKey.setUsed((short)1);
+        veriKey.store();
+        db.update(Tables.NOTE_USER).set(NOTE_USER.VERIFIED, (short)1).execute();
+        return veriKey.getUserId();
     }
 }

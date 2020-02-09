@@ -1,11 +1,9 @@
 package com.codeforcommunity.api;
 
-import com.codeforcommunity.auth.AuthUtils;
 import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
-import com.codeforcommunity.dto.auth.VerifySecretKeyResponse;
 import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.dto.*;
 
@@ -40,14 +38,15 @@ public interface IAuthProcessor {
     /**
      * Allows clients to submit a secret key in order to verify their email.
      * @param secretKey string of user's verificaiton token.
-     * @return a boolean representing whether or not the token was able to be verified.
+     * @throws AuthException if an error happens authenticating.
      */
-    VerifySecretKeyResponse validateSecretKey(String secretKey);
+    void validateSecretKey(String secretKey) throws AuthException;
 
     /**
      * Creates a secret key to validate a user's email and stores it in the verification_keys table.
      * @param userId the id for the given user.
      * @return the token created for the given user.
+     * @throws AuthException if an error happens authenticating.
      */
     String createSecretKey(int userId) throws AuthException;
 }

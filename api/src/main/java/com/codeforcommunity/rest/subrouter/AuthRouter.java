@@ -6,7 +6,6 @@ import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
 import com.codeforcommunity.dto.SessionResponse;
-import com.codeforcommunity.dto.auth.VerifySecretKeyResponse;
 import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.rest.HttpConstants;
 import com.codeforcommunity.rest.IRouter;
@@ -106,14 +105,13 @@ public class AuthRouter implements IRouter {
   private void handleVerifySecretKey(RoutingContext ctx) {
     String secret = ctx.pathParam("secret_key");
 
-    VerifySecretKeyResponse response = authProcessor.validateSecretKey(secret);
-
-    int status = 200;
-    if (response.getUserId() == -1) {
-      status = 401;
+    try {
+      authProcessor.validateSecretKey(secret);
+      end(ctx.response(), 200);
     }
-
-    end(ctx.response(), status, JsonObject.mapFrom(response).toString());
+    catch (AuthException e) {
+      end(ctx.response(), 401, e.getMessage());
+    }
   }
 
   private void createSecretKey(RoutingContext ctx) {
@@ -121,12 +119,10 @@ public class AuthRouter implements IRouter {
 
     try {
       String token = authProcessor.createSecretKey(userId);
-      System.out.println(token);
+      end(ctx.response(), 200, "Not set up yet");
     }
     catch (AuthException e) {
-      e.printStackTrace();
-      e.getMessage();
+      end(ctx.response(), 401, e.getMessage());
     }
-    end(ctx.response(), 418, "Not set up yet");
   }
 }

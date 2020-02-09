@@ -84,7 +84,7 @@ public class Passwords {
    *
    * @return a random password
    */
-  public static String generateRandomPassword(int length) {
+  public static String generateRandomToken(int length) {
     StringBuilder sb = new StringBuilder(length);
     for (int i = 0; i < length; i++) {
       int c = RANDOM.nextInt(62);
