@@ -3,7 +3,6 @@ package com.codeforcommunity.processor;
 import com.codeforcommunity.auth.AuthUtils;
 import com.codeforcommunity.exceptions.AuthException;
 import org.jooq.DSLContext;
-import org.jooq.Result;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.records.NoteUserRecord;
 
