@@ -1,7 +1,8 @@
-package com.codeforcommunity.processor;
+package com.codeforcommunity.dataaccess;
 
 import com.codeforcommunity.auth.AuthUtils;
 import com.codeforcommunity.exceptions.CreateUserException;
+import com.codeforcommunity.processor.AuthProcessorImpl;
 import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.pojos.NoteUser;
@@ -13,20 +14,27 @@ import java.util.Optional;
 
 import static org.jooq.generated.Tables.NOTE_USER;
 
-public class AuthDatabase {
+/**
+ * Encapsulates all the database operations that are required for {@link AuthProcessorImpl}.
+ */
+public class AuthDatabaseOperations {
 
     private final DSLContext db;
     private AuthUtils sha;
 
-    public AuthDatabase(DSLContext db) {
+    public AuthDatabaseOperations(DSLContext db) {
         this.sha = new AuthUtils();
         this.db = db;
     }
 
-    public boolean isValidLogin(String user, String pass) {
+    /**
+     * Returns true if the given username and password correspond to a user in the USER table and
+     * false otherwise.
+     */
+    public boolean isValidLogin(String username, String pass) {
         Optional<NoteUser> maybeUser = Optional.ofNullable(db
             .selectFrom(NOTE_USER)
-            .where(NOTE_USER.USER_NAME.eq(user))
+            .where(NOTE_USER.USER_NAME.eq(username))
             .fetchOneInto(NoteUser.class));
 
         return maybeUser
@@ -34,6 +42,12 @@ public class AuthDatabase {
             .isPresent();
     }
 
+    /**
+     * TODO: Refactor this method to take in a DTO / POJO instance
+     * Creates a new row in the USER table with the given values.
+     *
+     * @throws CreateUserException if the given username and email are already used in the USER table.
+     */
     public void createNewUser(String username, String email, String password, String firstName, String lastName) {
 
         boolean emailUsed = db.fetchExists(db.selectFrom(NOTE_USER).where(NOTE_USER.EMAIL.eq(email)));
@@ -58,6 +72,9 @@ public class AuthDatabase {
         newUser.store();
     }
 
+    /**
+     * Given a JWT signature, store it in the BLACKLISTED_REFRESHES table.
+     */
     public void addToBlackList(String signature) {
         Timestamp expirationTimestamp = Timestamp.from(Instant.now().plusMillis(AuthUtils.refresh_exp));
         db.newRecord(Tables.BLACKLISTED_REFRESHES)
@@ -65,11 +82,12 @@ public class AuthDatabase {
             .store();
     }
 
+    /**
+     * Given a JWT signature return true if it is stored in the BLACKLISTED_REFRESHES table.
+     */
     public boolean isOnBlackList(String signature) {
-        int count = db.fetchCount(
+        return db.fetchExists(
             Tables.BLACKLISTED_REFRESHES
                 .where(Tables.BLACKLISTED_REFRESHES.REFRESH_HASH.eq(signature)));
-
-        return count >= 1;
     }
 }
