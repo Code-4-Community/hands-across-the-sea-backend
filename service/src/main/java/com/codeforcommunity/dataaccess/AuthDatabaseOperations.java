@@ -4,7 +4,6 @@ import com.codeforcommunity.auth.AuthUtils;
 import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.exceptions.CreateUserException;
 import com.codeforcommunity.processor.AuthProcessorImpl;
-import javax.swing.text.html.parser.DTDConstants;
 import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.pojos.NoteUser;
@@ -115,7 +114,7 @@ public class AuthDatabaseOperations {
         return true;
     }
 
-    public int validateSecretKey(String secretKey) throws AuthException {
+    public void validateSecretKey(String secretKey) throws AuthException {
         VerificationKeysRecord veriKey = db.selectFrom(Tables.VERIFICATION_KEYS)
             .where(Tables.VERIFICATION_KEYS.ID.eq(secretKey)
                 .and(Tables.VERIFICATION_KEYS.USED.eq((short)0)))
@@ -131,7 +130,10 @@ public class AuthDatabaseOperations {
 
         veriKey.setUsed((short)1);
         veriKey.store();
-        db.update(Tables.NOTE_USER).set(NOTE_USER.VERIFIED, (short)1).execute();
-        return veriKey.getUserId();
+        NoteUserRecord noteUser = db.selectFrom(Tables.NOTE_USER)
+            .where(Tables.NOTE_USER.ID.eq(veriKey.getUserId()))
+            .fetchOneInto(NoteUserRecord.class);
+        noteUser.setVerified((short)1);
+        noteUser.store();
     }
 }

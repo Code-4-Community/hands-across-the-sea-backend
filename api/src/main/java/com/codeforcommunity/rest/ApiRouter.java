@@ -6,7 +6,6 @@ import com.codeforcommunity.auth.JWTAuthorizer;
 
 import com.codeforcommunity.rest.subrouter.AuthRouter;
 import com.codeforcommunity.rest.subrouter.CommonRouter;
-import com.codeforcommunity.rest.subrouter.FailureHandler;
 import com.codeforcommunity.rest.subrouter.NotesRouter;
 import io.vertx.core.Vertx;
 
