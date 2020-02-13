@@ -107,12 +107,12 @@ public class AuthProcessorImpl implements IAuthProcessor {
     }
 
     @Override
-    public void validateSecretKey(String secretKey) throws AuthException {
+    public void validateSecretKey(String secretKey) {
         authDatabaseOperations.validateSecretKey(secretKey);
     }
 
     @Override
-    public String createSecretKey(int userId) throws AuthException {
+    public String createSecretKey(int userId) {
        String token = Passwords.generateRandomToken(50);
 
        authDatabaseOperations.createSecretKey(userId, token);

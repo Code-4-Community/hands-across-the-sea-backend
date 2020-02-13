@@ -68,7 +68,7 @@ public class AuthRouter implements IRouter {
 
   private void registerCreateSecretKey(Router router) {
     Route createSecretKeyRoute = router.get("/create_secret/:user_id");
-    ((Route) createSecretKeyRoute).handler(this::createSecretKey);
+    createSecretKeyRoute.handler(this::createSecretKey);
   }
 
 
@@ -104,25 +104,13 @@ public class AuthRouter implements IRouter {
 
   private void handleVerifySecretKey(RoutingContext ctx) {
     String secret = ctx.pathParam("secret_key");
-
-    try {
-      authProcessor.validateSecretKey(secret);
-      end(ctx.response(), 200);
-    }
-    catch (AuthException e) {
-      end(ctx.response(), 401, e.getMessage());
-    }
+    authProcessor.validateSecretKey(secret);
+    end(ctx.response(), 200);
   }
 
   private void createSecretKey(RoutingContext ctx) {
     int userId = Integer.valueOf(ctx.pathParam("user_id"));
-
-    try {
-      String token = authProcessor.createSecretKey(userId);
-      end(ctx.response(), 200, "Not set up yet");
-    }
-    catch (AuthException e) {
-      end(ctx.response(), 401, e.getMessage());
-    }
+    String token = authProcessor.createSecretKey(userId);
+    end(ctx.response(), 200, "Not set up yet");
   }
 }

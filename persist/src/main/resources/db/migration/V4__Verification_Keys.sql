@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS verification_keys (
   id      VARCHAR(50) NOT NULL,
-  user_id int NOT NULL,
-  used    smallint DEFAULT 0,
-  created timestamp DEFAULT CURRENT_TIMESTAMP,
+  user_id INT NOT NULL,
+  used    BOOLEAN DEFAULT false,
+  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   CONSTRAINT verification_keys_pk
     PRIMARY KEY (id),
@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS verification_keys (
 );
 
 ALTER TABLE note_user
-  ADD COLUMN verified smallint DEFAULT 0
+  ADD COLUMN verified INT DEFAULT 0

@@ -3,6 +3,9 @@ package com.codeforcommunity.dataaccess;
 import com.codeforcommunity.auth.AuthUtils;
 import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.exceptions.CreateUserException;
+import com.codeforcommunity.exceptions.ExpiredTokenException;
+import com.codeforcommunity.exceptions.InvalidTokenException;
+import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.processor.AuthProcessorImpl;
 import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
@@ -23,7 +26,7 @@ public class AuthDatabaseOperations {
 
     private final DSLContext db;
     private AuthUtils sha;
-    public static final int CUTOFF_TIME = 86400;
+    public static final int SECONDS_VERIFICATION_EMAIL_VALID = 86400;
 
     public AuthDatabaseOperations(DSLContext db) {
         this.sha = new AuthUtils();
@@ -94,9 +97,15 @@ public class AuthDatabaseOperations {
                 .where(Tables.BLACKLISTED_REFRESHES.REFRESH_HASH.eq(signature)));
     }
 
-    public void createSecretKey(int userId, String token) throws AuthException {
+    /**
+     * Given a userId and token, stores the token in the verification_keys table for the user.
+     * @param userId id of the user.
+     * @param token token to store for the user.
+     * @throws UserDoesNotExistException if given userId does not match a user.
+     */
+    public void createSecretKey(int userId, String token) {
         if (!db.fetchExists(Tables.NOTE_USER.where(NOTE_USER.ID.eq(userId)))) {
-            throw new AuthException("User does not exist.");
+          throw new UserDoesNotExistException(userId);
         }
 
         VerificationKeysRecord keysRecord = db.newRecord(Tables.VERIFICATION_KEYS);
@@ -106,7 +115,7 @@ public class AuthDatabaseOperations {
     }
 
     private boolean isTokenDateValid(VerificationKeysRecord tokenResult) {
-        Timestamp cutoffDate = Timestamp.from(Instant.now().minusSeconds(CUTOFF_TIME));
+        Timestamp cutoffDate = Timestamp.from(Instant.now().minusSeconds(SECONDS_VERIFICATION_EMAIL_VALID));
         if (tokenResult.getCreated().before(cutoffDate)) {
             return false;
         }
@@ -117,23 +126,20 @@ public class AuthDatabaseOperations {
     public void validateSecretKey(String secretKey) throws AuthException {
         VerificationKeysRecord veriKey = db.selectFrom(Tables.VERIFICATION_KEYS)
             .where(Tables.VERIFICATION_KEYS.ID.eq(secretKey)
-                .and(Tables.VERIFICATION_KEYS.USED.eq((short)0)))
+                .and(Tables.VERIFICATION_KEYS.USED.eq(false)))
             .fetchOneInto(VerificationKeysRecord.class);
 
         if (veriKey == null) {
-            throw new AuthException("Token is invalid.");
+          throw new InvalidTokenException();
         }
 
         if (!isTokenDateValid(veriKey)) {
-            throw new AuthException("Token has expired.");
+          throw new ExpiredTokenException();
         }
 
-        veriKey.setUsed((short)1);
+        veriKey.setUsed(false);
         veriKey.store();
-        NoteUserRecord noteUser = db.selectFrom(Tables.NOTE_USER)
-            .where(Tables.NOTE_USER.ID.eq(veriKey.getUserId()))
-            .fetchOneInto(NoteUserRecord.class);
-        noteUser.setVerified((short)1);
-        noteUser.store();
+        db.update(Tables.NOTE_USER).set(NOTE_USER.VERIFIED,1)
+            .where(NOTE_USER.ID.eq(veriKey.getUserId()));
     }
 }
