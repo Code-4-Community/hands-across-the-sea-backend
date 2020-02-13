@@ -7,6 +7,8 @@ import com.codeforcommunity.exceptions.ExpiredTokenException;
 import com.codeforcommunity.exceptions.InvalidTokenException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.processor.AuthProcessorImpl;
+import com.codeforcommunity.propertiesLoader.PropertiesLoader;
+import java.util.Properties;
 import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.pojos.NoteUser;
@@ -26,11 +28,13 @@ public class AuthDatabaseOperations {
 
     private final DSLContext db;
     private AuthUtils sha;
-    public static final int SECONDS_VERIFICATION_EMAIL_VALID = 86400;
+    public final int SECONDS_VERIFICATION_EMAIL_VALID;
 
     public AuthDatabaseOperations(DSLContext db) {
         this.sha = new AuthUtils();
         this.db = db;
+        this.SECONDS_VERIFICATION_EMAIL_VALID = Integer.valueOf(PropertiesLoader
+            .getEmailConfProperties().getProperty("seconds_verification_email_valid"));
     }
 
     /**

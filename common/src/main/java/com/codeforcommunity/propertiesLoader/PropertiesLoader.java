@@ -24,4 +24,7 @@ public class PropertiesLoader {
   public static Properties getDbProperties() {
     return getProperties("db.properties");
   }
+  public static Properties getEmailConfProperties() {
+    return getProperties("email_confirmation.properties");
+  }
 }
