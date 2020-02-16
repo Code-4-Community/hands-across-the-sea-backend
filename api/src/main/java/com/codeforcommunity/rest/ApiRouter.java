@@ -6,13 +6,11 @@ import com.codeforcommunity.auth.JWTAuthorizer;
 
 import com.codeforcommunity.rest.subrouter.AuthRouter;
 import com.codeforcommunity.rest.subrouter.CommonRouter;
-import com.codeforcommunity.rest.subrouter.FailureHandler;
 import com.codeforcommunity.rest.subrouter.NotesRouter;
 import io.vertx.core.Vertx;
 
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
-
 
 public class ApiRouter implements IRouter {
     private final CommonRouter commonRouter;

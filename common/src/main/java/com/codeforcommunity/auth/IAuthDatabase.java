@@ -11,4 +11,6 @@ public interface IAuthDatabase {
     boolean invalidateRefresh(String signature);
 
     boolean isValidRefresh(String signature);
+
+    boolean validateSecretKey(String secretKey);
 }

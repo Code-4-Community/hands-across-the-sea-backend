@@ -6,6 +6,7 @@ import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
 
+import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -57,6 +58,21 @@ public class FailureHandler {
     String message = String.format("Error creating new user, given %s already used", reasonMessage);
 
     end(ctx, message, 409);
+  }
+
+  public void handleUserDoesNotExist(RoutingContext ctx, UserDoesNotExistException exception) {
+     String message = String.format("No user with id '%s' exists", exception.getUserId());
+     end(ctx, message, 401);
+  }
+
+  public void handleInvalidToken(RoutingContext ctx) {
+     String message = "Given token is invalid";
+     end(ctx, message, 401);
+  }
+
+  public void handleExpiredToken(RoutingContext ctx) {
+     String message = "Given token is expired";
+     end(ctx, message, 401);
   }
 
   public void handleMalformedParameter(RoutingContext ctx, MalformedParameterException exception) {

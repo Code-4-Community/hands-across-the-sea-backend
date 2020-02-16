@@ -1,6 +1,5 @@
 package com.codeforcommunity.api;
 
-import com.codeforcommunity.auth.AuthUtils;
 import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
@@ -36,4 +35,19 @@ public interface IAuthProcessor {
      */
     RefreshSessionResponse refreshSession(RefreshSessionRequest request) throws AuthException;
 
+    /**
+     * Allows clients to submit a secret key in order to verify their email.
+     * @param secretKey string of user's verificaiton token.
+     * @throws com.codeforcommunity.exceptions.ExpiredTokenException if the token is expired.
+     * @throws com.codeforcommunity.exceptions.InvalidTokenException if the token is invalid.
+     */
+    void validateSecretKey(String secretKey);
+
+    /**
+     * Creates a secret key to validate a user's email and stores it in the verification_keys table.
+     * @param userId the id for the given user.
+     * @return the token created for the given user.
+     * @throws com.codeforcommunity.exceptions.UserDoesNotExistException if the user does not exist.
+     */
+    String createSecretKey(int userId);
 }

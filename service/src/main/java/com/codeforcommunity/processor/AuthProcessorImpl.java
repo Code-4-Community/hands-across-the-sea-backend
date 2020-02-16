@@ -2,6 +2,7 @@ package com.codeforcommunity.processor;
 
 import com.codeforcommunity.api.IAuthProcessor;
 import com.codeforcommunity.auth.JWTCreator;
+import com.codeforcommunity.auth.Passwords;
 import com.codeforcommunity.dataaccess.AuthDatabaseOperations;
 import com.codeforcommunity.dto.SessionResponse;
 import com.codeforcommunity.dto.auth.LoginRequest;
@@ -103,5 +104,19 @@ public class AuthProcessorImpl implements IAuthProcessor {
      */
     private String getSignature(String token) {
         return token.split("\\.")[2];
+    }
+
+    @Override
+    public void validateSecretKey(String secretKey) {
+        authDatabaseOperations.validateSecretKey(secretKey);
+    }
+
+    @Override
+    public String createSecretKey(int userId) {
+       String token = Passwords.generateRandomToken(50);
+
+       authDatabaseOperations.createSecretKey(userId, token);
+
+       return token;
     }
 }
