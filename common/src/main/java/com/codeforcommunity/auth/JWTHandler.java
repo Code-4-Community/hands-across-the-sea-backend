@@ -6,6 +6,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.Verification;
 
+import com.codeforcommunity.propertiesLoader.PropertiesLoader;
 import java.time.Instant;
 import java.util.Date;
 
@@ -57,7 +58,8 @@ public class JWTHandler {
   }
 
   private Date getTokenExpiration(boolean isRefresh) {
-    long exp = isRefresh ? AuthUtils.refresh_exp : AuthUtils.access_exp;
+    long exp = isRefresh ? Long.valueOf(PropertiesLoader.getExpirationProperties().getProperty("days_refresh_expiration"))
+        : Long.valueOf(PropertiesLoader.getExpirationProperties().getProperty("minutes_access_expiration"));
     return Date.from(Instant.now().plusMillis(exp));
   }
 

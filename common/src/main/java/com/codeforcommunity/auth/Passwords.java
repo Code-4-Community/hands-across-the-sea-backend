@@ -3,7 +3,6 @@ package com.codeforcommunity.auth;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 import java.util.Random;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -14,66 +13,104 @@ import javax.crypto.spec.PBEKeySpec;
  * still considered robust and <a href="https://security.stackexchange.com/a/6415/12614"> recommended by NIST </a>.
  * The hashed value has 256 bits.
  */
-public class Passwords {
-
+public final class Passwords {
   private static final Random RANDOM = new SecureRandom();
+  // Number of iterations to run for hashing the password.
   private static final int ITERATIONS = 10000;
+  // Key length for the hash.
   private static final int KEY_LENGTH = 256;
+  // Salt length for the hash.
+  private static final int SALT_LENGTH = 16;
+  // Secret key algorithm.
   private static final String SECRET_KEY_DERIVATION = "PBKDF2WithHmacSHA1";
 
   /**
    * Returns a random salt to be used to hash a password.
    *
-   * @return a 16 bytes random salt
+   * @param length length of salt to be returned.
+   *
+   * @return a bytes random salt.
    */
-  public static byte[] getNextSalt(int length) {
+  private static byte[] getNextSalt(int length) {
     byte[] salt = new byte[length];
     RANDOM.nextBytes(salt);
     return salt;
   }
 
-  public static byte[] getNextSalt() {
-    return getNextSalt(50);
+  /**
+   * Returns a random salt of SALT_LENGTH size.
+   *
+   * @return a 16 byte random salt.
+   */
+  private static byte[] getNextSalt() {
+    return getNextSalt(SALT_LENGTH);
   }
 
   /**
-   * Returns a salted and hashed password using the provided hash.<br>
-   * Note - side effect: the password is destroyed (the char[] is filled with zeros)
+   * Creates a hash for the given password.
    *
-   * @param password the password to be hashed
-   * @param salt     a 16 bytes salt, ideally obtained with the getNextSalt method
+   * @param password the password to hash (and salt).
    *
-   * @return the hashed password with a pinch of salt
+   * @return a byte[] of the salt and hash.
    */
-  public static byte[] hash(char[] password, byte[] salt) {
-    PBEKeySpec spec = new PBEKeySpec(password, salt, ITERATIONS, KEY_LENGTH);
-    Arrays.fill(password, Character.MIN_VALUE);
+  public static byte[] createHash(String password) {
+    byte[] salt = getNextSalt();
+
+    return hash(password, salt);
+  }
+
+  /**
+   * Returns a salted and hashed password using the provided hash.
+   *
+   * @param password the password to be hashed.
+   * @param salt a byte[] of the salt.
+   *
+   * @return the hashed password with a pinch of salt.
+   */
+  private static byte[] hash(String password, byte[] salt) {
+    byte[] hashByteArr;
+    PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, ITERATIONS, KEY_LENGTH);
     try {
       SecretKeyFactory skf = SecretKeyFactory.getInstance(SECRET_KEY_DERIVATION);
-      return skf.generateSecret(spec).getEncoded();
+      hashByteArr = skf.generateSecret(spec).getEncoded();
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
       throw new AssertionError("Error while hashing a password: " + e.getMessage(), e);
     } finally {
       spec.clearPassword();
     }
+
+    byte[] finalHash = new byte[hashByteArr.length + salt.length];
+    for (int i = 0; i < hashByteArr.length; i++) {
+      finalHash[i] = hashByteArr[i];
+    }
+    for (int i = 0; i < salt.length; i++) {
+      finalHash[i + hashByteArr.length] = salt[i];
+    }
+
+    return finalHash;
   }
 
   /**
-   * Returns true if the given password and salt match the hashed value, false otherwise.<br>
-   * Note - side effect: the password is destroyed (the char[] is filled with zeros)
+   * Returns true if the given password and salt match the hashed value, false otherwise.
    *
-   * @param password     the password to check
-   * @param salt         the salt used to hash the password
-   * @param expectedHash the expected hashed value of the password
+   * @param password     the password to check.
+   * @param expectedHash the expected hashed value of the password.
    *
-   * @return true if the given password and salt match the hashed value, false otherwise
+   * @return true if the given password and salt match the hashed value, false otherwise.
    */
-  public static boolean isExpectedPassword(char[] password, byte[] salt, byte[] expectedHash) {
+  public static boolean isExpectedPassword(String password, byte[] expectedHash) {
+    byte[] salt = new byte[SALT_LENGTH];
+    for (int i = 0; i < SALT_LENGTH; i++) {
+      salt[i] = expectedHash[expectedHash.length - SALT_LENGTH + i];
+    }
     byte[] pwdHash = hash(password, salt);
-    Arrays.fill(password, Character.MIN_VALUE);
-    if (pwdHash.length != expectedHash.length) return false;
-    for (int i = 0; i < pwdHash.length; i++) {
-      if (pwdHash[i] != expectedHash[i]) return false;
+    if (pwdHash.length != expectedHash.length) {
+      return false;
+    }
+    for (int i = 0; i < expectedHash.length; i++) {
+      if (expectedHash[i] != pwdHash[i]) {
+        return false;
+      }
     }
     return true;
   }
@@ -81,9 +118,9 @@ public class Passwords {
   /**
    * Generates a random password of a given length, using letters and digits.
    *
-   * @param length the length of the password
+   * @param length the length of the password.
    *
-   * @return a random password
+   * @return a random password.
    */
   public static String generateRandomToken(int length) {
     StringBuilder sb = new StringBuilder(length);

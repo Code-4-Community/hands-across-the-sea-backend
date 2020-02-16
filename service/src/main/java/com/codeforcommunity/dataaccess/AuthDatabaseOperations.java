@@ -1,6 +1,6 @@
 package com.codeforcommunity.dataaccess;
 
-import com.codeforcommunity.auth.AuthUtils;
+import com.codeforcommunity.auth.Passwords;
 import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.exceptions.CreateUserException;
 import com.codeforcommunity.exceptions.ExpiredTokenException;
@@ -8,7 +8,6 @@ import com.codeforcommunity.exceptions.InvalidTokenException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.processor.AuthProcessorImpl;
 import com.codeforcommunity.propertiesLoader.PropertiesLoader;
-import java.util.Properties;
 import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.pojos.NoteUser;
@@ -27,14 +26,12 @@ import static org.jooq.generated.Tables.NOTE_USER;
 public class AuthDatabaseOperations {
 
     private final DSLContext db;
-    private AuthUtils sha;
     public final int SECONDS_VERIFICATION_EMAIL_VALID;
 
     public AuthDatabaseOperations(DSLContext db) {
-        this.sha = new AuthUtils();
         this.db = db;
         this.SECONDS_VERIFICATION_EMAIL_VALID = Integer.valueOf(PropertiesLoader
-            .getEmailConfProperties().getProperty("seconds_verification_email_valid"));
+            .getExpirationProperties().getProperty("seconds_verification_email_valid"));
     }
 
     /**
@@ -48,7 +45,7 @@ public class AuthDatabaseOperations {
             .fetchOneInto(NoteUser.class));
 
         return maybeUser
-            .filter(noteUser -> sha.hash(pass).equals(noteUser.getPassHash()))
+            .filter(noteUser -> Passwords.isExpectedPassword(pass, noteUser.getPassHash()))
             .isPresent();
     }
 
@@ -72,7 +69,7 @@ public class AuthDatabaseOperations {
             }
         }
 
-        String pass_hash = sha.hash(password);
+        byte[] pass_hash = Passwords.createHash(password);
         NoteUserRecord newUser = db.newRecord(NOTE_USER);
         newUser.setUserName(username);
         newUser.setEmail(email);
@@ -86,7 +83,8 @@ public class AuthDatabaseOperations {
      * Given a JWT signature, store it in the BLACKLISTED_REFRESHES table.
      */
     public void addToBlackList(String signature) {
-        Timestamp expirationTimestamp = Timestamp.from(Instant.now().plusMillis(AuthUtils.refresh_exp));
+        Timestamp expirationTimestamp = Timestamp.from(Instant.now().plusMillis(
+            Long.valueOf(PropertiesLoader.getExpirationProperties().getProperty("days_refresh_expiration"))));
         db.newRecord(Tables.BLACKLISTED_REFRESHES)
             .values(signature, expirationTimestamp)
             .store();
