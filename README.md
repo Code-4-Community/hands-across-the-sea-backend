@@ -10,7 +10,7 @@ On the left side bar on pgAdmin open Login/Group Roles, right click and select c
 Set the name to a username of your choosing.
 Under the Definition tab, set a password for the user.
 Under the Privileges tab, select yes for every option.
-4. Create a Database schema named 'checkin' with your created user as the owner.
+4. Create a Database named 'checkin' with your created user as the owner.
 Right click Databases and select create.
 Set the name to 'checkin' and then select your created user.
 
