@@ -16,10 +16,16 @@ public class JWTHandler {
 
   private final Algorithm algorithm;
   private Verification verification;
+  private final Long MS_REFRESH_EXPIRATION;
+  private final Long MS_ACCESS_EXPIRATION;
 
   public JWTHandler(String secretKey) {
     this.algorithm = Algorithm.HMAC256(secretKey);
     this.verification = getDefaultClaimVerification(this.algorithm);
+    this.MS_REFRESH_EXPIRATION = Long.valueOf(PropertiesLoader.getExpirationProperties()
+        .getProperty("ms_refresh_expiration"));
+    this.MS_ACCESS_EXPIRATION = Long.valueOf(PropertiesLoader.getExpirationProperties()
+        .getProperty("ms_access_expiration"));
   }
 
   /**
@@ -58,8 +64,8 @@ public class JWTHandler {
   }
 
   private Date getTokenExpiration(boolean isRefresh) {
-    long exp = isRefresh ? Long.valueOf(PropertiesLoader.getExpirationProperties().getProperty("days_refresh_expiration"))
-        : Long.valueOf(PropertiesLoader.getExpirationProperties().getProperty("minutes_access_expiration"));
+    long exp = isRefresh
+        ? MS_REFRESH_EXPIRATION : MS_ACCESS_EXPIRATION;
     return Date.from(Instant.now().plusMillis(exp));
   }
 

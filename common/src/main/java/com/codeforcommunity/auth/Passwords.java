@@ -15,13 +15,21 @@ import javax.crypto.spec.PBEKeySpec;
  */
 public final class Passwords {
   private static final Random RANDOM = new SecureRandom();
-  // Number of iterations to run for hashing the password.
+  /**
+   * Number of iterations to run for hashing the password.
+   */
   private static final int ITERATIONS = 10000;
-  // Key length for the hash.
-  private static final int KEY_LENGTH = 256;
-  // Salt length for the hash.
-  private static final int SALT_LENGTH = 16;
-  // Secret key algorithm.
+  /**
+   * Key length for the hash.
+   */
+  public static final int KEY_LENGTH = 256;
+  /**
+   * Salt length for the hash.
+   */
+  public static final int SALT_LENGTH = 16;
+  /**
+   * Secret key algorithm.
+   */
   private static final String SECRET_KEY_DERIVATION = "PBKDF2WithHmacSHA1";
 
   /**
@@ -38,15 +46,6 @@ public final class Passwords {
   }
 
   /**
-   * Returns a random salt of SALT_LENGTH size.
-   *
-   * @return a 16 byte random salt.
-   */
-  private static byte[] getNextSalt() {
-    return getNextSalt(SALT_LENGTH);
-  }
-
-  /**
    * Creates a hash for the given password.
    *
    * @param password the password to hash (and salt).
@@ -54,7 +53,7 @@ public final class Passwords {
    * @return a byte[] of the salt and hash.
    */
   public static byte[] createHash(String password) {
-    byte[] salt = getNextSalt();
+    byte[] salt = getNextSalt(SALT_LENGTH);
 
     return hash(password, salt);
   }
