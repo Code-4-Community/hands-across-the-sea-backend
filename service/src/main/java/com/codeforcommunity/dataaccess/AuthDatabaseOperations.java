@@ -1,14 +1,12 @@
 package com.codeforcommunity.dataaccess;
 
-import com.codeforcommunity.auth.AuthUtils;
-import com.codeforcommunity.exceptions.AuthException;
+import com.codeforcommunity.auth.Passwords;
 import com.codeforcommunity.exceptions.CreateUserException;
 import com.codeforcommunity.exceptions.ExpiredTokenException;
 import com.codeforcommunity.exceptions.InvalidTokenException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.processor.AuthProcessorImpl;
 import com.codeforcommunity.propertiesLoader.PropertiesLoader;
-import java.util.Properties;
 import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.pojos.NoteUser;
@@ -27,14 +25,15 @@ import static org.jooq.generated.Tables.NOTE_USER;
 public class AuthDatabaseOperations {
 
     private final DSLContext db;
-    private AuthUtils sha;
     public final int SECONDS_VERIFICATION_EMAIL_VALID;
+    public final int MS_REFRESH_EXPIRATION;
 
     public AuthDatabaseOperations(DSLContext db) {
-        this.sha = new AuthUtils();
         this.db = db;
         this.SECONDS_VERIFICATION_EMAIL_VALID = Integer.valueOf(PropertiesLoader
-            .getEmailConfProperties().getProperty("seconds_verification_email_valid"));
+            .getExpirationProperties().getProperty("seconds_verification_email_valid"));
+        this.MS_REFRESH_EXPIRATION = Integer.valueOf(PropertiesLoader
+            .getExpirationProperties().getProperty("ms_refresh_expiration"));
     }
 
     /**
@@ -48,7 +47,7 @@ public class AuthDatabaseOperations {
             .fetchOneInto(NoteUser.class));
 
         return maybeUser
-            .filter(noteUser -> sha.hash(pass).equals(noteUser.getPassHash()))
+            .filter(noteUser -> Passwords.isExpectedPassword(pass, noteUser.getPassHash()))
             .isPresent();
     }
 
@@ -72,7 +71,7 @@ public class AuthDatabaseOperations {
             }
         }
 
-        String pass_hash = sha.hash(password);
+        byte[] pass_hash = Passwords.createHash(password);
         NoteUserRecord newUser = db.newRecord(NOTE_USER);
         newUser.setUserName(username);
         newUser.setEmail(email);
@@ -86,7 +85,7 @@ public class AuthDatabaseOperations {
      * Given a JWT signature, store it in the BLACKLISTED_REFRESHES table.
      */
     public void addToBlackList(String signature) {
-        Timestamp expirationTimestamp = Timestamp.from(Instant.now().plusMillis(AuthUtils.refresh_exp));
+        Timestamp expirationTimestamp = Timestamp.from(Instant.now().plusMillis(MS_REFRESH_EXPIRATION));
         db.newRecord(Tables.BLACKLISTED_REFRESHES)
             .values(signature, expirationTimestamp)
             .store();
@@ -118,16 +117,28 @@ public class AuthDatabaseOperations {
         keysRecord.store();
     }
 
+    /**
+     * Determines if given token date is still valid.
+     *
+     * @param tokenResult VerificationKeysRecord to check.
+     * @return true if it is within the time specified in the expiration.properties file.
+     */
     private boolean isTokenDateValid(VerificationKeysRecord tokenResult) {
         Timestamp cutoffDate = Timestamp.from(Instant.now().minusSeconds(SECONDS_VERIFICATION_EMAIL_VALID));
         if (tokenResult.getCreated().before(cutoffDate)) {
             return false;
         }
-
         return true;
     }
 
-    public void validateSecretKey(String secretKey) throws AuthException {
+    /**
+     * Validates the email/secret key for the user it was created for.
+     *
+     * @param secretKey the secret key to validate.
+     * @throws InvalidTokenException if the given token does not exist.
+     * @throws ExpiredTokenException if the given token is expired.
+     */
+    public void validateSecretKey(String secretKey) {
         VerificationKeysRecord veriKey = db.selectFrom(Tables.VERIFICATION_KEYS)
             .where(Tables.VERIFICATION_KEYS.ID.eq(secretKey)
                 .and(Tables.VERIFICATION_KEYS.USED.eq(false)))
