@@ -1,8 +1,11 @@
 package com.codeforcommunity.dto.auth;
 
+import com.codeforcommunity.api.ApiDto;
 import com.codeforcommunity.dto.IDTO;
+import java.util.ArrayList;
+import java.util.List;
 
-public class NewUserRequest implements IDTO {
+public class NewUserRequest extends ApiDto implements IDTO {
 
     private String email;
     private String username;
@@ -48,5 +51,28 @@ public class NewUserRequest implements IDTO {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    @Override
+    public List<String> validateFields(String fieldPrefix) {
+        String fieldName = fieldPrefix + "new_user_request.";
+        List<String> fields = new ArrayList<>();
+
+        if (emailInvalid(email)) {
+            fields.add(fieldName + "email");
+        }
+        if (isEmpty(username)) {
+            fields.add(fieldName + "username");
+        }
+        if (passwordInvalid(password)) {
+            fields.add(fieldName + "password");
+        }
+        if (isEmpty(firstName)) {
+            fields.add(fieldName + "first_name");
+        }
+        if (isEmpty(lastName)) {
+            fields.add(fieldName + "last_name");
+        }
+        return fields;
     }
 }

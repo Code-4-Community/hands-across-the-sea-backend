@@ -1,6 +1,10 @@
 package com.codeforcommunity.dto.notes;
 
-public class ContentNote {
+import com.codeforcommunity.api.ApiDto;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ContentNote extends ApiDto {
   private String title;
   private String content;
 
@@ -25,5 +29,19 @@ public class ContentNote {
 
   public void setContent(String content) {
     this.content = content;
+  }
+
+  @Override
+  public List<String> validateFields(String fieldPrefix) {
+    String fieldName = fieldPrefix + "content_note.";
+    List<String> fields = new ArrayList<>();
+
+    if (isEmpty(title)) {
+      fields.add(fieldName + "title");
+    }
+    if (content == null) {
+      fields.add(fieldName + "content");
+    }
+    return fields;
   }
 }

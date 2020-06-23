@@ -9,13 +9,10 @@ import com.codeforcommunity.processor.AuthProcessorImpl;
 import com.codeforcommunity.processor.NotesProcessorImpl;
 import com.codeforcommunity.propertiesLoader.PropertiesLoader;
 import com.codeforcommunity.rest.ApiRouter;
-import com.codeforcommunity.rest.subrouter.FailureHandler;
 
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 public class ServiceMain {
