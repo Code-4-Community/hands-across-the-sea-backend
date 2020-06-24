@@ -5,9 +5,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
 
-/**
- * The main point for the API.
- */
+/** The main point for the API. */
 public class ApiMain {
   private final ApiRouter apiRouter;
 
@@ -15,9 +13,7 @@ public class ApiMain {
     this.apiRouter = apiRouter;
   }
 
-  /**
-   * Start the API to start listening on a port.
-   */
+  /** Start the API to start listening on a port. */
   public void startApi() {
     Vertx vertx = Vertx.vertx();
     HttpServer server = vertx.createHttpServer();

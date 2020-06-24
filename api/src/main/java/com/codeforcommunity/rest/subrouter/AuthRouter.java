@@ -1,22 +1,21 @@
 package com.codeforcommunity.rest.subrouter;
 
+import static com.codeforcommunity.rest.ApiRouter.end;
+
 import com.codeforcommunity.api.IAuthProcessor;
+import com.codeforcommunity.dto.SessionResponse;
 import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
-import com.codeforcommunity.dto.SessionResponse;
 import com.codeforcommunity.rest.HttpConstants;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
-
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-
-import static com.codeforcommunity.rest.ApiRouter.end;
 
 public class AuthRouter implements IRouter {
   private final IAuthProcessor authProcessor;
@@ -39,7 +38,6 @@ public class AuthRouter implements IRouter {
     return router;
   }
 
-
   private void registerLoginUser(Router router) {
     Route loginUserRoute = router.post("/login");
     loginUserRoute.handler(this::handlePostUserLoginRoute);
@@ -56,7 +54,7 @@ public class AuthRouter implements IRouter {
   }
 
   private void registerLogoutUser(Router router) {
-    Route logoutUserRoute = router.delete( "/login");
+    Route logoutUserRoute = router.delete("/login");
     logoutUserRoute.handler(this::handleDeleteLogoutUser);
   }
 
@@ -69,7 +67,6 @@ public class AuthRouter implements IRouter {
     Route createSecretKeyRoute = router.get("/create_secret/:user_id");
     createSecretKeyRoute.handler(this::createSecretKey);
   }
-
 
   private void handlePostUserLoginRoute(RoutingContext ctx) {
     LoginRequest userRequest = RestFunctions.getJsonBodyAsClass(ctx, LoginRequest.class);

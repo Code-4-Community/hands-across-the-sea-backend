@@ -8,8 +8,7 @@ public class PropertiesLoader {
 
   private static Properties getProperties(String file) {
 
-    try (InputStream input = PropertiesLoader.class.getClassLoader().
-            getResourceAsStream(file)) {
+    try (InputStream input = PropertiesLoader.class.getClassLoader().getResourceAsStream(file)) {
       Properties prop = new Properties();
       prop.load(input);
       return prop;
@@ -21,9 +20,11 @@ public class PropertiesLoader {
   public static Properties getEmailerProperties() {
     return getProperties("emailer.properties");
   }
+
   public static Properties getDbProperties() {
     return getProperties("db.properties");
   }
+
   public static Properties getExpirationProperties() {
     return getProperties("expiration.properties");
   }
