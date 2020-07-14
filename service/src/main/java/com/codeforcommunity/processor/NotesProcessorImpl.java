@@ -1,16 +1,15 @@
 package com.codeforcommunity.processor;
 
- import com.codeforcommunity.api.INotesProcessor;
+import com.codeforcommunity.api.INotesProcessor;
 import com.codeforcommunity.dto.notes.ContentNote;
 import com.codeforcommunity.dto.notes.FullNote;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.pojos.Note;
 import org.jooq.generated.tables.records.NoteRecord;
 import org.jooq.impl.UpdatableRecordImpl;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class NotesProcessorImpl implements INotesProcessor {
 
@@ -23,22 +22,20 @@ public class NotesProcessorImpl implements INotesProcessor {
   @Override
   public List<FullNote> getAllNotes() {
     List<Note> notes = db.selectFrom(Tables.NOTE).fetchInto(Note.class);
-    return notes.stream()
-        .map(this::dbNoteToReturn)
-        .collect(Collectors.toList());
+    return notes.stream().map(this::dbNoteToReturn).collect(Collectors.toList());
   }
 
   @Override
   public FullNote getANote(int noteId) {
-    Note note = db.selectFrom(Tables.NOTE).where(Tables.NOTE.ID.eq(noteId)).fetchOneInto(Note.class);
+    Note note =
+        db.selectFrom(Tables.NOTE).where(Tables.NOTE.ID.eq(noteId)).fetchOneInto(Note.class);
     return dbNoteToReturn(note);
   }
 
   @Override
   public List<FullNote> createNotes(List<ContentNote> notes) {
-    List<NoteRecord> noteRecords = notes.stream()
-        .map(this::contentNoteToNoteRecord)
-        .collect(Collectors.toList());
+    List<NoteRecord> noteRecords =
+        notes.stream().map(this::contentNoteToNoteRecord).collect(Collectors.toList());
 
     noteRecords.forEach(UpdatableRecordImpl::store);
 
@@ -60,9 +57,7 @@ public class NotesProcessorImpl implements INotesProcessor {
 
   @Override
   public void deleteNote(int noteId) {
-    db.deleteFrom(Tables.NOTE)
-        .where(Tables.NOTE.ID.eq(noteId))
-        .execute();
+    db.deleteFrom(Tables.NOTE).where(Tables.NOTE.ID.eq(noteId)).execute();
   }
 
   private FullNote dbNoteToReturn(Note note) {

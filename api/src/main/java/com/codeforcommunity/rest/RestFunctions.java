@@ -4,21 +4,20 @@ import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
 import com.codeforcommunity.exceptions.RequestBodyMappingException;
-
-import java.util.Optional;
-
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import java.util.Optional;
 
 public interface RestFunctions {
 
   /**
    * Gets the JSON body from the given routing context and parses it into the given class.
-   * @throws RequestBodyMappingException if the given request cannot be successfully mapped
-   *      into the given class.
+   *
+   * @throws RequestBodyMappingException if the given request cannot be successfully mapped into the
+   *     given class.
    * @throws RequestBodyMappingException if the given request does not have a body that can be
-   *      parsed.
+   *     parsed.
    */
   static <T> T getJsonBodyAsClass(RoutingContext ctx, Class<T> clazz) {
     Optional<JsonObject> body = Optional.ofNullable(ctx.getBodyAsJson());
@@ -57,5 +56,4 @@ public interface RestFunctions {
     }
     throw new MissingParameterException(name);
   }
-
 }

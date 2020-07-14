@@ -16,26 +16,20 @@ import org.jooq.generated.tables.records.NoteRecord;
 import org.jooq.impl.UpdatableRecordImpl;
 import org.junit.jupiter.api.Test;
 
-/**
- * A class for testing the ProcessorImpl.
- */
+/** A class for testing the ProcessorImpl. */
 public class ProcessorImplTest {
   // the JooqMock to use for testing
   JooqMock mockDb;
   // the ProcessorImpl to use for testing
   NotesProcessorImpl processor;
 
-  /**
-   * Method to setup mockDb and processor.
-   */
+  /** Method to setup mockDb and processor. */
   void setup() {
     mockDb = new JooqMock();
     processor = new NotesProcessorImpl(mockDb.getContext());
   }
 
-  /**
-   * Test the getAllNotes method.
-   */
+  /** Test the getAllNotes method. */
   @Test
   public void testGetAllNotes() {
     setup();
@@ -79,9 +73,7 @@ public class ProcessorImplTest {
     assertEquals(2, mockDb.timesCalled("SELECT"));
   }
 
-  /**
-   * Test the getANote method.
-   */
+  /** Test the getANote method. */
   @Test
   public void testGetANote() {
     setup();
@@ -103,15 +95,12 @@ public class ProcessorImplTest {
 
     // certify count of bindings and sql statement
     assertEquals(1, bindings.length);
-    assertTrue(sql.contains("select")
-        && sql.contains("from \"note\" where \"note\".\"id\" = ?"));
+    assertTrue(sql.contains("select") && sql.contains("from \"note\" where \"note\".\"id\" = ?"));
     assertEquals(0, bindings[0]);
     assertEquals(1, mockDb.timesCalled("SELECT"));
   }
 
-  /**
-   * Test inserting notes with the mockDb.
-   */
+  /** Test inserting notes with the mockDb. */
   @Test
   public void testInsertNotes() {
     setup();
@@ -134,16 +123,15 @@ public class ProcessorImplTest {
     assertEquals(1, mockDb.timesCalled("INSERT"));
     String sql = mockDb.getSqlStrings().get("INSERT").get(0);
     Object[] bindings = mockDb.getSqlBindings().get("INSERT").get(0);
-    assertEquals("insert into \"note\" (\"title\", \"body\") values (?, ?) returning "
-        + "\"note\".\"id\"", sql);
+    assertEquals(
+        "insert into \"note\" (\"title\", \"body\") values (?, ?) returning " + "\"note\".\"id\"",
+        sql);
     assertEquals(2, bindings.length);
     assertEquals("Hello", bindings[0]);
     assertEquals("World", bindings[1]);
   }
 
-  /**
-   * Test the createNotes method.
-   */
+  /** Test the createNotes method. */
   @Test
   public void testCreateNotes() {
     setup();
@@ -171,17 +159,16 @@ public class ProcessorImplTest {
       Object[] bindings = mockDb.getSqlBindings().get("INSERT").get(i);
 
       assertEquals(2, bindings.length);
-      assertEquals("insert into \"note\" (\"title\", \"body\") values (?, ?) returning "
-        + "\"note\".\"id\"", sql);
+      assertEquals(
+          "insert into \"note\" (\"title\", \"body\") values (?, ?) returning " + "\"note\".\"id\"",
+          sql);
       assertEquals("Note" + i, bindings[0]);
       assertEquals("HELLO WORLD", bindings[1]);
       assertEquals(i, returnNotes.get(i).getId());
     }
   }
 
-  /**
-   * Test the updateNote method.
-   */
+  /** Test the updateNote method. */
   @Test
   public void testUpdateNote() {
     setup();
@@ -208,16 +195,14 @@ public class ProcessorImplTest {
     Object[] bindings = mockDb.getSqlBindings().get("UPDATE").get(0);
 
     assertEquals(3, bindings.length);
-    assertEquals("update \"note\" set \"title\" = ?, \"body\" = ? where \"note\""
-        + ".\"id\" = ?", sql);
+    assertEquals(
+        "update \"note\" set \"title\" = ?, \"body\" = ? where \"note\"" + ".\"id\" = ?", sql);
     assertEquals("TITLE", bindings[0]);
     assertEquals("SET BODY", bindings[1]);
     assertEquals(0, bindings[2]);
   }
 
-  /**
-   * Test the deleteNote method.
-   */
+  /** Test the deleteNote method. */
   @Test
   public void deleteNote() {
     setup();
@@ -242,43 +227,46 @@ public class ProcessorImplTest {
     assertEquals(0, bindings[0]);
   }
 
-  /**
-   * Test calling select without priming mock db.
-   */
+  /** Test calling select without priming mock db. */
   @Test
   public void testUnprimedSelect() {
     setup();
     DSLContext ctx = mockDb.getContext();
 
-    Exception e = assertThrows(IllegalStateException.class, () ->
-      ctx.selectFrom(Tables.NOTE).where(Tables.NOTE.ID.eq(0)).fetchOneInto(Note.class));
-    assertEquals("You probably forgot to prime your "
-          + "JooqMock by calling addReturn (with one of SELECT/INSERT/UPDATE/DELETE as "
-          + "your operation.", e.getMessage());
+    Exception e =
+        assertThrows(
+            IllegalStateException.class,
+            () -> ctx.selectFrom(Tables.NOTE).where(Tables.NOTE.ID.eq(0)).fetchOneInto(Note.class));
+    assertEquals(
+        "You probably forgot to prime your "
+            + "JooqMock by calling addReturn (with one of SELECT/INSERT/UPDATE/DELETE as "
+            + "your operation.",
+        e.getMessage());
   }
 
-  /**
-   * Test calling insert without priming mock db.
-   */
+  /** Test calling insert without priming mock db. */
   @Test
   public void testUnprimedInsert() {
     setup();
     DSLContext ctx = mockDb.getContext();
 
-    Exception e = assertThrows(IllegalStateException.class, () -> {
-      NoteRecord record = ctx.newRecord(Tables.NOTE);
-      record.setTitle("Hello");
-      record.setBody("World");
-      record.store();
-    });
-    assertEquals("You probably forgot to prime your "
-        + "JooqMock by calling addReturn (with one of SELECT/INSERT/UPDATE/DELETE as "
-        + "your operation.", e.getMessage());
+    Exception e =
+        assertThrows(
+            IllegalStateException.class,
+            () -> {
+              NoteRecord record = ctx.newRecord(Tables.NOTE);
+              record.setTitle("Hello");
+              record.setBody("World");
+              record.store();
+            });
+    assertEquals(
+        "You probably forgot to prime your "
+            + "JooqMock by calling addReturn (with one of SELECT/INSERT/UPDATE/DELETE as "
+            + "your operation.",
+        e.getMessage());
   }
 
-  /**
-   * Test calling update without priming mock db.
-   */
+  /** Test calling update without priming mock db. */
   @Test
   public void testUnprimedUpdate() {
     setup();
@@ -291,28 +279,35 @@ public class ProcessorImplTest {
     primer.setBody("SET BODY");
     mockDb.addReturn("SELECT", primer);
 
-    Exception e = assertThrows(IllegalStateException.class, () -> {
-      NoteRecord update = ctx.fetchOne(Tables.NOTE, Tables.NOTE.ID.eq(0));
-      update.setTitle("Hello");
-      update.store();
-    });
-    assertEquals("You probably forgot to prime your "
-        + "JooqMock by calling addReturn (with one of SELECT/INSERT/UPDATE/DELETE as "
-        + "your operation.", e.getMessage());
+    Exception e =
+        assertThrows(
+            IllegalStateException.class,
+            () -> {
+              NoteRecord update = ctx.fetchOne(Tables.NOTE, Tables.NOTE.ID.eq(0));
+              update.setTitle("Hello");
+              update.store();
+            });
+    assertEquals(
+        "You probably forgot to prime your "
+            + "JooqMock by calling addReturn (with one of SELECT/INSERT/UPDATE/DELETE as "
+            + "your operation.",
+        e.getMessage());
   }
 
-  /**
-   * Test calling delete without priming mock db.
-   */
+  /** Test calling delete without priming mock db. */
   @Test
   public void testUnprimedDelete() {
     setup();
     DSLContext ctx = mockDb.getContext();
 
-    Exception e = assertThrows(IllegalStateException.class, () ->
-      ctx.deleteFrom(Tables.NOTE).where(Tables.NOTE.ID.eq(0)).execute());
-    assertEquals("You probably forgot to prime your "
-        + "JooqMock by calling addReturn (with one of SELECT/INSERT/UPDATE/DELETE as "
-        + "your operation.", e.getMessage());
+    Exception e =
+        assertThrows(
+            IllegalStateException.class,
+            () -> ctx.deleteFrom(Tables.NOTE).where(Tables.NOTE.ID.eq(0)).execute());
+    assertEquals(
+        "You probably forgot to prime your "
+            + "JooqMock by calling addReturn (with one of SELECT/INSERT/UPDATE/DELETE as "
+            + "your operation.",
+        e.getMessage());
   }
 }

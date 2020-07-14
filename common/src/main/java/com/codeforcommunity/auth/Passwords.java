@@ -8,35 +8,27 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 /**
- * A utility class to hash passwords and check passwords vs hashed values. It uses a combination of hashing and unique
- * salt. The algorithm used is PBKDF2WithHmacSHA1 which, although not the best for hashing password (vs. bcrypt) is
- * still considered robust and <a href="https://security.stackexchange.com/a/6415/12614"> recommended by NIST </a>.
- * The hashed value has 256 bits.
+ * A utility class to hash passwords and check passwords vs hashed values. It uses a combination of
+ * hashing and unique salt. The algorithm used is PBKDF2WithHmacSHA1 which, although not the best
+ * for hashing password (vs. bcrypt) is still considered robust and <a
+ * href="https://security.stackexchange.com/a/6415/12614">recommended by NIST </a>. The hashed value
+ * has 256 bits.
  */
 public final class Passwords {
   private static final Random RANDOM = new SecureRandom();
-  /**
-   * Number of iterations to run for hashing the password.
-   */
+  /** Number of iterations to run for hashing the password. */
   private static final int ITERATIONS = 10000;
-  /**
-   * Key length for the hash.
-   */
+  /** Key length for the hash. */
   public static final int KEY_LENGTH = 256;
-  /**
-   * Salt length for the hash.
-   */
+  /** Salt length for the hash. */
   public static final int SALT_LENGTH = 16;
-  /**
-   * Secret key algorithm.
-   */
+  /** Secret key algorithm. */
   private static final String SECRET_KEY_DERIVATION = "PBKDF2WithHmacSHA1";
 
   /**
    * Returns a random salt to be used to hash a password.
    *
    * @param length length of salt to be returned.
-   *
    * @return a bytes random salt.
    */
   private static byte[] getNextSalt(int length) {
@@ -49,7 +41,6 @@ public final class Passwords {
    * Creates a hash for the given password.
    *
    * @param password the password to hash (and salt).
-   *
    * @return a byte[] of the salt and hash.
    */
   public static byte[] createHash(String password) {
@@ -63,7 +54,6 @@ public final class Passwords {
    *
    * @param password the password to be hashed.
    * @param salt a byte[] of the salt.
-   *
    * @return the hashed password with a pinch of salt.
    */
   private static byte[] hash(String password, byte[] salt) {
@@ -92,9 +82,8 @@ public final class Passwords {
   /**
    * Returns true if the given password and salt match the hashed value, false otherwise.
    *
-   * @param password     the password to check.
+   * @param password the password to check.
    * @param expectedHash the expected hashed value of the password.
-   *
    * @return true if the given password and salt match the hashed value, false otherwise.
    */
   public static boolean isExpectedPassword(String password, byte[] expectedHash) {
@@ -118,7 +107,6 @@ public final class Passwords {
    * Generates a random password of a given length, using letters and digits.
    *
    * @param length the length of the password.
-   *
    * @return a random password.
    */
   public static String generateRandomToken(int length) {

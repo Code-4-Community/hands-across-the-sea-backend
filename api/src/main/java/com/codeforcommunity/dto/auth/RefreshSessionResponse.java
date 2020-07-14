@@ -4,13 +4,13 @@ import com.codeforcommunity.dto.IDTO;
 
 public class RefreshSessionResponse implements IDTO {
 
-    private String freshAccessToken;
+  private String freshAccessToken;
 
-    public String getFreshAccessToken() {
-        return freshAccessToken;
-    }
+  public String getFreshAccessToken() {
+    return freshAccessToken;
+  }
 
-    public void setFreshAccessToken(String freshAccessToken) {
-        this.freshAccessToken = freshAccessToken;
-    }
+  public void setFreshAccessToken(String freshAccessToken) {
+    this.freshAccessToken = freshAccessToken;
+  }
 }
