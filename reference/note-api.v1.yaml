@@ -133,8 +133,10 @@ components:
       properties:
         title:
           type: string
+          example: My First Blog Post
         content:
           type: string
+          example: Hello, world!
       required:
         - title
         - content
