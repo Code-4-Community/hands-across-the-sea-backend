@@ -9,7 +9,8 @@ paths:
   /note:
     get:
       summary: getNote
-      tags: []
+      tags:
+        - Note
       responses:
         '200':
           description: OK
@@ -31,7 +32,6 @@ paths:
           in: query
           name: note_id
           description: ID of the note to be retrieved
-    parameters: []
     post:
       summary: createNote
       operationId: post-note
@@ -59,6 +59,8 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/Note'
+      tags:
+        - Note
   '/note/{note_id}':
     parameters:
       - schema:
@@ -91,19 +93,24 @@ paths:
               properties:
                 note:
                   $ref: '#/components/schemas/Note'
-      description: Update a specific note
+      description: Update a specific note.
+      tags:
+        - Note
     delete:
       summary: deleteNote
       operationId: delete-note-note_id
       responses:
         '200':
           description: OK
-      description: Delete a specific note
+      description: Delete a specific note.
+      tags:
+        - Note
 components:
   schemas:
     NoteRecord:
       title: NoteRecord
       type: object
+      description: Contains data about a note as stored on the database.
       properties:
         id:
           type: integer
@@ -122,6 +129,7 @@ components:
     Note:
       title: Note
       type: object
+      description: Contains the relevant fields of a note for a user creating or updating it.
       properties:
         title:
           type: string
@@ -133,6 +141,7 @@ components:
     NoteListResponse:
       title: NoteResponse
       type: object
+      description: A response that contains an arbitrary number of notes.
       properties:
         status:
           type: string
@@ -147,6 +156,7 @@ components:
     NoteResponse:
       title: NoteResponse
       type: object
+      description: A response that contains exactly one note.
       properties:
         status:
           type: string
