@@ -1,0 +1,158 @@
+openapi: 3.0.0
+info:
+  title: Note API
+  version: '1.0'
+  description: 'This API is for getting, creating, and updating note objects.'
+servers:
+  - url: 'http://localhost:8081'
+paths:
+  /note:
+    get:
+      summary: getNote
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteListResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+      operationId: get-note
+      description: Get one or all of the notes in the database.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: note_id
+          description: ID of the note to be retrieved
+    parameters: []
+    post:
+      summary: createNote
+      operationId: post-note
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteListResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+      description: Create one or more notes to be stored in the database.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Note'
+  '/note/{note_id}':
+    parameters:
+      - schema:
+          type: string
+        name: note_id
+        in: path
+        required: true
+        description: ID of the note to delete
+    put:
+      summary: updateNote
+      operationId: put-note-note_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  $ref: '#/components/schemas/Note'
+      description: Update a specific note
+    delete:
+      summary: deleteNote
+      operationId: delete-note-note_id
+      responses:
+        '200':
+          description: OK
+      description: Delete a specific note
+components:
+  schemas:
+    NoteRecord:
+      title: NoteRecord
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        date:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - content
+        - date
+    Note:
+      title: Note
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+      required:
+        - title
+        - content
+    NoteListResponse:
+      title: NoteResponse
+      type: object
+      properties:
+        status:
+          type: string
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/NoteRecord'
+        reason:
+          type: string
+      required:
+        - status
+    NoteResponse:
+      title: NoteResponse
+      type: object
+      properties:
+        status:
+          type: string
+        note:
+          $ref: '#/components/schemas/NoteRecord'
+        reason:
+          type: string
+      required:
+        - status
