@@ -8,7 +8,7 @@ servers:
 paths:
   /note:
     get:
-      summary: getNote
+      summary: Get note
       tags:
         - Note
       responses:
@@ -24,7 +24,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NoteResponse'
-      operationId: get-note
+      operationId: getNote
       description: Get one or all of the notes in the database.
       parameters:
         - schema:
@@ -33,8 +33,8 @@ paths:
           name: note_id
           description: ID of the note to be retrieved
     post:
-      summary: createNote
-      operationId: post-note
+      summary: Create note
+      operationId: createNote
       responses:
         '201':
           description: Created
@@ -70,8 +70,8 @@ paths:
         required: true
         description: ID of the note to delete
     put:
-      summary: updateNote
-      operationId: put-note-note_id
+      summary: Update note
+      operationId: updateNote
       responses:
         '200':
           description: OK
@@ -97,8 +97,8 @@ paths:
       tags:
         - Note
     delete:
-      summary: deleteNote
-      operationId: delete-note-note_id
+      summary: Delete note
+      operationId: deleteNote
       responses:
         '200':
           description: OK
@@ -107,27 +107,27 @@ paths:
         - Note
 components:
   schemas:
+    Status:
+      type: string
+      enum:
+        - OK
+        - BAD REQUEST
     NoteRecord:
-      title: NoteRecord
       type: object
       description: Contains data about a note as stored on the database.
+      allOf:
+        - $ref: '#/components/schemas/Note'
       properties:
         id:
           type: integer
-        title:
-          type: string
-        content:
-          type: string
         date:
           type: string
           format: date-time
+          description: The date and time when the note was created
       required:
         - id
-        - title
-        - content
         - date
     Note:
-      title: Note
       type: object
       description: Contains the relevant fields of a note for a user creating or updating it.
       properties:
@@ -139,30 +139,35 @@ components:
         - title
         - content
     NoteListResponse:
-      title: NoteResponse
       type: object
       description: A response that contains an arbitrary number of notes.
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
       properties:
-        status:
-          type: string
         notes:
           type: array
           items:
             $ref: '#/components/schemas/NoteRecord'
-        reason:
-          type: string
       required:
         - status
     NoteResponse:
-      title: NoteResponse
       type: object
       description: A response that contains exactly one note.
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
       properties:
-        status:
-          type: string
         note:
           $ref: '#/components/schemas/NoteRecord'
+      required:
+        - status
+    BaseResponse:
+      type: object
+      description: A base schema for responses.
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
         reason:
           type: string
+          description: Reason for error response
       required:
         - status
