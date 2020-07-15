@@ -18,6 +18,7 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <vertx.version>3.9.1</vertx.version>
   </properties>
 
   <build>
@@ -88,14 +89,21 @@
       <dependency>
         <groupId>io.vertx</groupId>
         <artifactId>vertx-core</artifactId>
-        <version>3.7.1</version>
+        <version>${vertx.version}</version>
       </dependency>
 
       <!-- Used for API routing -->
       <dependency>
         <groupId>io.vertx</groupId>
         <artifactId>vertx-web</artifactId>
-        <version>3.7.1</version>
+        <version>${vertx.version}</version>
+      </dependency>
+
+      <!-- Extends Vert.x web to support OpenAPI 3 -->
+      <dependency>
+        <groupId>io.vertx</groupId>
+        <artifactId>vertx-web-api-contract</artifactId>
+        <version>${vertx.version}</version>
       </dependency>
 
       <!-- Used for general jOOQ SQL query building -->
