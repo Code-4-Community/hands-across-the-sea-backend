@@ -53,12 +53,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                notes:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Note'
+              $ref: '#/components/schemas/NoteList'
       tags:
         - Note
   '/note/{note_id}':
@@ -89,10 +84,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                note:
-                  $ref: '#/components/schemas/Note'
+              $ref: '#/components/schemas/NoteWrapper'
       description: Update a specific note.
       tags:
         - Note
@@ -173,3 +165,15 @@ components:
           description: Reason for error response
       required:
         - status
+    NoteList:
+      type: object
+      properties:
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Note'
+    NoteWrapper:
+      type: object
+      properties:
+        note:
+          $ref: '#/components/schemas/Note'
