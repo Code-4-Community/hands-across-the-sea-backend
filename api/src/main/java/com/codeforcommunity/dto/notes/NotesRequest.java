@@ -28,8 +28,7 @@ public class NotesRequest extends ApiDto {
 
     if (notes == null) {
       fields.add(fieldName + "notes");
-    }
-    else {
+    } else {
       for (ContentNote note : notes) {
         fields.addAll(note.validateFields(fieldName));
       }

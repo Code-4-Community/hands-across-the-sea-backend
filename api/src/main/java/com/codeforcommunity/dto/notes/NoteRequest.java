@@ -29,8 +29,7 @@ public class NoteRequest extends ApiDto {
 
     if (note == null) {
       fields.add(fieldName + "note");
-    }
-    else {
+    } else {
       fields.addAll(note.validateFields(fieldName));
     }
     return fields;

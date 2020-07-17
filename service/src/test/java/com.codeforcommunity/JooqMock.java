@@ -6,7 +6,6 @@ import static org.mockito.Mockito.spy;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +24,7 @@ import org.jooq.tools.jdbc.*;
 
 /**
  * A class to mock database interactions.
+ *
  * @author Conner Nilsen
  */
 public class JooqMock implements MockDataProvider {
@@ -205,19 +205,19 @@ public class JooqMock implements MockDataProvider {
 
     // Sets the id of an object being inserted
     doAnswer(
-        invocation -> {
-          Object object = invocation.callRealMethod();
-          if (object instanceof Record) {
-            Record record = (Record) object;
-            Field<?> field = record.field("id");
-            if (field != null) {
-              Field<Integer> itemId = field.coerce(Integer.class);
-              record.set(itemId, id);
-            }
-          }
-          id++;
-          return object;
-        })
+            invocation -> {
+              Object object = invocation.callRealMethod();
+              if (object instanceof Record) {
+                Record record = (Record) object;
+                Field<?> field = record.field("id");
+                if (field != null) {
+                  Field<Integer> itemId = field.coerce(Integer.class);
+                  record.set(itemId, id);
+                }
+              }
+              id++;
+              return object;
+            })
         .when(context)
         .newRecord(any(Table.class));
 

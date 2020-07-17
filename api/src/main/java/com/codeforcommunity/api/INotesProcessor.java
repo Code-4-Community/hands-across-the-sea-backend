@@ -2,7 +2,6 @@ package com.codeforcommunity.api;
 
 import com.codeforcommunity.dto.notes.ContentNote;
 import com.codeforcommunity.dto.notes.FullNote;
-
 import java.util.List;
 
 public interface INotesProcessor {

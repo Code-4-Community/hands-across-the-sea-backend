@@ -5,9 +5,10 @@ import com.codeforcommunity.exceptions.MalformedParameterException;
 import java.util.List;
 
 /**
- * An abstract class that all incoming request DTOs must extend. This is used to validate
- * the objects before they're used to ensure that certain fields are not-null/not-empty or fulfill
- * other criteria.
+ * An abstract class that all incoming request DTOs must extend. This is used to validate the
+ * objects before they're used to ensure that certain fields are not-null/not-empty or fulfill other
+ * criteria.
+ *
  * @author Conner Nilsen
  */
 public abstract class ApiDto {

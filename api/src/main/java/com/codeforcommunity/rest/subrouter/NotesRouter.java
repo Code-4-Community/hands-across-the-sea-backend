@@ -1,12 +1,15 @@
 package com.codeforcommunity.rest.subrouter;
 
+import static com.codeforcommunity.rest.ApiRouter.end;
+import static com.codeforcommunity.rest.RestFunctions.getJsonBodyAsClass;
+import static com.codeforcommunity.rest.RestFunctions.getRequestParameterAsInt;
+
 import com.codeforcommunity.api.INotesProcessor;
 import com.codeforcommunity.dto.notes.FullNote;
 import com.codeforcommunity.dto.notes.NoteRequest;
 import com.codeforcommunity.dto.notes.NoteResponse;
 import com.codeforcommunity.dto.notes.NotesRequest;
 import com.codeforcommunity.dto.notes.NotesResponse;
-import com.codeforcommunity.exceptions.MissingParameterException;
 import com.codeforcommunity.rest.HttpConstants;
 import com.codeforcommunity.rest.IRouter;
 import io.vertx.core.Vertx;
@@ -14,13 +17,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-
 import java.util.Collections;
 import java.util.List;
-
-import static com.codeforcommunity.rest.ApiRouter.end;
-import static com.codeforcommunity.rest.RestFunctions.getJsonBodyAsClass;
-import static com.codeforcommunity.rest.RestFunctions.getRequestParameterAsInt;
 
 public class NotesRouter implements IRouter {
 

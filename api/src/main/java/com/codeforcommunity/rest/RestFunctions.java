@@ -5,13 +5,11 @@ import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
 import com.codeforcommunity.exceptions.RequestBodyMappingException;
-
-import io.vertx.core.json.DecodeException;
-import java.util.Optional;
-
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import java.util.Optional;
 
 public interface RestFunctions {
 
@@ -60,5 +58,4 @@ public interface RestFunctions {
     }
     throw new MissingParameterException(name);
   }
-
 }

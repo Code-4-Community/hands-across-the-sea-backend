@@ -5,7 +5,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.Verification;
-
 import com.codeforcommunity.propertiesLoader.PropertiesLoader;
 import java.time.Instant;
 import java.util.Date;
@@ -22,14 +21,18 @@ public class JWTHandler {
   public JWTHandler(String secretKey) {
     this.algorithm = Algorithm.HMAC256(secretKey);
     this.verification = getDefaultClaimVerification(this.algorithm);
-    this.MS_REFRESH_EXPIRATION = Long.valueOf(PropertiesLoader.getExpirationProperties()
-        .getProperty("ms_refresh_expiration"));
-    this.MS_ACCESS_EXPIRATION = Long.valueOf(PropertiesLoader.getExpirationProperties()
-        .getProperty("ms_access_expiration"));
+    this.MS_REFRESH_EXPIRATION =
+        Long.valueOf(
+            PropertiesLoader.getExpirationProperties().getProperty("ms_refresh_expiration"));
+    this.MS_ACCESS_EXPIRATION =
+        Long.valueOf(
+            PropertiesLoader.getExpirationProperties().getProperty("ms_access_expiration"));
   }
 
   /**
-   * Verifies that given access token is unedited and unexpired. Also will confirm any claims defined in
+   * Verifies that given access token is unedited and unexpired. Also will confirm any claims
+   * defined in
+   *
    * @code this.getDefaultClaimVerification().
    * @param accessToken token to be validated
    * @return true if and only if all conforms to all of said conditions.
@@ -48,11 +51,11 @@ public class JWTHandler {
   }
 
   public String getNewAccessToken(String refreshToken) {
-    if(isAuthorized(refreshToken)) {
+    if (isAuthorized(refreshToken)) {
       String username = getDecodedJWT(refreshToken).getClaim("username").asString();
       return createToken(false, username);
     } else {
-      throw new IllegalArgumentException("invalid refresh token"); //TODO make auth exception
+      throw new IllegalArgumentException("invalid refresh token"); // TODO make auth exception
     }
   }
 
@@ -64,8 +67,7 @@ public class JWTHandler {
   }
 
   private Date getTokenExpiration(boolean isRefresh) {
-    long exp = isRefresh
-        ? MS_REFRESH_EXPIRATION : MS_ACCESS_EXPIRATION;
+    long exp = isRefresh ? MS_REFRESH_EXPIRATION : MS_ACCESS_EXPIRATION;
     return Date.from(Instant.now().plusMillis(exp));
   }
 
@@ -79,7 +81,9 @@ public class JWTHandler {
   }
 
   /**
-   * Create verification object that ensures all default claims we have decided should be in every token are present.
+   * Create verification object that ensures all default claims we have decided should be in every
+   * token are present.
+   *
    * @return verification object.
    */
   private static Verification getDefaultClaimVerification(Algorithm algorithm) {
