@@ -17,9 +17,7 @@ import org.mockito.Mockito;
 import java.time.Instant;
 import java.util.Date;
 
-import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 public class AuthorizationProcessorImplTest {
 

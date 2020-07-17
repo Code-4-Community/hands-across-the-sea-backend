@@ -1,6 +1,6 @@
 package com.codeforcommunity.api;
 
-import com.codeforcommunity.dto.*;
+import com.codeforcommunity.dto.SessionResponse;
 import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;

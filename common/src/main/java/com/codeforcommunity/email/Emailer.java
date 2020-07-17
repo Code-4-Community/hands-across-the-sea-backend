@@ -4,8 +4,13 @@ import com.codeforcommunity.logger.Logger;
 import com.codeforcommunity.propertiesLoader.PropertiesLoader;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
-import javax.mail.*;
+import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -70,7 +75,7 @@ public class Emailer {
                 return null;
               }
             })
-        .filter(a -> a != null)
+        .filter(Objects::nonNull)
         .toArray(Address[]::new);
   }
 }

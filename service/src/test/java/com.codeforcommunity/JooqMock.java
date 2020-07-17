@@ -15,7 +15,10 @@ import org.jooq.Table;
 import org.jooq.generated.DefaultSchema;
 import org.jooq.impl.DSL;
 import org.jooq.impl.UpdatableRecordImpl;
-import org.jooq.tools.jdbc.*;
+import org.jooq.tools.jdbc.MockConnection;
+import org.jooq.tools.jdbc.MockDataProvider;
+import org.jooq.tools.jdbc.MockExecuteContext;
+import org.jooq.tools.jdbc.MockResult;
 
 /** A class to mock database interactions. */
 public class JooqMock implements MockDataProvider {
