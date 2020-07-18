@@ -2,6 +2,7 @@ package com.codeforcommunity.rest.subrouter;
 
 import com.codeforcommunity.auth.JWTAuthorizer;
 import com.codeforcommunity.exceptions.AuthException;
+import com.codeforcommunity.rest.FailureHandler;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
 import io.vertx.core.Vertx;
