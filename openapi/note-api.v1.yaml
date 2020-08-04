@@ -1,0 +1,179 @@
+openapi: 3.0.0
+info:
+  title: Note API
+  version: '1.0'
+  description: 'This API is for getting, creating, and updating note objects.'
+servers:
+  - url: 'http://localhost:8081'
+paths:
+  /note:
+    get:
+      summary: Get note
+      tags:
+        - Note
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteListResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+      operationId: getNote
+      description: Get one or all of the notes in the database.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: note_id
+          description: ID of the note to be retrieved
+    post:
+      summary: Create note
+      operationId: createNote
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteListResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+      description: Create one or more notes to be stored in the database.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteList'
+      tags:
+        - Note
+  '/note/{note_id}':
+    parameters:
+      - schema:
+          type: string
+        name: note_id
+        in: path
+        required: true
+        description: ID of the note to delete
+    put:
+      summary: Update note
+      operationId: updateNote
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteWrapper'
+      description: Update a specific note.
+      tags:
+        - Note
+    delete:
+      summary: Delete note
+      operationId: deleteNote
+      responses:
+        '200':
+          description: OK
+      description: Delete a specific note.
+      tags:
+        - Note
+components:
+  schemas:
+    Status:
+      type: string
+      enum:
+        - OK
+        - BAD REQUEST
+    NoteRecord:
+      type: object
+      description: Contains data about a note as stored on the database.
+      allOf:
+        - $ref: '#/components/schemas/Note'
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date-time
+          description: The date and time when the note was created
+      required:
+        - id
+        - date
+    Note:
+      type: object
+      description: Contains the relevant fields of a note for a user creating or updating it.
+      properties:
+        title:
+          type: string
+          example: My First Blog Post
+        content:
+          type: string
+          example: Hello, world!
+      required:
+        - title
+        - content
+    NoteListResponse:
+      type: object
+      description: A response that contains an arbitrary number of notes.
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/NoteRecord'
+      required:
+        - status
+    NoteResponse:
+      type: object
+      description: A response that contains exactly one note.
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        note:
+          $ref: '#/components/schemas/NoteRecord'
+      required:
+        - status
+    BaseResponse:
+      type: object
+      description: A base schema for responses.
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        reason:
+          type: string
+          description: Reason for error response
+      required:
+        - status
+    NoteList:
+      type: object
+      properties:
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Note'
+    NoteWrapper:
+      type: object
+      properties:
+        note:
+          $ref: '#/components/schemas/Note'
