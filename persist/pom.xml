@@ -30,7 +30,7 @@
             </goals>
             <configuration>
               <files>
-                <file>..\common\src\main\resources\db.properties</file>
+                <file>../common/src/main/resources/properties/db.properties</file>
               </files>
             </configuration>
           </execution>
@@ -124,7 +124,7 @@
             <schema>public</schema>
           </schemas>
           <encoding>ISO-8859-1</encoding>
-          <cleanOnValidationError>true</cleanOnValidationError>
+          <cleanDisabled>true</cleanDisabled>
         </configuration>
         <executions>
           <execution>

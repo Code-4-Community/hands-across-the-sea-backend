@@ -85,25 +85,42 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- Used to log events -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.30</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>2.13.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j-impl</artifactId>
+        <version>2.13.0</version>
+      </dependency>
+
       <!-- Used for general Vertx utilities in API server stuff -->
       <dependency>
         <groupId>io.vertx</groupId>
         <artifactId>vertx-core</artifactId>
-        <version>${vertx.version}</version>
+        <version>3.8.5</version>
       </dependency>
 
       <!-- Used for API routing -->
       <dependency>
         <groupId>io.vertx</groupId>
         <artifactId>vertx-web</artifactId>
-        <version>${vertx.version}</version>
+        <version>3.8.5</version>
       </dependency>
 
-      <!-- Extends Vert.x web to support OpenAPI 3 -->
+      <!-- Used for making HTTP requests -->
       <dependency>
         <groupId>io.vertx</groupId>
-        <artifactId>vertx-web-api-contract</artifactId>
-        <version>${vertx.version}</version>
+        <artifactId>vertx-web-client</artifactId>
+        <version>3.8.5</version>
       </dependency>
 
       <!-- Used for general jOOQ SQL query building -->
@@ -132,6 +149,25 @@
         <version>2.9.10</version>
       </dependency>
 
+      <!-- Used for JWT handling -->
+      <dependency>
+        <groupId>com.auth0</groupId>
+        <artifactId>java-jwt</artifactId>
+        <version>3.8.3</version>
+      </dependency>
+
+      <!-- Used to send emails -->
+      <dependency>
+        <groupId>org.simplejavamail</groupId>
+        <artifactId>simple-java-mail</artifactId>
+        <version>6.0.3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.simplejavamail</groupId>
+        <artifactId>batch-module</artifactId>
+        <version>6.0.3</version>
+      </dependency>
+
       <!-- Postgresql driver -->
       <dependency>
         <groupId>org.postgresql</groupId>
@@ -145,6 +181,27 @@
         <artifactId>junit-jupiter</artifactId>
         <version>5.6.0</version>
         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>5.5.2</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>3.1.0</version>
+        <scope>test</scope>
+      </dependency>
+
+      <!-- AWS S3 for storing images -->
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-s3</artifactId>
+        <version>1.11.774</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
