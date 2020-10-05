@@ -6,9 +6,11 @@ import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
+import com.codeforcommunity.logger.SLogger;
 import io.vertx.ext.web.RoutingContext;
 
 public class FailureHandler {
+  private final SLogger logger = new SLogger(FailureHandler.class);
 
   public void handleFailure(RoutingContext ctx) {
     Throwable throwable = ctx.failure();
@@ -79,8 +81,19 @@ public class FailureHandler {
     end(ctx, message, 400);
   }
 
+  public void handleBadImageRequest(RoutingContext ctx) {
+    String message = "The uploaded file could not be processed as an image";
+    end(ctx, message, 400);
+  }
+
+  public void handleS3FailedUpload(RoutingContext ctx, String exceptionMessage) {
+    String message = "The given file could not be uploaded to AWS S3: " + exceptionMessage;
+    end(ctx, message, 502);
+  }
+
   private void handleUncaughtError(RoutingContext ctx, Throwable throwable) {
     String message = String.format("Internal server error caused by: %s", throwable.getMessage());
+    logger.error(message);
     end(ctx, message, 500);
   }
 

@@ -1,6 +1,6 @@
 package com.codeforcommunity.email;
 
-import com.codeforcommunity.logger.Logger;
+import com.codeforcommunity.logger.SLogger;
 import com.codeforcommunity.propertiesLoader.PropertiesLoader;
 import java.util.Date;
 import java.util.List;
@@ -16,6 +16,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 public class Emailer {
+  private final SLogger logger = new SLogger(Emailer.class);
 
   private static Emailer emailer;
   private Session session;
@@ -59,8 +60,13 @@ public class Emailer {
       msg.setSentDate(new Date());
       msg.setText(body);
       Transport.send(msg, user, password);
+      logger.info(String.format("Successfully sent email with subject `%s`", subject));
     } catch (MessagingException mex) {
-      Logger.log("send failed, exception: " + mex);
+      String errorMsg =
+          String.format(
+              "Failed to send email with subject `%s` to `%s`",
+              subject, String.join(", ", recipients));
+      logger.error(errorMsg, mex);
     }
   }
 
