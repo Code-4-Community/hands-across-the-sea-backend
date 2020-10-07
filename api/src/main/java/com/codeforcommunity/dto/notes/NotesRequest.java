@@ -1,6 +1,6 @@
 package com.codeforcommunity.dto.notes;
 
-import com.codeforcommunity.api.ApiDto;
+import com.codeforcommunity.dto.ApiDto;
 import java.util.ArrayList;
 import java.util.List;
 
