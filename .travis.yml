@@ -44,4 +44,3 @@ deploy:
     repo: Code-4-Community/{{REPO_NAME}}
     branch: master
   skip_cleanup: true
-
