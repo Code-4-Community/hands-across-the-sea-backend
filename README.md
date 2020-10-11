@@ -1,5 +1,7 @@
 # C4C Backend Scaffold
 
+[![Build Status](https://travis-ci.org/Code-4-Community/backend-scaffold.svg?branch=master)](https://travis-ci.org/Code-4-Community/backend-scaffold)
+
 This project is the Java backend api scaffold for Code4Community. It is meant to demonstrate API routing and database connection techniques that should be utilized in all C4C Java back ends.
 
 #### Complete Setup Guide
