@@ -1,0 +1,46 @@
+dist: xenial
+os: linux
+language: java
+services:
+  - postgresql
+addons:
+  apt:
+    packages:
+      - python3
+      - python3-pip
+
+before_install:
+  # Property files configuration
+  - export DIR_PROP='common/src/main/resources/properties/'
+  - ./copy_properties.sh $DIR_PROP
+
+  # Create a local database for testing
+  - psql -c 'create database "checkin";' -U postgres
+
+# Default installation stage runs everything as below but without spotless:check
+# Tests are run as mvn test -B as part of the "script" stage
+install:
+  - python3 -m pip install requests
+  - mvn spotless:check install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+# This stage reconfigures our property files for a production database, emailer connection, etc
+# It then builds a JAR which we zip with our Dockerfile and Elastic Beanstalk Config
+before_deploy:
+  - python3 ./deploy.py
+  - cd /home/travis/build/Code-4-Community/checkin/
+  - mvn clean spotless:check install
+  - zip build.zip Dockerfile service/target/service-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+#deploy:
+#  provider: elasticbeanstalk
+#  access_key_id: $AWS_BEANSTALK_ACCESS_KEY
+#  secret_access_key: $AWS_BEANSTALK_SECRET_KEY
+#  region: us-east-2
+#  app: c4c-backend-scaffold
+#  env: C4cBackendScaffold-env
+#  bucket: $AWS_BEANSTALK_BUCKET
+#  zip_file: "build.zip"
+#  on:
+#    repo: Code-4-Community/backend-scaffold
+#    branch: master
+#  skip_cleanup: true
