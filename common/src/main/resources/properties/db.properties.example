@@ -1,4 +1,4 @@
 database.driver = org.postgresql.Driver
-database.url = jdbc:postgresql://localhost:5432/hands-across-the-sea?autoreconnect=true
+database.url = jdbc:postgresql://localhost:5432/backend-scaffold?autoreconnect=true
 database.username = postgres
 database.password = place-holder
