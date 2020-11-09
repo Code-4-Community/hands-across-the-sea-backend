@@ -1,9 +1,7 @@
-# Hands Across the Sea Backend
-
+# C4C Backend Scaffold
 
 [![Coverage Status](https://coveralls.io/repos/github/Code-4-Community/backend-scaffold/badge.svg?branch=add-coveralls)](https://coveralls.io/github/Code-4-Community/backend-scaffold?branch=add-coveralls)
 
->>>>>>> upstream/master
 This project is the Java backend api scaffold for Code4Community. It is meant to demonstrate API routing and database connection techniques that should be utilized in all C4C Java back ends.
 
 #### Complete Setup Guide
