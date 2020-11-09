@@ -1,14 +1,13 @@
 package com.codeforcommunity.dto.auth;
 
 import com.codeforcommunity.dto.ApiDto;
-import com.codeforcommunity.dto.IDTO;
+import com.codeforcommunity.exceptions.InvalidPasswordException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewUserRequest extends ApiDto implements IDTO {
+public class NewUserRequest extends ApiDto {
 
   private String email;
-  private String username;
   private String password;
   private String firstName;
   private String lastName;
@@ -19,14 +18,6 @@ public class NewUserRequest extends ApiDto implements IDTO {
 
   public void setEmail(String email) {
     this.email = email;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
   }
 
   public String getPassword() {
@@ -61,17 +52,18 @@ public class NewUserRequest extends ApiDto implements IDTO {
     if (emailInvalid(email)) {
       fields.add(fieldName + "email");
     }
-    if (isEmpty(username)) {
-      fields.add(fieldName + "username");
-    }
-    if (passwordInvalid(password)) {
-      fields.add(fieldName + "password");
-    }
     if (isEmpty(firstName)) {
       fields.add(fieldName + "first_name");
     }
     if (isEmpty(lastName)) {
       fields.add(fieldName + "last_name");
+    }
+    if (password == null) {
+      fields.add(fieldName + "password");
+    }
+    // Only throw this exception if there are no issues with other fields
+    if (passwordInvalid(password) && fields.size() == 0) {
+      throw new InvalidPasswordException();
     }
     return fields;
   }

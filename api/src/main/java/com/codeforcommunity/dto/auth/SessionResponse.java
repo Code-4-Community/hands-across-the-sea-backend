@@ -1,6 +1,6 @@
-package com.codeforcommunity.dto;
+package com.codeforcommunity.dto.auth;
 
-public class SessionResponse implements IDTO {
+public class SessionResponse {
 
   private String accessToken;
   private String refreshToken;

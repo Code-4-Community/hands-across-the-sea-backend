@@ -10,6 +10,10 @@ ENV_VALUES = {
     "aws.properties.example": {
         "aws_access_key": "AWS_ACCESS_KEY_ID",
         "aws_secret_key": "AWS_SECRET_ACCESS_KEY",
+
+        "s3_bucket_url": "AWS_S3_BUCKET_URL",
+        "s3_bucket_name": "AWS_S3_BUCKET_NAME",
+        "s3_upload_dir": "AWS_S3_BUCKET_DIR",
     },
 
     "db.properties.example": {

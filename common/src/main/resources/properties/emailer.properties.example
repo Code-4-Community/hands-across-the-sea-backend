@@ -1,9 +1,6 @@
-mail.smtp.host = place-holder
-user = place-holder
-password = place-holder
-mail.smtp.auth = true
-mail.smtp.port = 465
-mail.debug = true
-mail.smtp.socketFactory.port = 465
-mail.smtp.socketFactory.class = javax.net.ssl.SSLSocketFactory
-mail.smtp.socketFactory.fallback = false
+sendEmail=some@gmail.com
+sendPassword=gmail-App-Password
+emailHost=smtp.gmail.com
+emailPort=465
+senderName=C4C Backend Scaffold
+shouldSendEmails=false

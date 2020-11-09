@@ -25,24 +25,24 @@ public class ApiMain {
   public void startApi(Vertx vertx) {
     HttpServer server = vertx.createHttpServer();
 
+    CorsHandler corsHandler =
+        CorsHandler.create("*")
+            .allowedMethod(HttpMethod.GET)
+            .allowedMethod(HttpMethod.POST)
+            .allowedMethod(HttpMethod.PUT)
+            .allowedMethod(HttpMethod.DELETE)
+            .allowedMethod(HttpMethod.OPTIONS)
+            .allowedHeader("Content-Type")
+            .allowedHeader("origin")
+            .allowedHeader("Access-Control-Allow-Origin")
+            .allowedHeader("Access-Control-Allow-Credentials")
+            .allowedHeader("Access-Control-Allow-Headers")
+            .allowedHeader("Access-Control-Request-Method")
+            .allowedHeader("X-Access-Token")
+            .allowedHeader("X-Refresh-Token");
+
     Router router = Router.router(vertx);
-    router
-        .route()
-        .handler(
-            CorsHandler.create("*")
-                .allowedMethod(HttpMethod.GET)
-                .allowedMethod(HttpMethod.POST)
-                .allowedMethod(HttpMethod.PUT)
-                .allowedMethod(HttpMethod.DELETE)
-                .allowedMethod(HttpMethod.OPTIONS)
-                .allowedHeader("Content-Type")
-                .allowedHeader("origin")
-                .allowedHeader("Access-Control-Allow-Origin")
-                .allowedHeader("Access-Control-Allow-Credentials")
-                .allowedHeader("Access-Control-Allow-Headers")
-                .allowedHeader("Access-Control-Request-Method")
-                .allowedHeader("X-Access-Token")
-                .allowedHeader("X-Refresh-Token"));
+    router.route().handler(corsHandler);
 
     Route homeRoute = router.route("/");
     homeRoute.handler(this::handleHealthCheck);
@@ -53,6 +53,12 @@ public class ApiMain {
     server.requestHandler(router).listen(8081);
   }
 
+  /**
+   * Returns a 200 OK from the home route. This is required for the AWS Elastic Beanstalk "health
+   * check".
+   *
+   * @param ctx the routing context.
+   */
   private void handleHealthCheck(RoutingContext ctx) {
     end(ctx.response(), 200);
   }

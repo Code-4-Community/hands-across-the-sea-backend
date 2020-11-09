@@ -1,5 +1,7 @@
 package com.codeforcommunity.auth;
 
+import java.util.Optional;
+
 public class JWTCreator {
   private final JWTHandler handler;
 
@@ -7,11 +9,11 @@ public class JWTCreator {
     this.handler = handler;
   }
 
-  public String createNewRefreshToken(String username) {
-    return handler.createNewRefreshToken(username);
+  public String createNewRefreshToken(JWTData userData) {
+    return handler.createNewRefreshToken(userData);
   }
 
-  public String getNewAccessToken(String refreshToken) {
+  public Optional<String> getNewAccessToken(String refreshToken) {
     return handler.getNewAccessToken(refreshToken);
   }
 }

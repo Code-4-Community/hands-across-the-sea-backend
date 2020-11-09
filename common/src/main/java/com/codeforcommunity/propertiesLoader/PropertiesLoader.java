@@ -54,6 +54,10 @@ public class PropertiesLoader {
   }
 
   public static Properties getAwsProperties() {
-    return getProperties("properties/aws.properties");
+    return getProperties("aws.properties");
+  }
+
+  public static Properties getFrontendProperties() {
+    return getProperties("frontend.properties");
   }
 }

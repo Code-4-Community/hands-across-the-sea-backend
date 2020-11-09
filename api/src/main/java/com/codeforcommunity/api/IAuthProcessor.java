@@ -1,10 +1,12 @@
 package com.codeforcommunity.api;
 
-import com.codeforcommunity.dto.SessionResponse;
+import com.codeforcommunity.dto.auth.ForgotPasswordRequest;
 import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
+import com.codeforcommunity.dto.auth.ResetPasswordRequest;
+import com.codeforcommunity.dto.auth.SessionResponse;
 import com.codeforcommunity.exceptions.AuthException;
 
 public interface IAuthProcessor {
@@ -17,13 +19,17 @@ public interface IAuthProcessor {
   SessionResponse signUp(NewUserRequest request) throws AuthException;
 
   /**
-   * Logs in. TODO
+   * Given a LoginRequest log the user in if they're valid and return access and refresh tokens for
+   * their session.
    *
-   * @throws AuthException
+   * @throws AuthException If the given email / password combination is invalid
    */
   SessionResponse login(LoginRequest loginRequest) throws AuthException;
 
-  /** Logs out. TODO */
+  /**
+   * Logs the user out by adding the given refresh token to the blacklist so that it cannot be used
+   * for future refreshes.
+   */
   void logout(String refreshToken);
 
   /**
@@ -36,20 +42,21 @@ public interface IAuthProcessor {
   RefreshSessionResponse refreshSession(RefreshSessionRequest request) throws AuthException;
 
   /**
+   * If the given request corresponds to a real user, send that user an email for them to reset
+   * their password with a secret key.
+   */
+  void requestPasswordReset(ForgotPasswordRequest request);
+
+  /**
+   * Given a secret key and a new password, update the user that's associated with the key's
+   * password.
+   */
+  void resetPassword(ResetPasswordRequest request);
+
+  /**
    * Allows clients to submit a secret key in order to verify their email.
    *
    * @param secretKey string of user's verificaiton token.
-   * @throws com.codeforcommunity.exceptions.ExpiredTokenException if the token is expired.
-   * @throws com.codeforcommunity.exceptions.InvalidTokenException if the token is invalid.
    */
-  void validateSecretKey(String secretKey);
-
-  /**
-   * Creates a secret key to validate a user's email and stores it in the verification_keys table.
-   *
-   * @param userId the id for the given user.
-   * @return the token created for the given user.
-   * @throws com.codeforcommunity.exceptions.UserDoesNotExistException if the user does not exist.
-   */
-  String createSecretKey(int userId);
+  void verifyEmail(String secretKey);
 }

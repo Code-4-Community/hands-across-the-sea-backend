@@ -1,0 +1,2 @@
+base_url = placeholder_url
+password_reset_route = /forgot-password-reset/%s/

@@ -1,11 +1,10 @@
 package com.codeforcommunity.dto.auth;
 
 import com.codeforcommunity.dto.ApiDto;
-import com.codeforcommunity.dto.IDTO;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewSessionRequest extends ApiDto implements IDTO {
+public class NewSessionRequest extends ApiDto {
   private String username;
 
   public String getUsername() {
