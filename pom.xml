@@ -18,6 +18,10 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+<<<<<<< HEAD
+=======
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+>>>>>>> upstream/master
   </properties>
 
   <build>
@@ -54,6 +58,38 @@
       </plugins>
     </pluginManagement>
     <plugins>
+
+      <!-- Used for coveralls test coverage -->
+      <plugin>
+        <groupId>org.eluder.coveralls</groupId>
+        <artifactId>coveralls-maven-plugin</artifactId>
+        <version>4.3.0</version>
+        <configuration>
+          <repoToken>noKaxTRbPDN3Oh0QKHSDgIsz7nOPBqZwl</repoToken>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.2.3</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.6</version>
+        <executions>
+          <execution>
+            <id>default-prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <!-- formatter -->
         <groupId>com.diffplug.spotless</groupId>
