@@ -12,7 +12,7 @@ aws_s3_upload_dir = placeholder_s3_dir_name
 # DATABASE PROPERTIES
 # =======================================================================================================
 database_driver = org.postgresql.Driver
-database_url = jdbc:postgresql://localhost:5432/backend-scaffold?autoreconnect=true
+database_url = jdbc:postgresql://localhost:5432/hands-across-the-sea?autoreconnect=true
 database_username = postgres
 database_password = placeholder_db_password
 
