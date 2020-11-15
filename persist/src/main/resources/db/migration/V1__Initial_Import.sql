@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS verification_keys
     deleted_at TIMESTAMP,
     user_id    BIGINT      NOT NULL,
     used       BOOLEAN              DEFAULT false,
-    type       INT         NOT NULL,
+    type       VARCHAR(16) NOT NULL,
 
     CONSTRAINT verification_keys_user_id_fk FOREIGN KEY (user_id) REFERENCES users (id)
 );

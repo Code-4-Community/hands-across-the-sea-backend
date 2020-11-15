@@ -41,7 +41,7 @@ before_deploy:
 #  bucket: $AWS_BEANSTALK_BUCKET
 #  zip_file: "build.zip"
 #  on:
-#    repo: Code-4-Community
+#    repo: Code-4-Community/hands-across-the-sea-backend
 #    branch: master
 #  skip_cleanup: true
 
