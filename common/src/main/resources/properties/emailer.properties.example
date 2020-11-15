@@ -1,6 +1,0 @@
-sendEmail=some@gmail.com
-sendPassword=gmail-App-Password
-emailHost=smtp.gmail.com
-emailPort=465
-senderName=C4C Backend Scaffold
-shouldSendEmails=false

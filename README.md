@@ -1,12 +1,13 @@
 # C4C Backend Scaffold
 
+[![Build Status](https://travis-ci.org/Code-4-Community/backend-scaffold.svg?branch=master)](https://travis-ci.org/Code-4-Community/backend-scaffold)
 [![Coverage Status](https://coveralls.io/repos/github/Code-4-Community/backend-scaffold/badge.svg?branch=add-coveralls)](https://coveralls.io/github/Code-4-Community/backend-scaffold?branch=add-coveralls)
 
 This project is the Java backend api scaffold for Code4Community. It is meant to demonstrate API routing and database connection techniques that should be utilized in all C4C Java back ends.
 
 #### Complete Setup Guide
  - See https://docs.c4cneu.com/getting-started/setup-local-dev/ for a complete setup guide for:
-   - Installing, creating, and running a local PostgreSQL database (`checkin`)
+   - Installing, creating, and running a local PostgreSQL database (`backend-scaffold`)
    - Configuring IntelliJ
    - Installing Maven
    - Installing Java 8

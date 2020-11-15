@@ -48,11 +48,10 @@ public class ServiceMain {
   /** Connect to the database and create a DSLContext so jOOQ can interact with it. */
   private void createDatabaseConnection() throws ClassNotFoundException {
     // Load configuration from db.properties file
-    Properties dbProperties = PropertiesLoader.getDbProperties();
-    String databaseDriver = PropertiesLoader.loadProperty(dbProperties, "database.driver");
-    String databaseUrl = PropertiesLoader.loadProperty(dbProperties, "database.url");
-    String databaseUsername = PropertiesLoader.loadProperty(dbProperties, "database.username");
-    String databasePassword = PropertiesLoader.loadProperty(dbProperties, "database.password");
+    String databaseDriver = PropertiesLoader.loadProperty("database_driver");
+    String databaseUrl = PropertiesLoader.loadProperty("database_url");
+    String databaseUsername = PropertiesLoader.loadProperty("database_username");
+    String databasePassword = PropertiesLoader.loadProperty("database_password");
 
     // This throws an exception of the database driver is not on the classpath
     Class.forName(databaseDriver);
@@ -64,8 +63,7 @@ public class ServiceMain {
   /** Initialize the server and get all the supporting classes going. */
   private void initializeServer() {
     // Load the JWT secret key from the properties file
-    Properties jwtProperties = PropertiesLoader.getJwtProperties();
-    String jwtSecretKey = PropertiesLoader.loadProperty(jwtProperties, "secret_key");
+    String jwtSecretKey = PropertiesLoader.loadProperty("jwt_secret_key");
 
     JWTHandler jwtHandler = new JWTHandler(jwtSecretKey);
     JWTAuthorizer jwtAuthorizer = new JWTAuthorizer(jwtHandler);

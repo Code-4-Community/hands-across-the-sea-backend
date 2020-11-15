@@ -1,26 +1,26 @@
 package com.codeforcommunity.enums;
 
 public enum VerificationKeyType {
-  VERIFY_EMAIL(0),
-  FORGOT_PASSWORD(1);
+  VERIFY_EMAIL("verify_email"),
+  FORGOT_PASSWORD("forgot_password");
 
-  private int val;
+  private String name;
 
-  VerificationKeyType(int val) {
-    this.val = val;
+  VerificationKeyType(String name) {
+    this.name = name;
   }
 
-  public int getVal() {
-    return val;
+  public String getName() {
+    return name;
   }
 
-  public static VerificationKeyType from(Integer val) {
+  public static VerificationKeyType from(String name) {
     for (VerificationKeyType type : VerificationKeyType.values()) {
-      if (type.val == val) {
+      if (type.name.equals(name)) {
         return type;
       }
     }
     throw new IllegalArgumentException(
-        String.format("Given num (%d) that doesn't correspond to any VerificationKeyType", val));
+        String.format("Given name (%s) that doesn't correspond to any VerificationKeyType", name));
   }
 }

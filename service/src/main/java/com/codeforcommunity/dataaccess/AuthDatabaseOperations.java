@@ -17,7 +17,6 @@ import com.codeforcommunity.propertiesLoader.PropertiesLoader;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.Properties;
 import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.pojos.Users;
@@ -36,13 +35,13 @@ public class AuthDatabaseOperations {
   public AuthDatabaseOperations(DSLContext db) {
     this.db = db;
 
-    Properties expirationProperties = PropertiesLoader.getExpirationProperties();
     this.secondsVerificationEmailValid =
-        Integer.parseInt(expirationProperties.getProperty("seconds_verification_email_valid"));
+        Integer.parseInt(
+            PropertiesLoader.loadProperty("expiration_seconds_verification_email_valid"));
     this.secondsForgotPasswordValid =
-        Integer.parseInt(expirationProperties.getProperty("seconds_forgot_password_valid"));
+        Integer.parseInt(PropertiesLoader.loadProperty("expiration_seconds_forgot_password_valid"));
     this.msRefreshExpiration =
-        Integer.parseInt(expirationProperties.getProperty("ms_refresh_expiration"));
+        Integer.parseInt(PropertiesLoader.loadProperty("expiration_ms_refresh"));
   }
 
   /**
@@ -114,7 +113,7 @@ public class AuthDatabaseOperations {
     newUser.setPasswordHash(Passwords.createHash(password));
     newUser.setFirstName(firstName);
     newUser.setLastName(lastName);
-    newUser.setPrivilegeLevel(PrivilegeLevel.OFFICER);
+    newUser.setPrivilegeLevel(PrivilegeLevel.STANDARD);
     newUser.store();
 
     return newUser;

@@ -25,11 +25,8 @@ public class JWTHandler {
     this.verification = getDefaultClaimVerification(this.algorithm);
 
     this.MS_REFRESH_EXPIRATION =
-        Long.valueOf(
-            PropertiesLoader.getExpirationProperties().getProperty("ms_refresh_expiration"));
-    this.MS_ACCESS_EXPIRATION =
-        Long.valueOf(
-            PropertiesLoader.getExpirationProperties().getProperty("ms_access_expiration"));
+        Long.valueOf(PropertiesLoader.loadProperty("expiration_ms_refresh"));
+    this.MS_ACCESS_EXPIRATION = Long.valueOf(PropertiesLoader.loadProperty("expiration_ms_access"));
   }
 
   /**

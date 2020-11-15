@@ -30,7 +30,7 @@
             </goals>
             <configuration>
               <files>
-                <file>../common/src/main/resources/properties/db.properties</file>
+                <file>../common/src/main/resources/properties/server.properties</file>
               </files>
             </configuration>
           </execution>
@@ -137,13 +137,13 @@
         <configuration>
           <!-- All the database configuration stuff -->
           <!--suppress UnresolvedMavenProperty -->
-          <driver>${database.driver}</driver>
+          <driver>${database_driver}</driver>
           <!--suppress UnresolvedMavenProperty -->
-          <url>${database.url}</url>
+          <url>${database_url}</url>
           <!--suppress UnresolvedMavenProperty -->
-          <user>${database.username}</user>
+          <user>${database_username}</user>
           <!--suppress UnresolvedMavenProperty -->
-          <password>${database.password}</password>
+          <password>${database_password}</password>
 
           <schemas>
             <schema>public</schema>
