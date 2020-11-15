@@ -15,7 +15,7 @@ before_install:
   - ./copy_properties.sh $DIR_PROP
 
   # Create a local database for testing
-  - psql -c 'create database "backend-scaffold";' -U postgres
+  - psql -c 'create database "hands-across-the-sea-backend";' -U postgres
 
 # Default installation stage runs everything as below but without spotless:check
 # Tests are run as mvn test -B as part of the "script" stage
@@ -27,7 +27,7 @@ install:
 # It then builds a JAR which we zip with our Dockerfile and Elastic Beanstalk Config
 before_deploy:
   - python3 ./deploy.py
-  - cd /home/travis/build/Code-4-Community/backend-scaffold/
+  - cd /home/travis/build/Code-4-Community/hands-across-the-sea-backend/
   - mvn clean spotless:check install
   - zip build.zip Dockerfile service/target/service-1.0-SNAPSHOT-jar-with-dependencies.jar
 
@@ -41,9 +41,9 @@ before_deploy:
 #  bucket: $AWS_BEANSTALK_BUCKET
 #  zip_file: "build.zip"
 #  on:
-#    repo: Code-4-Community/backend-scaffold
+#    repo: Code-4-Community
 #    branch: master
 #  skip_cleanup: true
 
-after_success:
-  - mvn clean test jacoco:report coveralls:report
+#after_success:
+#  - mvn clean test jacoco:report coveralls:report
