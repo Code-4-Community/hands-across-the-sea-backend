@@ -3,14 +3,21 @@ package com.codeforcommunity.propertiesLoader;
 import com.codeforcommunity.logger.SLogger;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
 import java.util.Properties;
 
 public class PropertiesLoader {
   private static final String basePath = "properties/";
+  private static final String fileName = "server.properties";
 
-  private static Properties getProperties(String file) {
-    String path = basePath + file;
+  private static final Properties serverProperties = getServerProperties();
+
+  /**
+   * Loads the server properties file on server start.
+   *
+   * @return the properties file.
+   */
+  private static Properties getServerProperties() {
+    String path = basePath + fileName;
 
     try (InputStream input = PropertiesLoader.class.getClassLoader().getResourceAsStream(path)) {
       Properties prop = new Properties();
@@ -19,45 +26,26 @@ public class PropertiesLoader {
     } catch (IOException | NullPointerException e) {
       String errorMsg = String.format("Failed to load file: `%s`", path);
       SLogger.logApplicationError(e);
-      throw new IllegalArgumentException(errorMsg, e);
+      throw new RuntimeException(errorMsg);
     }
   }
 
-  public static String loadProperty(Properties propFile, String propertyName) {
-    Optional<String> maybeProperty = Optional.ofNullable(propFile.getProperty(propertyName));
-    if (maybeProperty.isPresent()) {
-      return maybeProperty.get();
-    } else {
-      throw new IllegalArgumentException(
-          String.format("No property found `%s` in property file", propertyName));
+  /**
+   * Gets the value of the property with the given name from the server properties file.
+   *
+   * @param propertyName the property to load.
+   * @return the property's value.
+   * @throws IllegalArgumentException if the given property is not found.
+   */
+  public static String loadProperty(String propertyName) {
+    String value = serverProperties.getProperty(propertyName);
+
+    if (value == null) {
+      String errorMsg =
+          String.format("No property found `%s` in property file: `%s`", propertyName, fileName);
+      throw new IllegalArgumentException(errorMsg);
     }
-  }
 
-  public static Properties getEmailerProperties() {
-    return getProperties("emailer.properties");
-  }
-
-  public static Properties getDbProperties() {
-    return getProperties("db.properties");
-  }
-
-  public static Properties getExpirationProperties() {
-    return getProperties("expiration.properties");
-  }
-
-  public static Properties getJwtProperties() {
-    return getProperties("jwt.properties");
-  }
-
-  public static Properties getSlackProperties() {
-    return getProperties("slack.properties");
-  }
-
-  public static Properties getAwsProperties() {
-    return getProperties("aws.properties");
-  }
-
-  public static Properties getFrontendProperties() {
-    return getProperties("frontend.properties");
+    return value;
   }
 }

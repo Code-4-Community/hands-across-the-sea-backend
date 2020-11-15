@@ -99,6 +99,9 @@
             </googleJavaFormat>
             <trimTrailingWhitespace/>
             <removeUnusedImports/>
+<!--            <licenseHeader>-->
+<!--              <content>/* (C)$YEAR Code4Community*/</content>-->
+<!--            </licenseHeader>-->
           </java>
         </configuration>
         <executions>

@@ -1,4 +1,0 @@
-seconds_verification_email_valid=86400
-seconds_forgot_password_valid=86400
-ms_refresh_expiration=604800000
-ms_access_expiration=1800000

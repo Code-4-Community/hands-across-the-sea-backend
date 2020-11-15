@@ -9,7 +9,6 @@ import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,15 +21,14 @@ public class SLogger {
   private static final boolean slackEnabled;
   // The client used to make web requests to Slack
   private static WebClient webClient;
-  // The name of the product; the prefix of every message (e.g. "LLB", "SFTT")
+  // The name of the product; the prefix of every message (e.g. "LLB", "SFTT", "HATS")
   private static String productName;
   // The logger used to log errors of the class that uses SLogger
   private final Logger classLogger;
 
   static {
-    Properties slackProperties = PropertiesLoader.getSlackProperties();
-    slackEnabled = Boolean.parseBoolean(PropertiesLoader.loadProperty(slackProperties, "enabled"));
-    webhookUrl = PropertiesLoader.loadProperty(slackProperties, "slack_webhook_url");
+    slackEnabled = Boolean.parseBoolean(PropertiesLoader.loadProperty("slack_enabled"));
+    webhookUrl = PropertiesLoader.loadProperty("slack_webhook_url");
     productName = "C4C Product";
   }
 
