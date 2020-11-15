@@ -1,5 +1,0 @@
-aws_access_key = placeholder_aws_access_key
-aws_secret_key = placeholder_aws_secret_key
-s3_bucket_url = placeholder_bucket_url
-s3_bucket_name = placeholder_bucket_name
-s3_upload_dir = placeholder_dir_name

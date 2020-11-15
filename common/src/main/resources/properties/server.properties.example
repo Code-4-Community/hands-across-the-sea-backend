@@ -1,0 +1,63 @@
+# =======================================================================================================
+# AMAZON WEB SERVICES PROPERTIES
+# =======================================================================================================
+aws_access_key = placeholder_aws_access_key
+aws_secret_key = placeholder_aws_secret_key
+aws_s3_bucket_url = placeholder_s3_bucket_url
+aws_s3_bucket_name = placeholder_s3_bucket_name
+aws_s3_upload_dir = placeholder_s3_dir_name
+
+
+# =======================================================================================================
+# DATABASE PROPERTIES
+# =======================================================================================================
+database_driver = org.postgresql.Driver
+database_url = jdbc:postgresql://localhost:5432/backend-scaffold?autoreconnect=true
+database_username = postgres
+database_password = placeholder_db_password
+
+
+# =======================================================================================================
+# EMAIL PROPERTIES
+# =======================================================================================================
+email_send_email = placeholder_email
+email_send_password = placeholder_email_password
+email_sender_name = placeholder_sender
+email_host = smtp.gmail.com
+email_port = 465
+email_should_send = false
+
+email_subject_welcome = Welcome!
+email_subject_email_change = Your Email Has Changed
+email_subject_password_reset_request = Password Reset Request
+email_subject_password_reset_confirm = Your Password Was Reset
+email_subject_account_deleted = Your Account Has Been Deleted
+
+
+# =======================================================================================================
+# FRONTEND PROPERTIES
+# =======================================================================================================
+frontend_base_url = placeholder_url
+frontend_password_reset_route = /forgot-password-reset/%s/
+
+
+# =======================================================================================================
+# EXPIRATION PROPERTIES
+# =======================================================================================================
+expiration_seconds_verification_email_valid = 86400
+expiration_seconds_forgot_password_valid = 86400
+expiration_ms_refresh = 604800000
+expiration_ms_access = 1800000
+
+
+# =======================================================================================================
+# JSON WEB TOKEN PROPERTIES
+# =======================================================================================================
+jwt_secret_key = placeholder_jwt_secret
+
+
+# =======================================================================================================
+# SLACK PROPERTIES
+# =======================================================================================================
+slack_webhook_url = placeholder_slack_url
+slack_enabled = false

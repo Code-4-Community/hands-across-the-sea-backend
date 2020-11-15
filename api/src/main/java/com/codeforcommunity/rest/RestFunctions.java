@@ -36,7 +36,7 @@ public interface RestFunctions {
 
   static String getRequestHeader(HttpServerRequest req, String name) {
     String headerValue = req.getHeader(name);
-    if (headerValue != null) {
+    if (headerValue != null && !headerValue.isEmpty()) {
       return headerValue;
     }
     throw new MissingHeaderException(name);
@@ -45,7 +45,7 @@ public interface RestFunctions {
   static int getRequestParameterAsInt(HttpServerRequest req, String name) {
     String paramValue = getRequestParameterAsString(req, name);
     try {
-      return Integer.valueOf(paramValue);
+      return Integer.parseInt(paramValue);
     } catch (NumberFormatException ex) {
       throw new MalformedParameterException(name);
     }
@@ -53,9 +53,14 @@ public interface RestFunctions {
 
   static String getRequestParameterAsString(HttpServerRequest req, String name) {
     String paramValue = req.getParam(name);
-    if (paramValue != null) {
+    if (paramValue != null && !paramValue.isEmpty()) {
       return paramValue;
     }
     throw new MissingParameterException(name);
+  }
+
+  static boolean getRequestParameterAsBoolean(HttpServerRequest req, String name) {
+    String paramValue = req.getParam(name);
+    return Boolean.parseBoolean(paramValue);
   }
 }

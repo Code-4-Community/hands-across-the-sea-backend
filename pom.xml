@@ -52,7 +52,6 @@
             <mainClass>com.codeforcommunity.ServiceMain</mainClass>
           </configuration>
         </plugin>
-
       </plugins>
     </pluginManagement>
     <plugins>
@@ -100,6 +99,9 @@
             </googleJavaFormat>
             <trimTrailingWhitespace/>
             <removeUnusedImports/>
+<!--            <licenseHeader>-->
+<!--              <content>/* (C)$YEAR Code4Community*/</content>-->
+<!--            </licenseHeader>-->
           </java>
         </configuration>
         <executions>
@@ -160,20 +162,31 @@
       <dependency>
         <groupId>org.jooq</groupId>
         <artifactId>jooq</artifactId>
-        <version>3.12.0</version>
+        <version>3.12.4</version>
       </dependency>
 
       <!-- Used for the generation of jOOQ classes -->
       <dependency>
         <groupId>org.jooq</groupId>
+        <artifactId>jooq-meta</artifactId>
+        <version>3.12.4</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jooq</groupId>
         <artifactId>jooq-meta-extensions</artifactId>
-        <version>3.12.0</version>
+        <version>3.12.4</version>
       </dependency>
       <dependency>
         <groupId>org.jooq</groupId>
         <artifactId>jooq-codegen</artifactId>
-        <version>3.12.0</version>
+        <version>3.12.4</version>
       </dependency>
+      <dependency>
+        <groupId>org.jooq</groupId>
+        <artifactId>jooq-codegen-maven</artifactId>
+        <version>3.12.4</version>
+      </dependency>
+
 
       <!-- To parse JSON into and out of Java objects -->
       <dependency>
@@ -205,7 +218,7 @@
       <dependency>
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
-        <version>42.2.5</version>
+        <version>42.2.18</version>
       </dependency>
 
       <!-- Junit -->
@@ -234,7 +247,7 @@
       <dependency>
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-java-sdk-s3</artifactId>
-        <version>1.11.774</version>
+        <version>1.11.893</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

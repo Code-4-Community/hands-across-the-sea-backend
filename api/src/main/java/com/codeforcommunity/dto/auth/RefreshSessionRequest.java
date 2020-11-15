@@ -24,7 +24,7 @@ public class RefreshSessionRequest extends ApiDto {
     String fieldName = fieldPrefix + "refresh_session_request.";
     List<String> fields = new ArrayList<>();
 
-    if (isEmpty(refreshToken)) {
+    if (isEmpty(refreshToken) || refreshToken.split("\\.").length < 3) {
       fields.add(fieldName + "refresh_token");
     }
     return fields;

@@ -3,12 +3,13 @@ package com.codeforcommunity.rest.subrouter;
 import static com.codeforcommunity.rest.ApiRouter.end;
 
 import com.codeforcommunity.api.IAuthProcessor;
-import com.codeforcommunity.dto.SessionResponse;
+import com.codeforcommunity.dto.auth.ForgotPasswordRequest;
 import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionRequest;
 import com.codeforcommunity.dto.auth.RefreshSessionResponse;
-import com.codeforcommunity.rest.HttpConstants;
+import com.codeforcommunity.dto.auth.ResetPasswordRequest;
+import com.codeforcommunity.dto.auth.SessionResponse;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
 import io.vertx.core.Vertx;
@@ -33,7 +34,8 @@ public class AuthRouter implements IRouter {
     registerNewUser(router);
     registerLogoutUser(router);
     registerVerifySecretKey(router);
-    registerCreateSecretKey(router);
+    registerRequestForgotPassword(router);
+    registerResetPassword(router);
 
     return router;
   }
@@ -58,14 +60,20 @@ public class AuthRouter implements IRouter {
     logoutUserRoute.handler(this::handleDeleteLogoutUser);
   }
 
+  private void registerRequestForgotPassword(Router router) {
+    Route forgotPasswordRequestRoute = router.post("/forgot_password/request");
+    forgotPasswordRequestRoute.handler(this::handleForgotPasswordRequest);
+  }
+
+  private void registerResetPassword(Router router) {
+    Route resetPasswordRoute = router.post("/forgot_password/reset");
+    resetPasswordRoute.handler(this::handleResetPassword);
+  }
+
+  /** This route is for validating a secret key that has been sent to a user's email. */
   private void registerVerifySecretKey(Router router) {
     Route verifySecretKeyRoute = router.get("/verify/:secret_key");
     verifySecretKeyRoute.handler(this::handleVerifySecretKey);
-  }
-
-  private void registerCreateSecretKey(Router router) {
-    Route createSecretKeyRoute = router.get("/create_secret/:user_id");
-    createSecretKeyRoute.handler(this::createSecretKey);
   }
 
   private void handlePostUserLoginRoute(RoutingContext ctx) {
@@ -73,20 +81,20 @@ public class AuthRouter implements IRouter {
 
     SessionResponse response = authProcessor.login(userRequest);
 
-    end(ctx.response(), HttpConstants.ok_code, JsonObject.mapFrom(response).encode());
+    end(ctx.response(), 200, JsonObject.mapFrom(response).encode());
   }
 
   private void handlePostRefreshUser(RoutingContext ctx) {
-    String refreshToken = RestFunctions.getRequestHeader(ctx.request(), "refresh_token");
+    String refreshToken = RestFunctions.getRequestHeader(ctx.request(), "X-Refresh-Token");
     RefreshSessionRequest request = new RefreshSessionRequest(refreshToken);
 
     RefreshSessionResponse response = authProcessor.refreshSession(request);
 
-    end(ctx.response(), HttpConstants.created_code, JsonObject.mapFrom(response).toString());
+    end(ctx.response(), 201, JsonObject.mapFrom(response).toString());
   }
 
   private void handleDeleteLogoutUser(RoutingContext ctx) {
-    String refreshToken = RestFunctions.getRequestHeader(ctx.request(), "refresh_token");
+    String refreshToken = RestFunctions.getRequestHeader(ctx.request(), "X-Refresh-Token");
     authProcessor.logout(refreshToken);
     end(ctx.response(), 204);
   }
@@ -98,15 +106,27 @@ public class AuthRouter implements IRouter {
     end(ctx.response(), 201, JsonObject.mapFrom(response).toString());
   }
 
-  private void handleVerifySecretKey(RoutingContext ctx) {
-    String secret = ctx.pathParam("secret_key");
-    authProcessor.validateSecretKey(secret);
+  private void handleForgotPasswordRequest(RoutingContext ctx) {
+    ForgotPasswordRequest request =
+        RestFunctions.getJsonBodyAsClass(ctx, ForgotPasswordRequest.class);
+
+    authProcessor.requestPasswordReset(request);
+
     end(ctx.response(), 200);
   }
 
-  private void createSecretKey(RoutingContext ctx) {
-    int userId = Integer.valueOf(ctx.pathParam("user_id"));
-    String token = authProcessor.createSecretKey(userId);
-    end(ctx.response(), 200, "Not set up yet");
+  private void handleResetPassword(RoutingContext ctx) {
+    ResetPasswordRequest request =
+        RestFunctions.getJsonBodyAsClass(ctx, ResetPasswordRequest.class);
+
+    authProcessor.resetPassword(request);
+
+    end(ctx.response(), 200);
+  }
+
+  private void handleVerifySecretKey(RoutingContext ctx) {
+    String secret = ctx.pathParam("secret_key");
+    authProcessor.verifyEmail(secret);
+    end(ctx.response(), 200);
   }
 }

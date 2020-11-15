@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.Properties;
 
 public class S3Requester {
   private static final String BUCKET_PUBLIC_URL;
@@ -25,10 +24,9 @@ public class S3Requester {
   private static final AmazonS3 s3Client;
 
   static {
-    Properties awsProperties = PropertiesLoader.getAwsProperties();
-    BUCKET_PUBLIC_URL = PropertiesLoader.loadProperty(awsProperties, "s3_bucket_url");
-    BUCKET_PUBLIC = PropertiesLoader.loadProperty(awsProperties, "s3_bucket_name");
-    DIR_PUBLIC = PropertiesLoader.loadProperty(awsProperties, "s3_upload_dir");
+    BUCKET_PUBLIC_URL = PropertiesLoader.loadProperty("aws_s3_bucket_url");
+    BUCKET_PUBLIC = PropertiesLoader.loadProperty("aws_s3_bucket_name");
+    DIR_PUBLIC = PropertiesLoader.loadProperty("aws_s3_upload_dir");
 
     s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_2).build();
   }
