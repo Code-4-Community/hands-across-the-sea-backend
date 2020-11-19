@@ -1,12 +1,3 @@
-CREATE TABLE IF NOT EXISTS countries
-(
-    id         BIGSERIAL   NOT NULL PRIMARY KEY,
-    created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP,
-    name       VARCHAR(36) NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS users
 (
     id              BIGSERIAL   NOT NULL PRIMARY KEY,
@@ -18,10 +9,8 @@ CREATE TABLE IF NOT EXISTS users
     first_name      VARCHAR(36) NOT NULL,
     last_name       VARCHAR(36) NOT NULL,
     privilege_level VARCHAR(16) NOT NULL,
-    country_id      BIGINT,
-    password_hash   BYTEA       NOT NULL,
-
-    CONSTRAINT fk_user_country FOREIGN KEY (country_id) REFERENCES countries (id)
+    country         VARCHAR(32) NOT NULL,
+    password_hash   BYTEA       NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS schools
@@ -33,12 +22,10 @@ CREATE TABLE IF NOT EXISTS schools
     name       VARCHAR(36) NOT NULL,
     address    VARCHAR(64) NOT NULL,
     hidden     BOOLEAN              DEFAULT FALSE,
-    country_id BIGINT,
-
-    CONSTRAINT fk_school_country FOREIGN KEY (country_id) REFERENCES countries (id)
+    country    VARCHAR(32) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS school_additional_contacts
+CREATE TABLE IF NOT EXISTS school_contacts
 (
     id         BIGSERIAL   NOT NULL PRIMARY KEY,
     created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -61,6 +48,7 @@ CREATE TABLE IF NOT EXISTS school_reports
     deleted_at                        TIMESTAMP,
     user_id                           BIGINT    NOT NULL,
     school_id                         BIGINT    NOT NULL,
+    time_period                       TIMESTAMP NOT NULL,
     number_of_children                INT       NOT NULL,
     contact_info_school               VARCHAR(128),
     contact_info_principal            VARCHAR(128),
@@ -74,21 +62,20 @@ CREATE TABLE IF NOT EXISTS school_reports
 
 CREATE TABLE IF NOT EXISTS school_reports_with_libraries
 (
-    id                            BIGSERIAL   NOT NULL PRIMARY KEY,
-    created_at                    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at                    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at                    TIMESTAMP,
-    user_id                       BIGINT      NOT NULL,
-    school_id                     BIGINT      NOT NULL,
-    participates_oecs             VARCHAR(36) NOT NULL,
-    has_classroom_check_ins       VARCHAR(36) NOT NULL,
-    has_student_librarian_program BOOLEAN     NOT NULL,
-    student_librarian_count       INT,
-    has_sufficient_training       VARCHAR(36) NOT NULL,
-    are_teachers_seeking_support  BOOLEAN     NOT NULL,
-    teacher_support_description   VARCHAR(128),
-    has_involved_parents          BOOLEAN     NOT NULL,
-    involved_parents_description  VARCHAR(128),
+    id                           BIGSERIAL   NOT NULL PRIMARY KEY,
+    created_at                   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at                   TIMESTAMP,
+    user_id                      BIGINT      NOT NULL,
+    school_id                    BIGINT      NOT NULL,
+    participates_oecs            VARCHAR(36) NOT NULL,
+    has_classroom_check_ins      VARCHAR(36) NOT NULL,
+    student_librarian_count      INT,
+    has_sufficient_training      VARCHAR(36) NOT NULL,
+    are_teachers_seeking_support BOOLEAN     NOT NULL,
+    teacher_support_description  VARCHAR(128),
+    has_involved_parents         BOOLEAN     NOT NULL,
+    involved_parents_description VARCHAR(128),
 
     CONSTRAINT fk_school_report_lib_user FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_school_report_lib_school FOREIGN KEY (school_id) REFERENCES schools (id)
@@ -114,6 +101,8 @@ CREATE TABLE IF NOT EXISTS school_reports_without_libraries
 
 CREATE TABLE IF NOT EXISTS blacklisted_refreshes
 (
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     refresh_hash VARCHAR(64) PRIMARY KEY,
     expires      TIMESTAMP NOT NULL
 );
@@ -123,7 +112,6 @@ CREATE TABLE IF NOT EXISTS verification_keys
     id         VARCHAR(50) NOT NULL PRIMARY KEY,
     created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP,
     user_id    BIGINT      NOT NULL,
     used       BOOLEAN              DEFAULT false,
     type       VARCHAR(16) NOT NULL,
@@ -140,14 +128,6 @@ BEGIN
     RETURN NEW;
 END;
 $$ language 'plpgsql';
-
-DROP TRIGGER IF EXISTS countries_trig_set_updated_at ON countries;
-CREATE TRIGGER countries_trig_set_updated_at
-    BEFORE UPDATE
-    ON countries
-    FOR EACH ROW
-EXECUTE PROCEDURE
-    func_set_updated_at_timestamp();
 
 DROP TRIGGER IF EXISTS users_trig_set_updated_at ON users;
 CREATE TRIGGER users_trig_set_updated_at
@@ -201,14 +181,6 @@ DROP TRIGGER IF EXISTS bl_refs_trig_set_updated_at ON blacklisted_refreshes;
 CREATE TRIGGER bl_refs_trig_set_updated_at
     BEFORE UPDATE
     ON blacklisted_refreshes
-    FOR EACH ROW
-EXECUTE PROCEDURE
-    func_set_updated_at_timestamp();
-
-DROP TRIGGER IF EXISTS ver_keys_trig_set_updated_at ON verification_keys;
-CREATE TRIGGER ver_keys_trig_set_updated_at
-    BEFORE UPDATE
-    ON verification_keys
     FOR EACH ROW
 EXECUTE PROCEDURE
     func_set_updated_at_timestamp();
