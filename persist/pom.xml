@@ -104,11 +104,21 @@
 
               <forcedTypes>
                 <forcedType>
-                  <!-- Enum converter for roles -->
+                  <!-- Enum converter for privilege level -->
                   <userType>com.codeforcommunity.enums.PrivilegeLevel</userType>
                   <enumConverter>true</enumConverter>
 
                   <includeExpression>.*\.privilege_level</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                  <nullability>NOT_NULL</nullability>
+                </forcedType>
+
+                <forcedType>
+                  <!-- Enum converter for country -->
+                  <userType>com.codeforcommunity.enums.Country</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.country</includeExpression>
                   <includeTypes>.*</includeTypes>
                   <nullability>NOT_NULL</nullability>
                 </forcedType>
