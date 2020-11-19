@@ -101,9 +101,9 @@ CREATE TABLE IF NOT EXISTS school_reports_without_libraries
 
 CREATE TABLE IF NOT EXISTS blacklisted_refreshes
 (
+    refresh_hash VARCHAR(64) PRIMARY KEY,
     created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    refresh_hash VARCHAR(64) PRIMARY KEY,
     expires      TIMESTAMP NOT NULL
 );
 
@@ -148,7 +148,7 @@ EXECUTE PROCEDURE
 DROP TRIGGER IF EXISTS schools_add_cts_trig_set_updated_at ON school_additional_contacts;
 CREATE TRIGGER schools_add_cts_trig_set_updated_at
     BEFORE UPDATE
-    ON school_additional_contacts
+    ON school_contacts
     FOR EACH ROW
 EXECUTE PROCEDURE
     func_set_updated_at_timestamp();
