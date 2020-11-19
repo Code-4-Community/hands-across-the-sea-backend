@@ -15,7 +15,7 @@ before_install:
   - ./copy_properties.sh $DIR_PROP
 
   # Create a local database for testing
-  - psql -c 'create database "hands-across-the-sea-backend";' -U postgres
+  - psql -c 'create database "hands-across-the-sea";' -U postgres
 
 # Default installation stage runs everything as below but without spotless:check
 # Tests are run as mvn test -B as part of the "script" stage
