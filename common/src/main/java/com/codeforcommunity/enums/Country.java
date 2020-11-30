@@ -1,12 +1,12 @@
 package com.codeforcommunity.enums;
 
 public enum Country {
-  COUNTRY_ONE("one"),
-  COUNTRY_TWO("two"),
-  COUNTRY_THREE("three"),
-  COUNTRY_FOUR("four"),
-  COUNTRY_FIVE("five"),
-  COUNTRY_SIX("six");
+  ANTIGUA_AND_BARBUDA("antigua_and_barbuda"),
+  DOMINICA("dominica"),
+  GRENADA("grenada"),
+  ST_KITTS_AND_NEVIS("st_kitts_and_nevis"),
+  ST_LUCIA("st_lucia"),
+  ST_VINCENT_AND_THE_GRENADINES("st_vincent_and_the_grenadines");
 
   private String name;
 
@@ -25,6 +25,6 @@ public enum Country {
       }
     }
     throw new IllegalArgumentException(
-        String.format("Given name `%s` doesn't correspond to any `PrivilegeLevel`", name));
+        String.format("Given name `%s` doesn't correspond to any `Country`", name));
   }
 }
