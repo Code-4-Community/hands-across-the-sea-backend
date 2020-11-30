@@ -73,7 +73,7 @@ public class ServiceMain {
     Vertx vertx = Vertx.vertx();
 
     // Configure the Slack logger and log uncaught exceptions
-    String productName = "C4C Backend Scaffold";
+    String productName = PropertiesLoader.loadProperty("slack_product_name");
     SLogger.initializeLogger(vertx, productName);
     vertx.exceptionHandler(SLogger::logApplicationError);
 
