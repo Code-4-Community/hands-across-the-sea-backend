@@ -15,7 +15,7 @@ before_install:
   - ./copy_properties.sh $DIR_PROP
 
   # Create a local database for testing
-  - psql -c 'create database "hands-across-the-sea-backend";' -U postgres
+  - psql -c 'create database "hands-across-the-sea";' -U postgres
 
 # Default installation stage runs everything as below but without spotless:check
 # Tests are run as mvn test -B as part of the "script" stage
@@ -31,19 +31,19 @@ before_deploy:
   - mvn clean spotless:check install
   - zip build.zip Dockerfile service/target/service-1.0-SNAPSHOT-jar-with-dependencies.jar
 
-#deploy:
-#  provider: elasticbeanstalk
-#  access_key_id: $AWS_BEANSTALK_ACCESS_KEY
-#  secret_access_key: $AWS_BEANSTALK_SECRET_KEY
-#  region: us-east-2
-#  app: c4c-backend-scaffold
-#  env: C4cBackendScaffold-env
-#  bucket: $AWS_BEANSTALK_BUCKET
-#  zip_file: "build.zip"
-#  on:
-#    repo: Code-4-Community/hands-across-the-sea-backend
-#    branch: master
-#  skip_cleanup: true
+deploy:
+  provider: elasticbeanstalk
+  access_key_id: $AWS_BEANSTALK_ACCESS_KEY
+  secret_access_key: $AWS_BEANSTALK_SECRET_KEY
+  region: us-east-2
+  app: c4c-internal
+  env: c4c-hats-internal
+  bucket: $AWS_BEANSTALK_BUCKET
+  zip_file: "build.zip"
+  on:
+    repo: Code-4-Community/hands-across-the-sea-backend
+    branch: master
+  skip_cleanup: true
 
 #after_success:
 #  - mvn clean test jacoco:report coveralls:report
