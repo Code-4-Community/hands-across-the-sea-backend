@@ -37,7 +37,7 @@ deploy:
   secret_access_key: $AWS_BEANSTALK_SECRET_KEY
   region: us-east-2
   app: c4c-internal
-  env: c4c-hats-internal
+  env: c4c-hats-internal-backend
   bucket: $AWS_BEANSTALK_BUCKET
   zip_file: "build.zip"
   on:
