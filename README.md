@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/Code-4-Community/hands-across-the-sea-backend.svg?branch=master)](https://travis-ci.com/Code-4-Community/hands-across-the-sea-backend)
 
-This project is the Java backend api scaffold for Code4Community. It is meant to demonstrate API routing and database connection techniques that should be utilized in all C4C Java back ends.
+This project is the Java API server for Code4Community's partnership Hands Across the Sea. It is meant to demonstrate API routing and database connection techniques that should be utilized in all C4C Java back ends.
 
 #### Complete Setup Guide
  - See https://docs.c4cneu.com/getting-started/setup-local-dev/ for a complete setup guide for:
