@@ -15,8 +15,6 @@ public class ResetPasswordRequest extends ApiDto {
     this.newPassword = newPassword;
   }
 
-  private ResetPasswordRequest() {}
-
   public String getSecretKey() {
     return secretKey;
   }

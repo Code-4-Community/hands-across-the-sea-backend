@@ -45,7 +45,6 @@ public final class Passwords {
    */
   public static byte[] createHash(String password) {
     byte[] salt = getNextSalt(SALT_LENGTH);
-
     return hash(password, salt);
   }
 
@@ -69,12 +68,8 @@ public final class Passwords {
     }
 
     byte[] finalHash = new byte[hashByteArr.length + salt.length];
-    for (int i = 0; i < hashByteArr.length; i++) {
-      finalHash[i] = hashByteArr[i];
-    }
-    for (int i = 0; i < salt.length; i++) {
-      finalHash[i + hashByteArr.length] = salt[i];
-    }
+    System.arraycopy(hashByteArr, 0, finalHash, 0, hashByteArr.length);
+    System.arraycopy(salt, 0, finalHash, hashByteArr.length, salt.length);
 
     return finalHash;
   }
@@ -88,9 +83,7 @@ public final class Passwords {
    */
   public static boolean isExpectedPassword(String password, byte[] expectedHash) {
     byte[] salt = new byte[SALT_LENGTH];
-    for (int i = 0; i < SALT_LENGTH; i++) {
-      salt[i] = expectedHash[expectedHash.length - SALT_LENGTH + i];
-    }
+    System.arraycopy(expectedHash, expectedHash.length - 16, salt, 0, SALT_LENGTH);
     byte[] pwdHash = hash(password, salt);
     if (pwdHash.length != expectedHash.length) {
       return false;
