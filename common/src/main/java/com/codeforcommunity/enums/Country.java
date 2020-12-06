@@ -1,6 +1,7 @@
 package com.codeforcommunity.enums;
 
 public enum Country {
+  UNITED_STATES("united_states"),
   ANTIGUA_AND_BARBUDA("antigua_and_barbuda"),
   DOMINICA("dominica"),
   GRENADA("grenada"),

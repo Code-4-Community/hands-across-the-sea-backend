@@ -1,6 +1,7 @@
 package com.codeforcommunity.dto.auth;
 
 import com.codeforcommunity.dto.ApiDto;
+import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.exceptions.InvalidPasswordException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ public class NewUserRequest extends ApiDto {
   private String password;
   private String firstName;
   private String lastName;
+  private Country country;
 
   public String getEmail() {
     return email;
@@ -44,27 +46,37 @@ public class NewUserRequest extends ApiDto {
     this.lastName = lastName;
   }
 
+  public Country getCountry() {
+    return country;
+  }
+
+  public void setCountry(Country country) {
+    this.country = country;
+  }
+
   @Override
   public List<String> validateFields(String fieldPrefix) {
-    String fieldName = fieldPrefix + "new_user_request.";
-    List<String> fields = new ArrayList<>();
-
+    List<String> invalidFields = new ArrayList<>();
     if (emailInvalid(email)) {
-      fields.add(fieldName + "email");
+      invalidFields.add("email");
     }
     if (isEmpty(firstName)) {
-      fields.add(fieldName + "first_name");
+      invalidFields.add("first_name");
     }
     if (isEmpty(lastName)) {
-      fields.add(fieldName + "last_name");
+      invalidFields.add("last_name");
     }
-    if (password == null) {
-      fields.add(fieldName + "password");
+    if (isEmpty(password)) {
+      invalidFields.add("password");
+    }
+    if (country == null) {
+      invalidFields.add("country");
     }
     // Only throw this exception if there are no issues with other fields
-    if (passwordInvalid(password) && fields.size() == 0) {
+    if (passwordInvalid(password) && invalidFields.isEmpty()) {
       throw new InvalidPasswordException();
     }
-    return fields;
+
+    return invalidFields;
   }
 }

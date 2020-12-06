@@ -86,7 +86,7 @@ public class FailureHandler {
   }
 
   public void handleRequestBodyMapping(RoutingContext ctx) {
-    String message = "Malformed json request body";
+    String message = "Malformed JSON request body";
     end(ctx, message, 400);
   }
 
@@ -130,7 +130,7 @@ public class FailureHandler {
 
   public void handleMalformedParameter(RoutingContext ctx, MalformedParameterException exception) {
     String message =
-        String.format("Given parameter(s) %s is (are) malformed", exception.getParameterName());
+        String.format("Given malformed parameter(s): %s", exception.getParameterName());
     end(ctx, message, 400);
   }
 

@@ -5,6 +5,8 @@ import static org.jooq.generated.Tables.VERIFICATION_KEYS;
 
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.auth.Passwords;
+import com.codeforcommunity.dto.auth.NewUserRequest;
+import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.PrivilegeLevel;
 import com.codeforcommunity.enums.VerificationKeyType;
 import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
@@ -87,7 +89,9 @@ public class AuthDatabaseOperations {
   public boolean isValidLogin(String email, String pass) {
     Optional<Users> maybeUser =
         Optional.ofNullable(
-            db.selectFrom(USERS).where(USERS.EMAIL.eq(email)).fetchOneInto(Users.class));
+            db.selectFrom(USERS)
+                .where(USERS.EMAIL.eq(email).and(USERS.DELETED_AT.isNull()))
+                .fetchOneInto(Users.class));
 
     return maybeUser
         .filter(user -> Passwords.isExpectedPassword(pass, user.getPasswordHash()))
@@ -95,18 +99,23 @@ public class AuthDatabaseOperations {
   }
 
   /**
-   * TODO: Refactor this method to take in a DTO / POJO instance Creates a new row in the USER table
    * with the given values.
    *
    * @throws EmailAlreadyInUseException if the given username and email are already used in the USER
    *     table.
    */
-  public UsersRecord createNewUser(
-      String email, String password, String firstName, String lastName) {
+  public UsersRecord createNewUser(NewUserRequest newUserRequest) {
+    String email = newUserRequest.getEmail();
+
     boolean emailUsed = db.fetchExists(db.selectFrom(USERS).where(USERS.EMAIL.eq(email)));
     if (emailUsed) {
       throw new EmailAlreadyInUseException(email);
     }
+
+    String password = newUserRequest.getPassword();
+    String firstName = newUserRequest.getFirstName();
+    String lastName = newUserRequest.getLastName();
+    Country country = newUserRequest.getCountry();
 
     UsersRecord newUser = db.newRecord(USERS);
     newUser.setEmail(email);
@@ -114,6 +123,7 @@ public class AuthDatabaseOperations {
     newUser.setFirstName(firstName);
     newUser.setLastName(lastName);
     newUser.setPrivilegeLevel(PrivilegeLevel.STANDARD);
+    newUser.setCountry(country);
     newUser.store();
 
     return newUser;
@@ -166,7 +176,9 @@ public class AuthDatabaseOperations {
     verificationKey.setUsed(true);
     verificationKey.store();
 
-    return db.selectFrom(USERS).where(USERS.ID.eq(verificationKey.getUserId())).fetchOne();
+    return db.selectFrom(USERS)
+        .where(USERS.ID.eq(verificationKey.getUserId()).and(USERS.DELETED_AT.isNull()))
+        .fetchOne();
   }
 
   /**

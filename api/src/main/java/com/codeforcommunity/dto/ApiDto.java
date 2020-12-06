@@ -57,20 +57,14 @@ public abstract class ApiDto {
   public void validate() throws HandledException {
     List<String> fields = this.validateFields();
     if (fields == null) {
-      throw new IllegalStateException("Field validation cannot return null value.");
+      throw new IllegalStateException("Field validation cannot return null value");
     }
-    if (fields.size() == 0) {
+    if (fields.isEmpty()) {
       return;
     }
 
-    StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < fields.size(); i++) {
-      builder.append(fields.get(i));
-      if (i < fields.size() - 1) {
-        builder.append(", ");
-      }
-    }
-    throw new MalformedParameterException(builder.toString());
+    String parameters = String.join(", ", fields);
+    throw new MalformedParameterException(parameters);
   }
 
   /**
@@ -100,6 +94,11 @@ public abstract class ApiDto {
    * @return a boolean representing whether the given password is invalid or not.
    */
   protected boolean passwordInvalid(String pass) {
-    return pass == null || pass.trim().length() < 8;
+    if (pass == null || pass.trim().isEmpty()) {
+      return false;
+    }
+
+    String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&-+=()])(?=\\S+$).{8,20}$";
+    return pass.matches(regex);
   }
 }

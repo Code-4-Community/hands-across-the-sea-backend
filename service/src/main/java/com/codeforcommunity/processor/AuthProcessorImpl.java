@@ -42,12 +42,7 @@ public class AuthProcessorImpl implements IAuthProcessor {
    */
   @Override
   public SessionResponse signUp(NewUserRequest request) {
-    UsersRecord user =
-        authDatabaseOperations.createNewUser(
-            request.getEmail(),
-            request.getPassword(),
-            request.getFirstName(),
-            request.getLastName());
+    UsersRecord user = authDatabaseOperations.createNewUser(request);
 
     emailer.sendWelcomeEmail(
         request.getEmail(), AuthDatabaseOperations.getFullName(user.into(Users.class)));
@@ -66,7 +61,7 @@ public class AuthProcessorImpl implements IAuthProcessor {
     if (authDatabaseOperations.isValidLogin(loginRequest.getEmail(), loginRequest.getPassword())) {
       return setupSessionResponse(loginRequest.getEmail());
     } else {
-      throw new AuthException("Could not validate username password combination");
+      throw new AuthException("Could not validate username / password combination");
     }
   }
 
