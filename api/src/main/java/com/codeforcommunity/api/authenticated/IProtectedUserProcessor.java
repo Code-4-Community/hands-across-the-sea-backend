@@ -1,4 +1,4 @@
-package com.codeforcommunity.api;
+package com.codeforcommunity.api.authenticated;
 
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.user.ChangeEmailRequest;

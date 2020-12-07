@@ -25,7 +25,6 @@ public class CommonRouter implements IRouter {
     Router router = Router.router(vertx);
 
     router.route().handler(BodyHandler.create(false)); // Add body handling
-
     router.route().failureHandler(failureHandler::handleFailure); // Add failure handling
 
     router

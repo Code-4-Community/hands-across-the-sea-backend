@@ -1,4 +1,4 @@
-package com.codeforcommunity.api;
+package com.codeforcommunity.api.unauthenticated;
 
 import com.codeforcommunity.dto.auth.ForgotPasswordRequest;
 import com.codeforcommunity.dto.auth.LoginRequest;

@@ -1,8 +1,8 @@
-package com.codeforcommunity.rest.subrouter;
+package com.codeforcommunity.rest.subrouter.authenticated;
 
 import static com.codeforcommunity.rest.ApiRouter.end;
 
-import com.codeforcommunity.api.IProtectedUserProcessor;
+import com.codeforcommunity.api.authenticated.IProtectedUserProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
