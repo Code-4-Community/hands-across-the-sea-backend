@@ -1,8 +1,8 @@
-package com.codeforcommunity.rest.subrouter;
+package com.codeforcommunity.rest.subrouter.unauthenticated;
 
 import static com.codeforcommunity.rest.ApiRouter.end;
 
-import com.codeforcommunity.api.IAuthProcessor;
+import com.codeforcommunity.api.unauthenticated.IAuthProcessor;
 import com.codeforcommunity.dto.auth.ForgotPasswordRequest;
 import com.codeforcommunity.dto.auth.LoginRequest;
 import com.codeforcommunity.dto.auth.NewUserRequest;

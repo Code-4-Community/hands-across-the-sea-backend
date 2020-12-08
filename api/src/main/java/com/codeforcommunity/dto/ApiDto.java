@@ -95,10 +95,10 @@ public abstract class ApiDto {
    */
   protected boolean passwordInvalid(String pass) {
     if (pass == null || pass.trim().isEmpty()) {
-      return false;
+      return true;
     }
 
     String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&-+=()])(?=\\S+$).{8,20}$";
-    return pass.matches(regex);
+    return !pass.matches(regex);
   }
 }

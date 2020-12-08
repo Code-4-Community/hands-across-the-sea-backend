@@ -14,7 +14,7 @@ import com.codeforcommunity.exceptions.ExpiredSecretKeyException;
 import com.codeforcommunity.exceptions.InvalidSecretKeyException;
 import com.codeforcommunity.exceptions.UsedSecretKeyException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
-import com.codeforcommunity.processor.AuthProcessorImpl;
+import com.codeforcommunity.processor.unauthenticated.AuthProcessorImpl;
 import com.codeforcommunity.propertiesLoader.PropertiesLoader;
 import java.sql.Timestamp;
 import java.time.Instant;

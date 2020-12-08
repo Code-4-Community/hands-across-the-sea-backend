@@ -9,6 +9,7 @@ import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
 import com.codeforcommunity.exceptions.TokenInvalidException;
+import com.codeforcommunity.exceptions.UnknownCountryException;
 import com.codeforcommunity.exceptions.UsedSecretKeyException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.exceptions.UsernameAlreadyInUseException;
@@ -131,6 +132,11 @@ public class FailureHandler {
   public void handleMalformedParameter(RoutingContext ctx, MalformedParameterException exception) {
     String message =
         String.format("Given malformed parameter(s): %s", exception.getParameterName());
+    end(ctx, message, 400);
+  }
+
+  public void handleUnknownCountry(RoutingContext ctx, UnknownCountryException exception) {
+    String message = String.format("Unknown country given: %s", exception.getUnknownCountry());
     end(ctx, message, 400);
   }
 

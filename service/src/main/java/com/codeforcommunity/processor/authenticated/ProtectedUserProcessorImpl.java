@@ -1,9 +1,9 @@
-package com.codeforcommunity.processor;
+package com.codeforcommunity.processor.authenticated;
 
 import static org.jooq.generated.Tables.USERS;
 import static org.jooq.generated.Tables.VERIFICATION_KEYS;
 
-import com.codeforcommunity.api.IProtectedUserProcessor;
+import com.codeforcommunity.api.authenticated.IProtectedUserProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.auth.Passwords;
 import com.codeforcommunity.dataaccess.AuthDatabaseOperations;
@@ -14,6 +14,8 @@ import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.exceptions.WrongPasswordException;
 import com.codeforcommunity.requester.Emailer;
+import java.sql.Timestamp;
+import java.time.Instant;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.pojos.Users;
 import org.jooq.generated.tables.records.UsersRecord;
@@ -34,8 +36,11 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
 
     db.deleteFrom(VERIFICATION_KEYS).where(VERIFICATION_KEYS.USER_ID.eq(userId)).executeAsync();
 
-    UsersRecord user = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
-    user.delete();
+    UsersRecord user =
+        db.selectFrom(USERS).where(USERS.ID.eq(userId).and(USERS.DELETED_AT.isNull())).fetchOne();
+
+    user.setDeletedAt(Timestamp.from(Instant.now()));
+    user.store();
 
     emailer.sendAccountDeactivatedEmail(
         user.getEmail(), AuthDatabaseOperations.getFullName(user.into(Users.class)));
@@ -43,7 +48,10 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
 
   @Override
   public void changePassword(JWTData userData, ChangePasswordRequest changePasswordRequest) {
-    UsersRecord user = db.selectFrom(USERS).where(USERS.ID.eq(userData.getUserId())).fetchOne();
+    long userId = userData.getUserId();
+
+    UsersRecord user =
+        db.selectFrom(USERS).where(USERS.ID.eq(userId).and(USERS.DELETED_AT.isNull())).fetchOne();
 
     if (user == null) {
       throw new UserDoesNotExistException(userData.getUserId());

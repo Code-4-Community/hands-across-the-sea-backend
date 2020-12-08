@@ -1,11 +1,15 @@
 package com.codeforcommunity.rest;
 
-import com.codeforcommunity.api.IAuthProcessor;
-import com.codeforcommunity.api.IProtectedUserProcessor;
+import com.codeforcommunity.api.authenticated.IProtectedCountryProcessor;
+import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
+import com.codeforcommunity.api.authenticated.IProtectedUserProcessor;
+import com.codeforcommunity.api.unauthenticated.IAuthProcessor;
 import com.codeforcommunity.auth.JWTAuthorizer;
-import com.codeforcommunity.rest.subrouter.AuthRouter;
 import com.codeforcommunity.rest.subrouter.CommonRouter;
-import com.codeforcommunity.rest.subrouter.ProtectedUserRouter;
+import com.codeforcommunity.rest.subrouter.authenticated.ProtectedCountryRouter;
+import com.codeforcommunity.rest.subrouter.authenticated.ProtectedSchoolRouter;
+import com.codeforcommunity.rest.subrouter.authenticated.ProtectedUserRouter;
+import com.codeforcommunity.rest.subrouter.unauthenticated.AuthRouter;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
@@ -14,24 +18,33 @@ public class ApiRouter implements IRouter {
   private final CommonRouter commonRouter;
   private final AuthRouter authRouter;
   private final ProtectedUserRouter protectedUserRouter;
+  private final ProtectedCountryRouter protectedCountryRouter;
+  private final ProtectedSchoolRouter protectedSchoolRouter;
 
   public ApiRouter(
+      JWTAuthorizer jwtAuthorizer,
       IAuthProcessor authProcessor,
       IProtectedUserProcessor protectedUserProcessor,
-      JWTAuthorizer jwtAuthorizer) {
+      IProtectedCountryProcessor protectedCountryProcessor,
+      IProtectedSchoolProcessor protectedSchoolProcessor) {
     this.commonRouter = new CommonRouter(jwtAuthorizer);
     this.authRouter = new AuthRouter(authProcessor);
     this.protectedUserRouter = new ProtectedUserRouter(protectedUserProcessor);
+    this.protectedCountryRouter = new ProtectedCountryRouter(protectedCountryProcessor);
+    this.protectedSchoolRouter = new ProtectedSchoolRouter(protectedSchoolProcessor);
   }
 
   /** Initialize a router and register all route handlers on it. */
   public Router initializeRouter(Vertx vertx) {
-    Router router = commonRouter.initializeRouter(vertx);
+    Router mainRouter = commonRouter.initializeRouter(vertx);
+    definePublicRoutes(vertx, mainRouter);
+    mainRouter.mountSubRouter("/protected", defineProtectedRoutes(vertx));
+    return mainRouter;
+  }
 
-    router.mountSubRouter("/user", authRouter.initializeRouter(vertx));
-    router.mountSubRouter("/protected", defineProtectedRoutes(vertx));
-
-    return router;
+  /** Defines all publicly-accessible (i.e. unprotected) routes. */
+  private void definePublicRoutes(Vertx vertx, Router mainRouter) {
+    mainRouter.mountSubRouter("/user", authRouter.initializeRouter(vertx));
   }
 
   /**
@@ -39,11 +52,13 @@ public class ApiRouter implements IRouter {
    * to have a valid JWT access token in their header.
    */
   private Router defineProtectedRoutes(Vertx vertx) {
-    Router router = Router.router(vertx);
+    Router protectedSubRouter = Router.router(vertx);
 
-    router.mountSubRouter("/user", protectedUserRouter.initializeRouter(vertx));
+    protectedSubRouter.mountSubRouter("/user", protectedUserRouter.initializeRouter(vertx));
+    protectedSubRouter.mountSubRouter("/countries", protectedCountryRouter.initializeRouter(vertx));
+    protectedSubRouter.mountSubRouter("/schools", protectedSchoolRouter.initializeRouter(vertx));
 
-    return router;
+    return protectedSubRouter;
   }
 
   public static void end(HttpServerResponse response, int statusCode) {
@@ -64,7 +79,7 @@ public class ApiRouter implements IRouter {
         .putHeader(
             "Access-Control-Allow-Headers",
             "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-    if (jsonBody == null || jsonBody.equals("")) {
+    if (jsonBody == null || jsonBody.isEmpty()) {
       response.end();
     } else {
       response.end(jsonBody);

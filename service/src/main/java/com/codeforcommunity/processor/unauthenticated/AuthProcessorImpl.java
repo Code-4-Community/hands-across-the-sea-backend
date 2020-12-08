@@ -1,6 +1,6 @@
-package com.codeforcommunity.processor;
+package com.codeforcommunity.processor.unauthenticated;
 
-import com.codeforcommunity.api.IAuthProcessor;
+import com.codeforcommunity.api.unauthenticated.IAuthProcessor;
 import com.codeforcommunity.auth.JWTCreator;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.auth.Passwords;
