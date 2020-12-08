@@ -57,18 +57,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         .and(SCHOOLS.COUNTRY.eq(country))
         .fetchOne();
 
-//    List<SchoolsRecord> schools = db.selectFrom(SCHOOLS)
-//        .where(SCHOOLS.NAME.eq(name))
-//        .and(SCHOOLS.ADDRESS.eq(address))
-//        .and(SCHOOLS.COUNTRY.eq(country))
-//        .fetch();
-//
-//    for (SchoolsRecord school : schools) {
-//      school.delete();
-//    }
-//
-//    return null;
-
     if (school == null) {
       // If the school doesn't already exist, create it
       SchoolsRecord newSchool = db.newRecord(SCHOOLS);
