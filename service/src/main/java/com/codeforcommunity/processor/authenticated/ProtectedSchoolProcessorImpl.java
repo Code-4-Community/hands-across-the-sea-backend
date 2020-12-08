@@ -1,5 +1,7 @@
 package com.codeforcommunity.processor.authenticated;
 
+import static org.jooq.generated.Tables.SCHOOLS;
+
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.school.NewSchoolRequest;
@@ -7,12 +9,9 @@ import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
+import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.SchoolsRecord;
-
-import java.util.List;
-
-import static org.jooq.generated.Tables.SCHOOLS;
 
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
@@ -51,11 +50,12 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     Country country = newSchoolRequest.getCountry();
     Boolean hidden = newSchoolRequest.getHidden();
 
-    SchoolsRecord school = db.selectFrom(SCHOOLS)
-        .where(SCHOOLS.NAME.eq(name))
-        .and(SCHOOLS.ADDRESS.eq(address))
-        .and(SCHOOLS.COUNTRY.eq(country))
-        .fetchOne();
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.NAME.eq(name))
+            .and(SCHOOLS.ADDRESS.eq(address))
+            .and(SCHOOLS.COUNTRY.eq(country))
+            .fetchOne();
 
     if (school == null) {
       // If the school doesn't already exist, create it
@@ -65,7 +65,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       newSchool.setCountry(country);
       newSchool.setHidden(hidden);
       newSchool.store();
-      return new School(newSchool.getId(), newSchool.getName(), newSchool.getAddress(), newSchool.getCountry());
+      return new School(
+          newSchool.getId(), newSchool.getName(), newSchool.getAddress(), newSchool.getCountry());
     }
 
     if (school.getDeletedAt() != null || school.getHidden()) {

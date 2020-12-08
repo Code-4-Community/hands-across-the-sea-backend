@@ -7,7 +7,6 @@ import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.school.NewSchoolRequest;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolListResponse;
-import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
 import io.vertx.core.Vertx;
@@ -68,7 +67,8 @@ public class ProtectedSchoolRouter implements IRouter {
   private void handleCreateSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
 
-    NewSchoolRequest newSchoolRequest = RestFunctions.getJsonBodyAsClass(ctx, NewSchoolRequest.class);
+    NewSchoolRequest newSchoolRequest =
+        RestFunctions.getJsonBodyAsClass(ctx, NewSchoolRequest.class);
     School response = processor.createSchool(userData, newSchoolRequest);
 
     end(ctx.response(), 201, JsonObject.mapFrom(response).toString());

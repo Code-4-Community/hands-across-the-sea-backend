@@ -49,7 +49,8 @@ public class FailureHandler {
 
   public void handleSchoolAlreadyExists(RoutingContext ctx, SchoolAlreadyExistsException e) {
     String message =
-        String.format("School '%s' already exists in '%s'", e.getSchoolName(), e.getSchoolCountry());
+        String.format(
+            "School '%s' already exists in '%s'", e.getSchoolName(), e.getSchoolCountry());
     end(ctx, message, 409);
   }
 
