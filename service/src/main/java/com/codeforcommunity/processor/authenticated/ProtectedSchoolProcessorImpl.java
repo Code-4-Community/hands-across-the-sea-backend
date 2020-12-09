@@ -1,17 +1,21 @@
 package com.codeforcommunity.processor.authenticated;
 
-import static org.jooq.generated.Tables.SCHOOLS;
-
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.school.NewSchoolRequest;
 import com.codeforcommunity.dto.school.School;
+import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolListResponse;
+import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
-import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.SchoolsRecord;
+
+import java.util.List;
+
+import static org.jooq.generated.Tables.SCHOOLS;
+import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
 
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
@@ -23,24 +27,27 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public SchoolListResponse getAllSchools(JWTData userData) {
-    List<School> schools =
-        db.select(SCHOOLS.ID, SCHOOLS.NAME, SCHOOLS.ADDRESS, SCHOOLS.COUNTRY)
+    List<SchoolSummary> schools =
+        db.select(SCHOOLS.ID, SCHOOLS.NAME, SCHOOLS.COUNTRY)
             .from(SCHOOLS)
             .where(SCHOOLS.HIDDEN.isFalse())
             .and(SCHOOLS.DELETED_AT.isNull())
-            .fetchInto(School.class);
+            .fetchInto(SchoolSummary.class);
 
     return new SchoolListResponse(schools, schools.size());
   }
 
   @Override
   public School getSchool(JWTData userData, long schoolId) {
-    return db.select(SCHOOLS.ID, SCHOOLS.NAME, SCHOOLS.ADDRESS, SCHOOLS.COUNTRY)
+    School school = db.select(SCHOOLS.ID, SCHOOLS.NAME, SCHOOLS.ADDRESS, SCHOOLS.COUNTRY, SCHOOLS.HIDDEN)
         .from(SCHOOLS)
-        .where(SCHOOLS.HIDDEN.isFalse())
-        .and(SCHOOLS.DELETED_AT.isNull())
+        .where(SCHOOLS.DELETED_AT.isNull())
         .and(SCHOOLS.ID.eq(schoolId))
         .fetchOneInto(School.class);
+
+    List<SchoolContact> contacts = this.getSchoolContacts(schoolId);
+    school.setContacts(contacts);
+    return school;
   }
 
   @Override
@@ -65,19 +72,33 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       newSchool.setCountry(country);
       newSchool.setHidden(hidden);
       newSchool.store();
-      return new School(
-          newSchool.getId(), newSchool.getName(), newSchool.getAddress(), newSchool.getCountry());
+      return new School(newSchool.getId(), newSchool.getName(), newSchool.getAddress(), newSchool.getCountry(), newSchool.getHidden());
     }
 
     if (school.getDeletedAt() != null || school.getHidden()) {
       // If the school was previously deleted, un-delete it
       school.setDeletedAt(null);
-      // If the school is hidden, un-hide it
-      school.setHidden(false);
+      school.setHidden(hidden);
       school.store();
-      return new School(school.getId(), school.getName(), school.getAddress(), school.getCountry());
+
+      Long schoolId = school.getId();
+      List<SchoolContact> contacts = this.getSchoolContacts(schoolId);
+      return new School(school.getId(), school.getName(), school.getAddress(), school.getCountry(), school.getHidden(), contacts);
     }
 
     throw new SchoolAlreadyExistsException(name, country);
+  }
+
+  private List<SchoolContact> getSchoolContacts(long schoolId) {
+    return db.select(
+        SCHOOL_CONTACTS.ID,
+        SCHOOL_CONTACTS.NAME,
+        SCHOOL_CONTACTS.ADDRESS,
+        SCHOOL_CONTACTS.EMAIL,
+        SCHOOL_CONTACTS.PHONE
+    ).from(SCHOOL_CONTACTS)
+        .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
+        .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+        .fetchInto(SchoolContact.class);
   }
 }

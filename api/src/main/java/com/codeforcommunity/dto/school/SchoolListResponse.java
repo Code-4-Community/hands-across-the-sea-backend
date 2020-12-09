@@ -5,18 +5,18 @@ import java.util.List;
 public class SchoolListResponse {
 
   private int count;
-  private List<School> schools;
+  private List<SchoolSummary> schools;
 
-  public SchoolListResponse(List<School> schools, int count) {
+  public SchoolListResponse(List<SchoolSummary> schools, int count) {
     this.schools = schools;
     this.count = count;
   }
 
-  public List<School> getSchools() {
+  public List<SchoolSummary> getSchools() {
     return schools;
   }
 
-  public void setSchools(List<School> schools) {
+  public void setSchools(List<SchoolSummary> schools) {
     this.schools = schools;
   }
 
