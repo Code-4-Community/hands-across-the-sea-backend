@@ -4,8 +4,8 @@ import static org.jooq.generated.Tables.SCHOOLS;
 
 import com.codeforcommunity.api.authenticated.IProtectedCountryProcessor;
 import com.codeforcommunity.auth.JWTData;
-import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.dto.school.SchoolListResponse;
+import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.enums.Country;
 import java.util.List;
 import org.jooq.DSLContext;

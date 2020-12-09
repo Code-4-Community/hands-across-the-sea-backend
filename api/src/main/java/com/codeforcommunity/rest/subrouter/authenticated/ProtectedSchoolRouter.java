@@ -6,7 +6,6 @@ import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.school.NewSchoolRequest;
 import com.codeforcommunity.dto.school.School;
-import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;

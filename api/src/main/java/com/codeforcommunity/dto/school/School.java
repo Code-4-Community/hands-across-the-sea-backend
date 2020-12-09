@@ -1,7 +1,6 @@
 package com.codeforcommunity.dto.school;
 
 import com.codeforcommunity.enums.Country;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +22,13 @@ public class School {
     this.contacts = new ArrayList<SchoolContact>();
   }
 
-  public School(Long id, String name, String address, Country country, Boolean hidden, List<SchoolContact> contacts) {
+  public School(
+      Long id,
+      String name,
+      String address,
+      Country country,
+      Boolean hidden,
+      List<SchoolContact> contacts) {
     this.id = id;
     this.name = name;
     this.address = address;
