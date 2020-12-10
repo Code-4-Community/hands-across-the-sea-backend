@@ -32,7 +32,7 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
 
   @Override
   public void deleteUser(JWTData userData) {
-    long userId = userData.getUserId();
+    int userId = userData.getUserId();
 
     db.deleteFrom(VERIFICATION_KEYS).where(VERIFICATION_KEYS.USER_ID.eq(userId)).executeAsync();
 
@@ -48,7 +48,7 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
 
   @Override
   public void changePassword(JWTData userData, ChangePasswordRequest changePasswordRequest) {
-    long userId = userData.getUserId();
+    int userId = userData.getUserId();
 
     UsersRecord user =
         db.selectFrom(USERS).where(USERS.ID.eq(userId).and(USERS.DELETED_AT.isNull())).fetchOne();

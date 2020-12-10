@@ -6,7 +6,7 @@ import io.vertx.ext.web.RoutingContext;
 public class UserDoesNotExistException extends HandledException {
   private String identifierMessage;
 
-  public UserDoesNotExistException(long userId) {
+  public UserDoesNotExistException(int userId) {
     this.identifierMessage = "id = " + userId;
   }
 

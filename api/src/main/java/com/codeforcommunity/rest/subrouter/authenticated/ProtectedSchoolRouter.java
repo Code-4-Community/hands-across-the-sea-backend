@@ -58,7 +58,7 @@ public class ProtectedSchoolRouter implements IRouter {
   private void handleGetSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
 
-    long schoolId = RestFunctions.getPathParamAsLong(ctx, "school_id");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     School response = processor.getSchool(userData, schoolId);
 
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
