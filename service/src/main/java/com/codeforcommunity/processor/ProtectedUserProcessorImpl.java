@@ -30,7 +30,7 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
 
   @Override
   public void deleteUser(JWTData userData) {
-    long userId = userData.getUserId();
+    int userId = userData.getUserId();
 
     db.deleteFrom(VERIFICATION_KEYS).where(VERIFICATION_KEYS.USER_ID.eq(userId)).executeAsync();
 
