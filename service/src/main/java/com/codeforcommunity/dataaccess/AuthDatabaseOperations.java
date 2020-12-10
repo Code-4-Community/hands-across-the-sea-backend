@@ -68,7 +68,7 @@ public class AuthDatabaseOperations {
    *
    * @throws UserDoesNotExistException if given email does not match a user.
    */
-  public Users getUserPojo(long userId) {
+  public Users getUserPojo(int userId) {
     Optional<Users> maybeUser =
         Optional.ofNullable(
             db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOneInto(Users.class));
@@ -167,7 +167,7 @@ public class AuthDatabaseOperations {
    * Given a userId and token, stores the token in the verification_keys table for the user and
    * invalidates all other keys of this type for this user.
    */
-  public String createSecretKey(long userId, VerificationKeyType type) {
+  public String createSecretKey(int userId, VerificationKeyType type) {
 
     // Maybe add a different column besides used?
     db.update(VERIFICATION_KEYS)
