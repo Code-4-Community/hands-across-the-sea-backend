@@ -6,14 +6,14 @@ import java.util.List;
 
 public class School {
 
-  private Long id;
+  private Integer id;
   private String name;
   private String address;
   private Country country;
   private Boolean hidden;
   private List<SchoolContact> contacts;
 
-  public School(Long id, String name, String address, Country country, Boolean hidden) {
+  public School(Integer id, String name, String address, Country country, Boolean hidden) {
     this.id = id;
     this.name = name;
     this.address = address;
@@ -23,7 +23,7 @@ public class School {
   }
 
   public School(
-      Long id,
+      Integer id,
       String name,
       String address,
       Country country,
@@ -37,11 +37,11 @@ public class School {
     this.contacts = contacts;
   }
 
-  public Long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

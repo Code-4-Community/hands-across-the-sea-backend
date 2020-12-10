@@ -9,7 +9,7 @@ public interface IProtectedSchoolProcessor {
 
   SchoolListResponse getAllSchools(JWTData userData);
 
-  School getSchool(JWTData userData, long schoolId);
+  School getSchool(JWTData userData, int schoolId);
 
   School createSchool(JWTData userdata, NewSchoolRequest newSchoolRequest);
 }

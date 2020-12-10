@@ -37,7 +37,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public School getSchool(JWTData userData, long schoolId) {
+  public School getSchool(JWTData userData, int schoolId) {
     School school =
         db.select(SCHOOLS.ID, SCHOOLS.NAME, SCHOOLS.ADDRESS, SCHOOLS.COUNTRY, SCHOOLS.HIDDEN)
             .from(SCHOOLS)
@@ -86,7 +86,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       school.setHidden(hidden);
       school.store();
 
-      Long schoolId = school.getId();
+      Integer schoolId = school.getId();
       List<SchoolContact> contacts = this.getSchoolContacts(schoolId);
       return new School(
           school.getId(),
@@ -100,7 +100,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     throw new SchoolAlreadyExistsException(name, country);
   }
 
-  private List<SchoolContact> getSchoolContacts(long schoolId) {
+  private List<SchoolContact> getSchoolContacts(int schoolId) {
     return db.select(
             SCHOOL_CONTACTS.ID,
             SCHOOL_CONTACTS.NAME,

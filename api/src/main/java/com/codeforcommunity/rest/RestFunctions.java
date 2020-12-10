@@ -66,10 +66,10 @@ public class RestFunctions {
     return Boolean.parseBoolean(paramValue);
   }
 
-  public static long getPathParamAsLong(RoutingContext ctx, String paramName) {
+  public static int getPathParamAsInt(RoutingContext ctx, String paramName) {
     try {
       String paramValue = ctx.pathParam(paramName);
-      return Long.parseLong(paramValue);
+      return Integer.parseInt(paramValue);
     } catch (NumberFormatException ex) {
       throw new MalformedParameterException(paramName);
     }
