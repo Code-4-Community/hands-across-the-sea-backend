@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users
 (
-    id              SERIAL      NOT NULL PRIMARY KEY,
+    id              BIGSERIAL   NOT NULL PRIMARY KEY,
     created_at      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at      TIMESTAMP,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS verification_keys
     created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
-    user_id    INT         NOT NULL,
+    user_id    BIGINT      NOT NULL,
     used       BOOLEAN              DEFAULT false,
     type       VARCHAR(16) NOT NULL,
 

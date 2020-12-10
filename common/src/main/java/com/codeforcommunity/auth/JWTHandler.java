@@ -74,7 +74,7 @@ public class JWTHandler {
   /** Get the stored information in the given jwt string. */
   private JWTData getJWTDataFromToken(String token) {
     DecodedJWT decodedJWT = getDecodedJWT(token);
-    int userId = decodedJWT.getClaim("userId").asInt();
+    long userId = decodedJWT.getClaim("userId").asLong();
     PrivilegeLevel privilegeLevel =
         PrivilegeLevel.from(decodedJWT.getClaim("privilegeLevel").asString());
     return new JWTData(userId, privilegeLevel);
