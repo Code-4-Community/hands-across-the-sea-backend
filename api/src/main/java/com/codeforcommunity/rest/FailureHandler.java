@@ -8,6 +8,7 @@ import com.codeforcommunity.exceptions.InvalidSecretKeyException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
+import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.TokenInvalidException;
 import com.codeforcommunity.exceptions.UnknownCountryException;
 import com.codeforcommunity.exceptions.UsedSecretKeyException;
@@ -43,6 +44,13 @@ public class FailureHandler {
     String message =
         String.format("Error creating new user, given email %s already used", exception.getEmail());
 
+    end(ctx, message, 409);
+  }
+
+  public void handleSchoolAlreadyExists(RoutingContext ctx, SchoolAlreadyExistsException e) {
+    String message =
+        String.format(
+            "School '%s' already exists in '%s'", e.getSchoolName(), e.getSchoolCountry());
     end(ctx, message, 409);
   }
 

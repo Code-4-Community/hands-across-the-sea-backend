@@ -4,6 +4,7 @@ import static com.codeforcommunity.rest.ApiRouter.end;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.school.NewSchoolRequest;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.rest.IRouter;
@@ -28,6 +29,7 @@ public class ProtectedSchoolRouter implements IRouter {
 
     registerGetAllSchools(router);
     registerGetSchool(router);
+    registerCreateSchool(router);
 
     return router;
   }
@@ -42,6 +44,11 @@ public class ProtectedSchoolRouter implements IRouter {
     getSchoolsRoute.handler(this::handleGetSchoolRoute);
   }
 
+  private void registerCreateSchool(Router router) {
+    Route createSchoolRoute = router.post("/");
+    createSchoolRoute.handler(this::handleCreateSchoolRoute);
+  }
+
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     SchoolListResponse response = processor.getAllSchools(userData);
@@ -51,9 +58,19 @@ public class ProtectedSchoolRouter implements IRouter {
   private void handleGetSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
 
-    long schoolId = RestFunctions.getPathParamAsLong(ctx, "school_id");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     School response = processor.getSchool(userData, schoolId);
 
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
+  }
+
+  private void handleCreateSchoolRoute(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+
+    NewSchoolRequest newSchoolRequest =
+        RestFunctions.getJsonBodyAsClass(ctx, NewSchoolRequest.class);
+    School response = processor.createSchool(userData, newSchoolRequest);
+
+    end(ctx.response(), 201, JsonObject.mapFrom(response).toString());
   }
 }
