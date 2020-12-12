@@ -9,8 +9,10 @@ import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
+import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
 import com.codeforcommunity.exceptions.TokenInvalidException;
 import com.codeforcommunity.exceptions.UnknownCountryException;
+import com.codeforcommunity.exceptions.UnknownSchoolException;
 import com.codeforcommunity.exceptions.UsedSecretKeyException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.exceptions.UsernameAlreadyInUseException;
@@ -51,6 +53,15 @@ public class FailureHandler {
     String message =
         String.format(
             "School '%s' already exists in '%s'", e.getSchoolName(), e.getSchoolCountry());
+    end(ctx, message, 409);
+  }
+
+  public void handleSchoolContactAlreadyExists(
+      RoutingContext ctx, SchoolContactAlreadyExistsException e) {
+    String message =
+        String.format(
+            "Contact with name '%s' already exists for school '%s'",
+            e.getContactName(), e.getSchoolName());
     end(ctx, message, 409);
   }
 
@@ -145,6 +156,11 @@ public class FailureHandler {
 
   public void handleUnknownCountry(RoutingContext ctx, UnknownCountryException exception) {
     String message = String.format("Unknown country given: %s", exception.getUnknownCountry());
+    end(ctx, message, 400);
+  }
+
+  public void handleUnknownSchool(RoutingContext ctx, UnknownSchoolException exception) {
+    String message = String.format("Unknown school given with id: %d", exception.getSchoolId());
     end(ctx, message, 400);
   }
 

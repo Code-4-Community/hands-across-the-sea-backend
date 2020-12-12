@@ -1,38 +1,17 @@
 package com.codeforcommunity.dto.school;
 
-public class SchoolContact {
+public class NewSchoolContactRequest {
 
-  private Integer id;
-  private Integer schoolId;
   private String name;
   private String email;
   private String address;
   private String phone;
 
-  public SchoolContact(
-      Integer id, Integer schoolId, String name, String email, String address, String phone) {
-    this.id = id;
-    this.schoolId = schoolId;
+  public NewSchoolContactRequest(String name, String email, String address, String phone) {
     this.name = name;
     this.email = email;
     this.address = address;
     this.phone = phone;
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public Integer getSchoolId() {
-    return schoolId;
-  }
-
-  public void setSchoolId(Integer schoolId) {
-    this.schoolId = schoolId;
   }
 
   public String getName() {

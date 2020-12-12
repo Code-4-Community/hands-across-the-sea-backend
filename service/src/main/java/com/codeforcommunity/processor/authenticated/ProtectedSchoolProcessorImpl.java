@@ -5,6 +5,7 @@ import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.school.NewSchoolContactRequest;
 import com.codeforcommunity.dto.school.NewSchoolRequest;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
@@ -12,8 +13,11 @@ import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
+import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
+import com.codeforcommunity.exceptions.UnknownSchoolException;
 import java.util.List;
 import org.jooq.DSLContext;
+import org.jooq.generated.tables.records.SchoolContactsRecord;
 import org.jooq.generated.tables.records.SchoolsRecord;
 
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
@@ -38,6 +42,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public School getSchool(JWTData userData, int schoolId) {
+
     School school =
         db.select(SCHOOLS.ID, SCHOOLS.NAME, SCHOOLS.ADDRESS, SCHOOLS.COUNTRY, SCHOOLS.HIDDEN)
             .from(SCHOOLS)
@@ -45,7 +50,12 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
             .and(SCHOOLS.ID.eq(schoolId))
             .fetchOneInto(School.class);
 
-    List<SchoolContact> contacts = this.getSchoolContacts(schoolId);
+    if (school == null) {
+      // Check to make sure the school exists first
+      throw new UnknownSchoolException(schoolId);
+    }
+
+    List<SchoolContact> contacts = this.queryForSchoolContacts(schoolId);
     school.setContacts(contacts);
     return school;
   }
@@ -72,6 +82,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       newSchool.setCountry(country);
       newSchool.setHidden(hidden);
       newSchool.store();
+
       return new School(
           newSchool.getId(),
           newSchool.getName(),
@@ -87,7 +98,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       school.store();
 
       Integer schoolId = school.getId();
-      List<SchoolContact> contacts = this.getSchoolContacts(schoolId);
+      List<SchoolContact> contacts = this.queryForSchoolContacts(schoolId);
+
       return new School(
           school.getId(),
           school.getName(),
@@ -100,7 +112,142 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     throw new SchoolAlreadyExistsException(name, country);
   }
 
-  private List<SchoolContact> getSchoolContacts(int schoolId) {
+  @Override
+  public List<SchoolContact> getAllSchoolContacts(JWTData userData, int schoolId) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      // Check to make sure the school exists first
+      throw new UnknownSchoolException(schoolId);
+    }
+
+    return db.select(
+            SCHOOL_CONTACTS.ID,
+            SCHOOL_CONTACTS.SCHOOL_ID,
+            SCHOOL_CONTACTS.NAME,
+            SCHOOL_CONTACTS.EMAIL,
+            SCHOOL_CONTACTS.ADDRESS,
+            SCHOOL_CONTACTS.PHONE)
+        .from(SCHOOL_CONTACTS)
+        .where(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+        .and(SCHOOL_CONTACTS.DELETED_AT.isNull())
+        .fetchInto(SchoolContact.class);
+  }
+
+  @Override
+  public SchoolContact getSchoolContact(JWTData userData, int schoolId, int contactId) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      // Check to make sure the school exists first
+      throw new UnknownSchoolException(schoolId);
+    }
+
+    return db.select(
+            SCHOOL_CONTACTS.ID,
+            SCHOOL_CONTACTS.SCHOOL_ID,
+            SCHOOL_CONTACTS.NAME,
+            SCHOOL_CONTACTS.EMAIL,
+            SCHOOL_CONTACTS.ADDRESS,
+            SCHOOL_CONTACTS.PHONE)
+        .from(SCHOOL_CONTACTS)
+        .where(SCHOOL_CONTACTS.ID.eq(contactId))
+        .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+        .and(SCHOOL_CONTACTS.DELETED_AT.isNull())
+        .fetchOneInto(SchoolContact.class);
+  }
+
+  @Override
+  public SchoolContact createSchoolContact(
+      JWTData userData, int schoolId, NewSchoolContactRequest newSchoolContactRequest) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      // Check to make sure the school exists first
+      throw new UnknownSchoolException(schoolId);
+    }
+
+    String name = newSchoolContactRequest.getName();
+    String email = newSchoolContactRequest.getEmail();
+    String address = newSchoolContactRequest.getAddress();
+    String phone = newSchoolContactRequest.getPhone();
+
+    SchoolContactsRecord contact =
+        db.selectFrom(SCHOOL_CONTACTS)
+            .where(SCHOOL_CONTACTS.NAME.eq(name))
+            .and(SCHOOL_CONTACTS.EMAIL.eq(email))
+            .and(SCHOOL_CONTACTS.ADDRESS.eq(address))
+            .and(SCHOOL_CONTACTS.PHONE.eq(phone))
+            .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+            .fetchOne();
+
+    if (contact == null) {
+      // If the contact doesn't already exist, create it
+      SchoolContactsRecord newContact = db.newRecord(SCHOOL_CONTACTS);
+      newContact.setSchoolId(schoolId);
+      newContact.setName(name);
+      newContact.setEmail(email);
+      newContact.setAddress(address);
+      newContact.setPhone(phone);
+      newContact.store();
+
+      return new SchoolContact(
+          newContact.getId(),
+          newContact.getSchoolId(),
+          newContact.getName(),
+          newContact.getEmail(),
+          newContact.getAddress(),
+          newContact.getPhone());
+    }
+
+    if (contact.getDeletedAt() != null) {
+      // If the contact was previously deleted, un-delete it
+      contact.setDeletedAt(null);
+      contact.store();
+
+      return new SchoolContact(
+          contact.getId(),
+          contact.getSchoolId(),
+          contact.getName(),
+          contact.getEmail(),
+          contact.getAddress(),
+          contact.getPhone());
+    }
+
+    throw new SchoolContactAlreadyExistsException(school.getName(), name);
+  }
+
+  @Override
+  public SchoolContact updateSchoolContact(
+      JWTData userData, int schoolId, NewSchoolContactRequest newSchoolContactRequest) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      // Check to make sure the school exists first
+      throw new UnknownSchoolException(schoolId);
+    }
+
+    // TODO
+
+    return null;
+  }
+
+  @Override
+  public void deleteSchoolContact(JWTData userData, int schoolId, int contactId) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      // Check to make sure the school exists first
+      throw new UnknownSchoolException(schoolId);
+    }
+
+    // TODO
+
+  }
+
+  private SchoolsRecord queryForSchool(int schoolId) {
+    return db.selectFrom(SCHOOLS)
+        .where(SCHOOLS.ID.eq(schoolId))
+        .and(SCHOOLS.DELETED_AT.isNotNull())
+        .fetchOne();
+  }
+
+  private List<SchoolContact> queryForSchoolContacts(int schoolId) {
     return db.select(
             SCHOOL_CONTACTS.ID,
             SCHOOL_CONTACTS.NAME,
