@@ -12,4 +12,12 @@ public interface IProtectedSchoolProcessor {
   School getSchool(JWTData userData, int schoolId);
 
   School createSchool(JWTData userdata, NewSchoolRequest newSchoolRequest);
+
+  School updateSchool(JWTData userData, int schoolId);
+
+  void deleteSchool(JWTData userData, int schoolId);
+
+  void hideSchool(JWTData userData, int schoolId);
+
+  void unHideSchool(JWTData userData, int schoolId);
 }

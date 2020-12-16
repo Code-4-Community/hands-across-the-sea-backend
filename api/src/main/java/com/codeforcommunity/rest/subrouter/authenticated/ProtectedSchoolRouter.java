@@ -30,6 +30,10 @@ public class ProtectedSchoolRouter implements IRouter {
     registerGetAllSchools(router);
     registerGetSchool(router);
     registerCreateSchool(router);
+    registerUpdateSchool(router);
+    registerDeleteSchool(router);
+    registerHidingSchool(router);
+    registerUnHidingSchool(router);
 
     return router;
   }
@@ -47,6 +51,26 @@ public class ProtectedSchoolRouter implements IRouter {
   private void registerCreateSchool(Router router) {
     Route createSchoolRoute = router.post("/");
     createSchoolRoute.handler(this::handleCreateSchoolRoute);
+  }
+
+  private void registerUpdateSchool(Router router) {
+    Route updateSchoolRoute = router.put("/:school_id");
+    updateSchoolRoute.handler(this::handleUpdateSchoolRoute);
+  }
+
+  private void registerDeleteSchool(Router router) {
+    Route deleteSchoolRouter = router.delete("/:school_id");
+    deleteSchoolRouter.handler(this::handleDeleteSchoolRoute);
+  }
+
+  private void registerHidingSchool(Router router) {
+    Route hideSchoolRouter = router.put("/:school_id/hide");
+    hideSchoolRouter.handler(this::handleHidingSchoolRoute);
+  }
+
+  private void registerUnHidingSchool(Router router) {
+    Route hideSchoolRouter = router.put("/:school_id/unhide");
+    hideSchoolRouter.handler(this::handleUnHidingSchoolRoute);
   }
 
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
@@ -72,5 +96,26 @@ public class ProtectedSchoolRouter implements IRouter {
     School response = processor.createSchool(userData, newSchoolRequest);
 
     end(ctx.response(), 201, JsonObject.mapFrom(response).toString());
+  }
+
+  private void handleUpdateSchoolRoute(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+  }
+
+  private void handleDeleteSchoolRoute(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+  }
+
+  private void handleHidingSchoolRoute(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+  }
+
+  private void handleUnHidingSchoolRoute(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
   }
 }

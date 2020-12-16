@@ -100,6 +100,49 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     throw new SchoolAlreadyExistsException(name, country);
   }
 
+  @Override
+  public School updateSchool(JWTData userData, int schoolId) {
+    return null;
+  }
+
+  @Override
+  public void deleteSchool(JWTData userData, int schoolId) {
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.ID.eq(schoolId))
+            .fetchOne();
+    if (school == null) {
+      // throw school does not exist exception
+    }
+
+  }
+
+  @Override
+  public void hideSchool(JWTData userData, int schoolId) {
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.ID.eq(schoolId))
+            .fetchOne();
+    if (school == null) {
+      // throw school does not exist exception
+    }
+    school.setHidden(true);
+    school.store()
+  }
+
+  @Override
+  public void unHideSchool(JWTData userData, int schoolId) {
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.ID.eq(schoolId))
+            .fetchOne();
+    if (school == null) {
+      // throw school does not exist exception
+    }
+    school.setHidden(false);
+    school.store();
+  }
+
   private List<SchoolContact> getSchoolContacts(int schoolId) {
     return db.select(
             SCHOOL_CONTACTS.ID,
