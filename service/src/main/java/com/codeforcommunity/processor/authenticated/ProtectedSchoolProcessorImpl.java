@@ -12,6 +12,7 @@ import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
+import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.SchoolsRecord;
@@ -112,9 +113,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
             .where(SCHOOLS.ID.eq(schoolId))
             .fetchOne();
     if (school == null) {
-      // throw school does not exist exception
+      throw new SchoolDoesNotExistException();
     }
-
   }
 
   @Override
@@ -124,7 +124,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
             .where(SCHOOLS.ID.eq(schoolId))
             .fetchOne();
     if (school == null) {
-      // throw school does not exist exception
+      throw new SchoolDoesNotExistException();
     }
     school.setHidden(true);
     school.store();
@@ -137,7 +137,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
             .where(SCHOOLS.ID.eq(schoolId))
             .fetchOne();
     if (school == null) {
-      // throw school does not exist exception
+      throw new SchoolDoesNotExistException();
     }
     school.setHidden(false);
     school.store();

@@ -160,6 +160,7 @@ public class FailureHandler {
   }
 
   public void handleSchoolDoesNotExist(RoutingContext ctx, SchoolDoesNotExistException e) {
+    String message =
     String message = String.format(
         "School '%s' does not exist", e.getSchoolName());
     end(ctx, message, 400);

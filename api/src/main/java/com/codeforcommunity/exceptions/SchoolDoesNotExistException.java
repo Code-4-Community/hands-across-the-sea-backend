@@ -5,11 +5,9 @@ import io.vertx.ext.web.RoutingContext;
 
 public class SchoolDoesNotExistException extends HandledException {
 
-  private String schoolName;
 
-  public SchoolDoesNotExistException(String schoolName) {
+  public SchoolDoesNotExistException() {
     super();
-    this.schoolName = schoolName;
   }
 
   @Override
@@ -17,7 +15,4 @@ public class SchoolDoesNotExistException extends HandledException {
     handler.handleSchoolDoesNotExist(ctx, this);
   }
 
-  public String getSchoolName() {
-    return schoolName;
-  }
 }
