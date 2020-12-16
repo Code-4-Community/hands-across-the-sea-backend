@@ -9,6 +9,7 @@ import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
+import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
 import com.codeforcommunity.exceptions.TokenInvalidException;
 import com.codeforcommunity.exceptions.UnknownCountryException;
 import com.codeforcommunity.exceptions.UsedSecretKeyException;
@@ -158,12 +159,19 @@ public class FailureHandler {
     end(ctx, message, 502);
   }
 
+  public void handleSchoolDoesNotExist(RoutingContext ctx, SchoolDoesNotExistException e) {
+    String message = String.format(
+        "School '%s' does not exist", e.getSchoolName());
+    end(ctx, message, 400);
+  }
+
   private void handleUncaughtError(RoutingContext ctx, Throwable throwable) {
     String message = String.format("Internal server error caused by: %s", throwable.getMessage());
     logger.error(message);
     throwable.printStackTrace();
     end(ctx, message, 500);
   }
+
 
   private void end(RoutingContext ctx, String message, int statusCode) {
     ctx.response().setStatusCode(statusCode).end(message);

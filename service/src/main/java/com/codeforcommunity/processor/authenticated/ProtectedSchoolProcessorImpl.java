@@ -127,7 +127,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       // throw school does not exist exception
     }
     school.setHidden(true);
-    school.store()
+    school.store();
   }
 
   @Override
