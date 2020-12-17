@@ -104,7 +104,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public void updateSchool(
       JWTData userData, int schoolId, UpsertSchoolRequest upsertSchoolRequest) {
-    SchoolsRecord school = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.ID.eq(schoolId).and(SCHOOLS.DELETED_AT.isNull()))
+            .fetchOne();
     if (school == null) {
       throw new SchoolDoesNotExistException();
     }
@@ -122,7 +125,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public void deleteSchool(JWTData userData, int schoolId) {
-    SchoolsRecord school = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.ID.eq(schoolId).and(SCHOOLS.DELETED_AT.isNull()))
+            .fetchOne();
     if (school == null) {
       throw new SchoolDoesNotExistException();
     }
@@ -132,7 +138,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public void hideSchool(JWTData userData, int schoolId) {
-    SchoolsRecord school = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.ID.eq(schoolId).and(SCHOOLS.DELETED_AT.isNull()))
+            .fetchOne();
     if (school == null) {
       throw new SchoolDoesNotExistException();
     }
@@ -142,7 +151,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public void unHideSchool(JWTData userData, int schoolId) {
-    SchoolsRecord school = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.ID.eq(schoolId).and(SCHOOLS.DELETED_AT.isNull()))
+            .fetchOne();
     if (school == null) {
       throw new SchoolDoesNotExistException();
     }
