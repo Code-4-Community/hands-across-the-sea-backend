@@ -5,7 +5,7 @@ import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
-import com.codeforcommunity.dto.school.NewSchoolRequest;
+import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolListResponse;
@@ -53,11 +53,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public School createSchool(JWTData userdata, NewSchoolRequest newSchoolRequest) {
-    String name = newSchoolRequest.getName();
-    String address = newSchoolRequest.getAddress();
-    Country country = newSchoolRequest.getCountry();
-    Boolean hidden = newSchoolRequest.getHidden();
+  public School createSchool(JWTData userdata, UpsertSchoolRequest upsertSchoolRequest) {
+    String name = upsertSchoolRequest.getName();
+    String address = upsertSchoolRequest.getAddress();
+    Country country = upsertSchoolRequest.getCountry();
+    Boolean hidden = upsertSchoolRequest.getHidden();
 
     SchoolsRecord school =
         db.selectFrom(SCHOOLS)
@@ -102,15 +102,15 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public void updateSchool(JWTData userData, int schoolId, NewSchoolRequest newSchoolRequest) {
+  public void updateSchool(JWTData userData, int schoolId, UpsertSchoolRequest upsertSchoolRequest) {
     SchoolsRecord school = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
     if (school == null) {
       throw new SchoolDoesNotExistException();
     }
-    String name = newSchoolRequest.getName();
-    String address = newSchoolRequest.getAddress();
-    Country country = newSchoolRequest.getCountry();
-    Boolean hidden = newSchoolRequest.getHidden();
+    String name = upsertSchoolRequest.getName();
+    String address = upsertSchoolRequest.getAddress();
+    Country country = upsertSchoolRequest.getCountry();
+    Boolean hidden = upsertSchoolRequest.getHidden();
 
     school.setName(name);
     school.setAddress(address);

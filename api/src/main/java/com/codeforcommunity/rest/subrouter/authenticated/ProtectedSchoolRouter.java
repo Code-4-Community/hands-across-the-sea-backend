@@ -4,7 +4,7 @@ import static com.codeforcommunity.rest.ApiRouter.end;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
-import com.codeforcommunity.dto.school.NewSchoolRequest;
+import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.rest.IRouter;
@@ -91,18 +91,18 @@ public class ProtectedSchoolRouter implements IRouter {
   private void handleCreateSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
 
-    NewSchoolRequest newSchoolRequest =
-        RestFunctions.getJsonBodyAsClass(ctx, NewSchoolRequest.class);
-    School response = processor.createSchool(userData, newSchoolRequest);
+    UpsertSchoolRequest upsertSchoolRequest =
+        RestFunctions.getJsonBodyAsClass(ctx, UpsertSchoolRequest.class);
+    School response = processor.createSchool(userData, upsertSchoolRequest);
     end(ctx.response(), 201, JsonObject.mapFrom(response).toString());
   }
 
   private void handleUpdateSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    NewSchoolRequest newSchoolRequest =
-        RestFunctions.getJsonBodyAsClass(ctx, NewSchoolRequest.class);
-    processor.updateSchool(userData, schoolId, newSchoolRequest);
+    UpsertSchoolRequest upsertSchoolRequest =
+        RestFunctions.getJsonBodyAsClass(ctx, UpsertSchoolRequest.class);
+    processor.updateSchool(userData, schoolId, upsertSchoolRequest);
     end(ctx.response(), 200);
   }
 
