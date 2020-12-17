@@ -5,7 +5,6 @@ import io.vertx.ext.web.RoutingContext;
 
 public class SchoolDoesNotExistException extends HandledException {
 
-
   public SchoolDoesNotExistException() {
     super();
   }
@@ -14,5 +13,4 @@ public class SchoolDoesNotExistException extends HandledException {
   public void callHandler(FailureHandler handler, RoutingContext ctx) {
     handler.handleSchoolDoesNotExist(ctx, this);
   }
-
 }

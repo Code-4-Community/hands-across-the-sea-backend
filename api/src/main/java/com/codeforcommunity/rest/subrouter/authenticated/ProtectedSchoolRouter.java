@@ -94,28 +94,34 @@ public class ProtectedSchoolRouter implements IRouter {
     NewSchoolRequest newSchoolRequest =
         RestFunctions.getJsonBodyAsClass(ctx, NewSchoolRequest.class);
     School response = processor.createSchool(userData, newSchoolRequest);
-
     end(ctx.response(), 201, JsonObject.mapFrom(response).toString());
   }
 
   private void handleUpdateSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
-
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    School response = processor.updateSchool(userData, schoolId);
+    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
   private void handleDeleteSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    processor.deleteSchool(userData, schoolId);
+    end(ctx.response(), 200);
   }
 
   private void handleHidingSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    processor.hideSchool(userData, schoolId);
+    end(ctx.response(), 200);
   }
 
   private void handleUnHidingSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    processor.unHideSchool(userData, schoolId);
+    end(ctx.response(), 200);
   }
 }

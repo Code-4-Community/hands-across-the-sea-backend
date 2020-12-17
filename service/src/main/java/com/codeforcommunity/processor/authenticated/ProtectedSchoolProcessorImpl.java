@@ -97,32 +97,31 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
           school.getHidden(),
           contacts);
     }
-
     throw new SchoolAlreadyExistsException(name, country);
   }
 
   @Override
   public School updateSchool(JWTData userData, int schoolId) {
+    SchoolsRecord school = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
+    if (school == null) {
+      throw new SchoolDoesNotExistException();
+    }
+
     return null;
   }
 
   @Override
   public void deleteSchool(JWTData userData, int schoolId) {
-    SchoolsRecord school =
-        db.selectFrom(SCHOOLS)
-            .where(SCHOOLS.ID.eq(schoolId))
-            .fetchOne();
+    SchoolsRecord school = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
     if (school == null) {
       throw new SchoolDoesNotExistException();
     }
+    school.delete();
   }
 
   @Override
   public void hideSchool(JWTData userData, int schoolId) {
-    SchoolsRecord school =
-        db.selectFrom(SCHOOLS)
-            .where(SCHOOLS.ID.eq(schoolId))
-            .fetchOne();
+    SchoolsRecord school = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
     if (school == null) {
       throw new SchoolDoesNotExistException();
     }
@@ -132,10 +131,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public void unHideSchool(JWTData userData, int schoolId) {
-    SchoolsRecord school =
-        db.selectFrom(SCHOOLS)
-            .where(SCHOOLS.ID.eq(schoolId))
-            .fetchOne();
+    SchoolsRecord school = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
     if (school == null) {
       throw new SchoolDoesNotExistException();
     }
