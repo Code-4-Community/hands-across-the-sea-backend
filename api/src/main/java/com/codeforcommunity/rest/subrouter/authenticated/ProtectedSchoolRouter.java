@@ -100,8 +100,10 @@ public class ProtectedSchoolRouter implements IRouter {
   private void handleUpdateSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    School response = processor.updateSchool(userData, schoolId);
-    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
+    NewSchoolRequest newSchoolRequest =
+        RestFunctions.getJsonBodyAsClass(ctx, NewSchoolRequest.class);
+    processor.updateSchool(userData, schoolId, newSchoolRequest);
+    end(ctx.response(), 200);
   }
 
   private void handleDeleteSchoolRoute(RoutingContext ctx) {

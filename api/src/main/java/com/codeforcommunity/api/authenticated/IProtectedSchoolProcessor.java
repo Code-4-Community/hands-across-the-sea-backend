@@ -13,7 +13,7 @@ public interface IProtectedSchoolProcessor {
 
   School createSchool(JWTData userdata, NewSchoolRequest newSchoolRequest);
 
-  School updateSchool(JWTData userData, int schoolId);
+  void updateSchool(JWTData userData, int schoolId, NewSchoolRequest newSchoolRequest);
 
   void deleteSchool(JWTData userData, int schoolId);
 

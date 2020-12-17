@@ -13,6 +13,7 @@ import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
+import java.sql.Timestamp;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.SchoolsRecord;
@@ -101,13 +102,21 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public School updateSchool(JWTData userData, int schoolId) {
+  public void updateSchool(JWTData userData, int schoolId, NewSchoolRequest newSchoolRequest) {
     SchoolsRecord school = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
     if (school == null) {
       throw new SchoolDoesNotExistException();
     }
+    String name = newSchoolRequest.getName();
+    String address = newSchoolRequest.getAddress();
+    Country country = newSchoolRequest.getCountry();
+    Boolean hidden = newSchoolRequest.getHidden();
 
-    return null;
+    school.setName(name);
+    school.setAddress(address);
+    school.setCountry(country);
+    school.setHidden(hidden);
+    school.store();
   }
 
   @Override
@@ -116,7 +125,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     if (school == null) {
       throw new SchoolDoesNotExistException();
     }
-    school.delete();
+    school.setDeletedAt(new Timestamp(System.currentTimeMillis()));
+    school.store();
   }
 
   @Override
