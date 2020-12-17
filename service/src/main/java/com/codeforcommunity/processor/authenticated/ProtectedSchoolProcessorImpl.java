@@ -5,11 +5,11 @@ import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
-import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.SchoolSummary;
+import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
@@ -102,7 +102,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public void updateSchool(JWTData userData, int schoolId, UpsertSchoolRequest upsertSchoolRequest) {
+  public void updateSchool(
+      JWTData userData, int schoolId, UpsertSchoolRequest upsertSchoolRequest) {
     SchoolsRecord school = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
     if (school == null) {
       throw new SchoolDoesNotExistException();

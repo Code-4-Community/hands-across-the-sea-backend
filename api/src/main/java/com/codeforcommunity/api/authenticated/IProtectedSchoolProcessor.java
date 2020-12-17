@@ -1,9 +1,9 @@
 package com.codeforcommunity.api.authenticated;
 
 import com.codeforcommunity.auth.JWTData;
-import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolListResponse;
+import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 
 public interface IProtectedSchoolProcessor {
 
