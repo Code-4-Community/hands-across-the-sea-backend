@@ -12,9 +12,13 @@ import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.enums.Country;
+import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
+import com.codeforcommunity.exceptions.UnknownSchoolContactException;
 import com.codeforcommunity.exceptions.UnknownSchoolException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
@@ -42,7 +46,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public School getSchool(JWTData userData, int schoolId) {
-
     School school =
         db.select(SCHOOLS.ID, SCHOOLS.NAME, SCHOOLS.ADDRESS, SCHOOLS.COUNTRY, SCHOOLS.HIDDEN)
             .from(SCHOOLS)
@@ -61,7 +64,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public School createSchool(JWTData userdata, NewSchoolRequest newSchoolRequest) {
+  public School createSchool(JWTData userData, NewSchoolRequest newSchoolRequest) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+
     String name = newSchoolRequest.getName();
     String address = newSchoolRequest.getAddress();
     Country country = newSchoolRequest.getCountry();
@@ -216,28 +223,50 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public SchoolContact updateSchoolContact(
-      JWTData userData, int schoolId, NewSchoolContactRequest newSchoolContactRequest) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
-    if (school == null) {
-      // Check to make sure the school exists first
-      throw new UnknownSchoolException(schoolId);
+      JWTData userData,
+      int schoolId,
+      int contactId,
+      NewSchoolContactRequest newSchoolContactRequest) {
+    SchoolContactsRecord contactRecord =
+        db.selectFrom(SCHOOL_CONTACTS)
+            .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
+            .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+            .and(SCHOOL_CONTACTS.ID.eq(contactId))
+            .fetchOne();
+
+    if (contactRecord == null) {
+      throw new UnknownSchoolContactException(schoolId, contactId);
     }
 
-    // TODO
+    String name = newSchoolContactRequest.getName();
+    String email = newSchoolContactRequest.getEmail();
+    String address = newSchoolContactRequest.getAddress();
+    String phone = newSchoolContactRequest.getPhone();
 
-    return null;
+    contactRecord.setName(name);
+    contactRecord.setEmail(email);
+    contactRecord.setAddress(address);
+    contactRecord.setPhone(phone);
+    contactRecord.store();
+
+    return new SchoolContact(contactId, schoolId, name, email, address, phone);
   }
 
   @Override
   public void deleteSchoolContact(JWTData userData, int schoolId, int contactId) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
-    if (school == null) {
-      // Check to make sure the school exists first
-      throw new UnknownSchoolException(schoolId);
+    SchoolContactsRecord schoolContactsRecord =
+        db.selectFrom(SCHOOL_CONTACTS)
+            .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
+            .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+            .and(SCHOOL_CONTACTS.ID.eq(contactId))
+            .fetchOne();
+
+    if (schoolContactsRecord == null) {
+      throw new UnknownSchoolContactException(schoolId, contactId);
     }
 
-    // TODO
-
+    schoolContactsRecord.setDeletedAt(Timestamp.from(Instant.now()));
+    schoolContactsRecord.store();
   }
 
   private SchoolsRecord queryForSchool(int schoolId) {
@@ -250,6 +279,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   private List<SchoolContact> queryForSchoolContacts(int schoolId) {
     return db.select(
             SCHOOL_CONTACTS.ID,
+            SCHOOL_CONTACTS.SCHOOL_ID,
             SCHOOL_CONTACTS.NAME,
             SCHOOL_CONTACTS.ADDRESS,
             SCHOOL_CONTACTS.EMAIL,

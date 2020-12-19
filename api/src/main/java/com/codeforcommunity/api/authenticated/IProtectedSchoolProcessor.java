@@ -24,7 +24,10 @@ public interface IProtectedSchoolProcessor {
       JWTData userData, int schoolId, NewSchoolContactRequest newSchoolContactRequest);
 
   SchoolContact updateSchoolContact(
-      JWTData userData, int schoolId, NewSchoolContactRequest newSchoolContactRequest);
+      JWTData userData,
+      int schoolId,
+      int contactId,
+      NewSchoolContactRequest newSchoolContactRequest);
 
   void deleteSchoolContact(JWTData userData, int schoolId, int contactId);
 }

@@ -12,6 +12,7 @@ import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
 import com.codeforcommunity.exceptions.TokenInvalidException;
 import com.codeforcommunity.exceptions.UnknownCountryException;
+import com.codeforcommunity.exceptions.UnknownSchoolContactException;
 import com.codeforcommunity.exceptions.UnknownSchoolException;
 import com.codeforcommunity.exceptions.UsedSecretKeyException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
@@ -40,6 +41,11 @@ public class FailureHandler {
     String message =
         String.format("Missing required path parameter: %s", e.getMissingParameterName());
     end(ctx, message, 400);
+  }
+
+  public void handleAdminOnlyRoute(RoutingContext ctx) {
+    String message = "This route is only available to admin users";
+    end(ctx, message, 401);
   }
 
   public void handleEmailAlreadyInUse(RoutingContext ctx, EmailAlreadyInUseException exception) {
@@ -161,6 +167,15 @@ public class FailureHandler {
 
   public void handleUnknownSchool(RoutingContext ctx, UnknownSchoolException exception) {
     String message = String.format("Unknown school given with id: %d", exception.getSchoolId());
+    end(ctx, message, 400);
+  }
+
+  public void handleUnknownSchoolContact(
+      RoutingContext ctx, UnknownSchoolContactException exception) {
+    String message =
+        String.format(
+            "Unknown contact with id '%d' given for school with id '%d'",
+            exception.getContactId(), exception.getSchoolId());
     end(ctx, message, 400);
   }
 
