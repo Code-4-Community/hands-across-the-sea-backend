@@ -3,12 +3,12 @@ package com.codeforcommunity.exceptions;
 import com.codeforcommunity.rest.FailureHandler;
 import io.vertx.ext.web.RoutingContext;
 
-public class UnknownSchoolContactException extends HandledException {
+public class SchoolContactDoesNotExistException extends HandledException {
 
   private int schoolId;
   private int contactId;
 
-  public UnknownSchoolContactException(int schoolId, int contactId) {
+  public SchoolContactDoesNotExistException(int schoolId, int contactId) {
     super();
 
     this.schoolId = schoolId;

@@ -1,12 +1,12 @@
 package com.codeforcommunity.api.authenticated;
 
 import com.codeforcommunity.auth.JWTData;
-import com.codeforcommunity.dto.school.NewSchoolContactRequest;
-import com.codeforcommunity.dto.school.NewSchoolRequest;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
+import com.codeforcommunity.dto.school.SchoolContactListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
-import java.util.List;
+import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
+import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 
 public interface IProtectedSchoolProcessor {
 
@@ -14,20 +14,28 @@ public interface IProtectedSchoolProcessor {
 
   School getSchool(JWTData userData, int schoolId);
 
-  School createSchool(JWTData userdata, NewSchoolRequest newSchoolRequest);
-
-  List<SchoolContact> getAllSchoolContacts(JWTData userData, int schoolId);
+  SchoolContactListResponse getAllSchoolContacts(JWTData userData, int schoolId);
 
   SchoolContact getSchoolContact(JWTData userData, int schoolId, int contactId);
 
   SchoolContact createSchoolContact(
-      JWTData userData, int schoolId, NewSchoolContactRequest newSchoolContactRequest);
+      JWTData userData, int schoolId, UpsertSchoolContactRequest upsertSchoolContactRequest);
 
   SchoolContact updateSchoolContact(
       JWTData userData,
       int schoolId,
       int contactId,
-      NewSchoolContactRequest newSchoolContactRequest);
+      UpsertSchoolContactRequest upsertSchoolContactRequest);
 
   void deleteSchoolContact(JWTData userData, int schoolId, int contactId);
+
+  School createSchool(JWTData userdata, UpsertSchoolRequest upsertSchoolRequest);
+
+  void updateSchool(JWTData userData, int schoolId, UpsertSchoolRequest upsertSchoolRequest);
+
+  void deleteSchool(JWTData userData, int schoolId);
+
+  void hideSchool(JWTData userData, int schoolId);
+
+  void unHideSchool(JWTData userData, int schoolId);
 }

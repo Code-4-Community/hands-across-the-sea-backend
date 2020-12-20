@@ -1,17 +1,16 @@
 package com.codeforcommunity.dto.school;
 
 import com.codeforcommunity.dto.ApiDto;
-import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.exceptions.HandledException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewSchoolRequest extends ApiDto {
+public class UpsertSchoolContactRequest extends ApiDto {
 
   private String name;
+  private String email;
   private String address;
-  private Country country;
-  private Boolean hidden;
+  private String phone;
 
   public String getName() {
     return name;
@@ -19,6 +18,14 @@ public class NewSchoolRequest extends ApiDto {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
   }
 
   public String getAddress() {
@@ -29,20 +36,12 @@ public class NewSchoolRequest extends ApiDto {
     this.address = address;
   }
 
-  public Country getCountry() {
-    return country;
+  public String getPhone() {
+    return phone;
   }
 
-  public void setCountry(Country country) {
-    this.country = country;
-  }
-
-  public Boolean getHidden() {
-    return hidden;
-  }
-
-  public void setHidden(Boolean hidden) {
-    this.hidden = hidden;
+  public void setPhone(String phone) {
+    this.phone = phone;
   }
 
   @Override
@@ -51,14 +50,14 @@ public class NewSchoolRequest extends ApiDto {
     if (name == null || name.isEmpty()) {
       fields.add("name");
     }
+    if (email == null) {
+      fields.add("email");
+    }
     if (address == null || address.isEmpty()) {
       fields.add("address");
     }
-    if (country == null) {
-      fields.add("country");
-    }
-    if (hidden == null) {
-      fields.add("hidden");
+    if (phone == null) {
+      fields.add("phone");
     }
     return fields;
   }
