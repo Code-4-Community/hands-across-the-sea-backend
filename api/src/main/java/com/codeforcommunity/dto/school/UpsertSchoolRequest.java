@@ -6,7 +6,7 @@ import com.codeforcommunity.exceptions.HandledException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewSchoolRequest extends ApiDto {
+public class UpsertSchoolRequest extends ApiDto {
 
   private String name;
   private String address;

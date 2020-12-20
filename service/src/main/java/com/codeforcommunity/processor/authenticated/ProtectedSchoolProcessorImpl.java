@@ -5,13 +5,15 @@ import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
-import com.codeforcommunity.dto.school.NewSchoolRequest;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.SchoolSummary;
+import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
+import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
+import java.sql.Timestamp;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.SchoolsRecord;
@@ -51,11 +53,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public School createSchool(JWTData userdata, NewSchoolRequest newSchoolRequest) {
-    String name = newSchoolRequest.getName();
-    String address = newSchoolRequest.getAddress();
-    Country country = newSchoolRequest.getCountry();
-    Boolean hidden = newSchoolRequest.getHidden();
+  public School createSchool(JWTData userdata, UpsertSchoolRequest upsertSchoolRequest) {
+    String name = upsertSchoolRequest.getName();
+    String address = upsertSchoolRequest.getAddress();
+    Country country = upsertSchoolRequest.getCountry();
+    Boolean hidden = upsertSchoolRequest.getHidden();
 
     SchoolsRecord school =
         db.selectFrom(SCHOOLS)
@@ -96,8 +98,68 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
           school.getHidden(),
           contacts);
     }
-
     throw new SchoolAlreadyExistsException(name, country);
+  }
+
+  @Override
+  public void updateSchool(
+      JWTData userData, int schoolId, UpsertSchoolRequest upsertSchoolRequest) {
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.ID.eq(schoolId).and(SCHOOLS.DELETED_AT.isNull()))
+            .fetchOne();
+    if (school == null) {
+      throw new SchoolDoesNotExistException();
+    }
+    String name = upsertSchoolRequest.getName();
+    String address = upsertSchoolRequest.getAddress();
+    Country country = upsertSchoolRequest.getCountry();
+    Boolean hidden = upsertSchoolRequest.getHidden();
+
+    school.setName(name);
+    school.setAddress(address);
+    school.setCountry(country);
+    school.setHidden(hidden);
+    school.store();
+  }
+
+  @Override
+  public void deleteSchool(JWTData userData, int schoolId) {
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.ID.eq(schoolId).and(SCHOOLS.DELETED_AT.isNull()))
+            .fetchOne();
+    if (school == null) {
+      throw new SchoolDoesNotExistException();
+    }
+    school.setDeletedAt(new Timestamp(System.currentTimeMillis()));
+    school.store();
+  }
+
+  @Override
+  public void hideSchool(JWTData userData, int schoolId) {
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.ID.eq(schoolId).and(SCHOOLS.DELETED_AT.isNull()))
+            .fetchOne();
+    if (school == null) {
+      throw new SchoolDoesNotExistException();
+    }
+    school.setHidden(true);
+    school.store();
+  }
+
+  @Override
+  public void unHideSchool(JWTData userData, int schoolId) {
+    SchoolsRecord school =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.ID.eq(schoolId).and(SCHOOLS.DELETED_AT.isNull()))
+            .fetchOne();
+    if (school == null) {
+      throw new SchoolDoesNotExistException();
+    }
+    school.setHidden(false);
+    school.store();
   }
 
   private List<SchoolContact> getSchoolContacts(int schoolId) {

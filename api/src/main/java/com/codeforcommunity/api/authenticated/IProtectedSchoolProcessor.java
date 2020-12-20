@@ -1,9 +1,9 @@
 package com.codeforcommunity.api.authenticated;
 
 import com.codeforcommunity.auth.JWTData;
-import com.codeforcommunity.dto.school.NewSchoolRequest;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolListResponse;
+import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 
 public interface IProtectedSchoolProcessor {
 
@@ -11,5 +11,13 @@ public interface IProtectedSchoolProcessor {
 
   School getSchool(JWTData userData, int schoolId);
 
-  School createSchool(JWTData userdata, NewSchoolRequest newSchoolRequest);
+  School createSchool(JWTData userdata, UpsertSchoolRequest upsertSchoolRequest);
+
+  void updateSchool(JWTData userData, int schoolId, UpsertSchoolRequest upsertSchoolRequest);
+
+  void deleteSchool(JWTData userData, int schoolId);
+
+  void hideSchool(JWTData userData, int schoolId);
+
+  void unHideSchool(JWTData userData, int schoolId);
 }
