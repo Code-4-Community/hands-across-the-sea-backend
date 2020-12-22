@@ -7,9 +7,13 @@ public class SchoolListResponse {
   private int count;
   private List<SchoolSummary> schools;
 
-  public SchoolListResponse(List<SchoolSummary> schools, int count) {
+  public SchoolListResponse(List<SchoolSummary> schools) {
+    if (schools == null) {
+      throw new IllegalArgumentException("Given `null` list of schools");
+    }
+
     this.schools = schools;
-    this.count = count;
+    this.count = schools.size();
   }
 
   public List<SchoolSummary> getSchools() {

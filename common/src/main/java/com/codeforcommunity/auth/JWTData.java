@@ -19,4 +19,8 @@ public class JWTData {
   public PrivilegeLevel getPrivilegeLevel() {
     return this.privilegeLevel;
   }
+
+  public boolean isAdmin() {
+    return this.privilegeLevel == PrivilegeLevel.ADMIN;
+  }
 }

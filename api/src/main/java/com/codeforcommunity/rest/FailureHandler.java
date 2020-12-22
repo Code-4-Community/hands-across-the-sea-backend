@@ -9,6 +9,8 @@ import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
+import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
+import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
 import com.codeforcommunity.exceptions.TokenInvalidException;
 import com.codeforcommunity.exceptions.UnknownCountryException;
@@ -41,6 +43,11 @@ public class FailureHandler {
     end(ctx, message, 400);
   }
 
+  public void handleAdminOnlyRoute(RoutingContext ctx) {
+    String message = "This route is only available to admin users";
+    end(ctx, message, 401);
+  }
+
   public void handleEmailAlreadyInUse(RoutingContext ctx, EmailAlreadyInUseException exception) {
     String message =
         String.format("Error creating new user, given email %s already used", exception.getEmail());
@@ -52,6 +59,15 @@ public class FailureHandler {
     String message =
         String.format(
             "School '%s' already exists in '%s'", e.getSchoolName(), e.getSchoolCountry());
+    end(ctx, message, 409);
+  }
+
+  public void handleSchoolContactAlreadyExists(
+      RoutingContext ctx, SchoolContactAlreadyExistsException e) {
+    String message =
+        String.format(
+            "Contact with name '%s' already exists for school '%s'",
+            e.getContactName(), e.getSchoolName());
     end(ctx, message, 409);
   }
 
@@ -149,6 +165,15 @@ public class FailureHandler {
     end(ctx, message, 400);
   }
 
+  public void handleUnknownSchoolContact(
+      RoutingContext ctx, SchoolContactDoesNotExistException exception) {
+    String message =
+        String.format(
+            "Unknown contact with id '%d' given for school with id '%d'",
+            exception.getContactId(), exception.getSchoolId());
+    end(ctx, message, 400);
+  }
+
   public void handleBadImageRequest(RoutingContext ctx) {
     String message = "The uploaded file could not be processed as an image";
     end(ctx, message, 400);
@@ -160,7 +185,7 @@ public class FailureHandler {
   }
 
   public void handleSchoolDoesNotExist(RoutingContext ctx, SchoolDoesNotExistException e) {
-    String message = "School does not exist";
+    String message = String.format("No school found with given id: %d", e.getSchoolId());
     end(ctx, message, 400);
   }
 

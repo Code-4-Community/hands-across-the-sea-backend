@@ -5,7 +5,10 @@ import static com.codeforcommunity.rest.ApiRouter.end;
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.school.School;
+import com.codeforcommunity.dto.school.SchoolContact;
+import com.codeforcommunity.dto.school.SchoolContactListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
+import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
@@ -27,6 +30,7 @@ public class ProtectedSchoolRouter implements IRouter {
   public Router initializeRouter(Vertx vertx) {
     Router router = Router.router(vertx);
 
+    // Register all school routes
     registerGetAllSchools(router);
     registerGetSchool(router);
     registerCreateSchool(router);
@@ -34,6 +38,13 @@ public class ProtectedSchoolRouter implements IRouter {
     registerDeleteSchool(router);
     registerHidingSchool(router);
     registerUnHidingSchool(router);
+
+    // Register all school contact routes
+    registerGetAllSchoolContacts(router);
+    registerGetSchoolContact(router);
+    registerCreateSchoolContact(router);
+    registerUpdateSchoolContact(router);
+    registerDeleteSchoolContact(router);
 
     return router;
   }
@@ -73,6 +84,31 @@ public class ProtectedSchoolRouter implements IRouter {
     hideSchoolRouter.handler(this::handleUnHidingSchoolRoute);
   }
 
+  private void registerGetAllSchoolContacts(Router router) {
+    Route getContactsRoute = router.get("/:school_id/contacts");
+    getContactsRoute.handler(this::handleGetAllSchoolContactsRoute);
+  }
+
+  private void registerGetSchoolContact(Router router) {
+    Route getContactRoute = router.get("/:school_id/contacts/:contact_id");
+    getContactRoute.handler(this::handleGetSchoolContactRoute);
+  }
+
+  private void registerCreateSchoolContact(Router router) {
+    Route createContactRoute = router.post("/:school_id/contacts");
+    createContactRoute.handler(this::handleCreateSchoolContactRoute);
+  }
+
+  private void registerUpdateSchoolContact(Router router) {
+    Route createContactRoute = router.put("/:school_id/contacts/:contact_id");
+    createContactRoute.handler(this::handleUpdateSchoolContactRoute);
+  }
+
+  private void registerDeleteSchoolContact(Router router) {
+    Route createContactRoute = router.delete("/:school_id/contacts/:contact_id");
+    createContactRoute.handler(this::handleDeleteSchoolContactRoute);
+  }
+
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     SchoolListResponse response = processor.getAllSchools(userData);
@@ -81,16 +117,13 @@ public class ProtectedSchoolRouter implements IRouter {
 
   private void handleGetSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
-
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     School response = processor.getSchool(userData, schoolId);
-
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
   private void handleCreateSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
-
     UpsertSchoolRequest upsertSchoolRequest =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertSchoolRequest.class);
     School response = processor.createSchool(userData, upsertSchoolRequest);
@@ -124,6 +157,48 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     processor.unHideSchool(userData, schoolId);
+    end(ctx.response(), 200);
+  }
+
+  private void handleGetAllSchoolContactsRoute(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    SchoolContactListResponse response = processor.getAllSchoolContacts(userData, schoolId);
+    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
+  }
+
+  private void handleGetSchoolContactRoute(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    int contactId = RestFunctions.getPathParamAsInt(ctx, "contact_id");
+    SchoolContact response = processor.getSchoolContact(userData, schoolId, contactId);
+    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
+  }
+
+  private void handleCreateSchoolContactRoute(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    UpsertSchoolContactRequest request =
+        RestFunctions.getJsonBodyAsClass(ctx, UpsertSchoolContactRequest.class);
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    SchoolContact response = processor.createSchoolContact(userData, schoolId, request);
+    end(ctx.response(), 201, JsonObject.mapFrom(response).toString());
+  }
+
+  private void handleUpdateSchoolContactRoute(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    UpsertSchoolContactRequest request =
+        RestFunctions.getJsonBodyAsClass(ctx, UpsertSchoolContactRequest.class);
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    int contactId = RestFunctions.getPathParamAsInt(ctx, "contact_id");
+    SchoolContact response = processor.updateSchoolContact(userData, schoolId, contactId, request);
+    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
+  }
+
+  private void handleDeleteSchoolContactRoute(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    int contactId = RestFunctions.getPathParamAsInt(ctx, "contact_id");
+    processor.deleteSchoolContact(userData, schoolId, contactId);
     end(ctx.response(), 200);
   }
 }

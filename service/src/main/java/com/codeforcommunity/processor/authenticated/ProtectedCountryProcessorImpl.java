@@ -28,6 +28,6 @@ public class ProtectedCountryProcessorImpl implements IProtectedCountryProcessor
             .and(SCHOOLS.COUNTRY.eq(country))
             .fetchInto(SchoolSummary.class);
 
-    return new SchoolListResponse(schools, schools.size());
+    return new SchoolListResponse(schools);
   }
 }
