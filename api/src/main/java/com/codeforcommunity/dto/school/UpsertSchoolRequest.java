@@ -10,8 +10,44 @@ public class UpsertSchoolRequest extends ApiDto {
 
   private String name;
   private String address;
+  private String email;
+  private String phone;
+  private String notes;
+  private String area;
   private Country country;
   private Boolean hidden;
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPhone() {
+    return phone;
+  }
+
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+
+  public String getNotes() {
+    return notes;
+  }
+
+  public void setNotes(String notes) {
+    this.notes = notes;
+  }
+
+  public String getArea() {
+    return area;
+  }
+
+  public void setArea(String area) {
+    this.area = area;
+  }
 
   public String getName() {
     return name;

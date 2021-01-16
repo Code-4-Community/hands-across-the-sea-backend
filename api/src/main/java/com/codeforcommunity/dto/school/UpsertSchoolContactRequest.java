@@ -7,17 +7,26 @@ import java.util.List;
 
 public class UpsertSchoolContactRequest extends ApiDto {
 
-  private String name;
+  private String firstName;
+  private String lastName;
   private String email;
   private String address;
   private String phone;
 
-  public String getName() {
-    return name;
+  public String getFirstName() {
+    return firstName;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
   }
 
   public String getEmail() {
@@ -47,8 +56,11 @@ public class UpsertSchoolContactRequest extends ApiDto {
   @Override
   public List<String> validateFields(String fieldPrefix) throws HandledException {
     List<String> fields = new ArrayList<String>();
-    if (name == null || name.isEmpty()) {
-      fields.add("name");
+    if (firstName == null || firstName.isEmpty()) {
+      fields.add("firstName");
+    }
+    if (lastName == null || lastName.isEmpty()) {
+      fields.add("firstName");
     }
     if (email == null) {
       fields.add("email");

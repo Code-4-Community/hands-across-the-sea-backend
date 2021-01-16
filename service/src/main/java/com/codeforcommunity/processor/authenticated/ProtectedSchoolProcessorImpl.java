@@ -48,7 +48,16 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public School getSchool(JWTData userData, int schoolId) {
     School school =
-        db.select(SCHOOLS.ID, SCHOOLS.NAME, SCHOOLS.ADDRESS, SCHOOLS.COUNTRY, SCHOOLS.HIDDEN)
+        db.select(
+                SCHOOLS.ID,
+                SCHOOLS.NAME,
+                SCHOOLS.ADDRESS,
+                SCHOOLS.EMAIL,
+                SCHOOLS.PHONE,
+                SCHOOLS.NOTES,
+                SCHOOLS.AREA,
+                SCHOOLS.COUNTRY,
+                SCHOOLS.HIDDEN)
             .from(SCHOOLS)
             .where(SCHOOLS.DELETED_AT.isNull())
             .and(SCHOOLS.ID.eq(schoolId))
@@ -72,6 +81,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     String name = upsertSchoolRequest.getName();
     String address = upsertSchoolRequest.getAddress();
+    String phone = upsertSchoolRequest.getPhone();
+    String email = upsertSchoolRequest.getEmail();
+    String notes = upsertSchoolRequest.getNotes();
+    String area = upsertSchoolRequest.getArea();
     Country country = upsertSchoolRequest.getCountry();
     Boolean hidden = upsertSchoolRequest.getHidden();
 
@@ -87,6 +100,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       SchoolsRecord newSchool = db.newRecord(SCHOOLS);
       newSchool.setName(name);
       newSchool.setAddress(address);
+      newSchool.setPhone(phone);
+      newSchool.setEmail(email);
+      newSchool.setNotes(notes);
+      newSchool.setArea(area);
       newSchool.setCountry(country);
       newSchool.setHidden(hidden);
       newSchool.store();
@@ -95,6 +112,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
           newSchool.getId(),
           newSchool.getName(),
           newSchool.getAddress(),
+          newSchool.getEmail(),
+          newSchool.getPhone(),
+          newSchool.getNotes(),
+          newSchool.getArea(),
           newSchool.getCountry(),
           newSchool.getHidden());
     }
@@ -103,6 +124,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       // If the school was previously deleted, un-delete it
       school.setDeletedAt(null);
       school.setHidden(hidden);
+      school.setPhone(phone);
+      school.setEmail(email);
+      school.setNotes(notes);
+      school.setArea(area);
       school.store();
 
       Integer schoolId = school.getId();
@@ -112,10 +137,15 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
           school.getId(),
           school.getName(),
           school.getAddress(),
+          school.getEmail(),
+          school.getPhone(),
+          school.getNotes(),
+          school.getArea(),
           school.getCountry(),
           school.getHidden(),
           contacts);
     }
+
     throw new SchoolAlreadyExistsException(name, country);
   }
 
@@ -130,7 +160,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         db.select(
                 SCHOOL_CONTACTS.ID,
                 SCHOOL_CONTACTS.SCHOOL_ID,
-                SCHOOL_CONTACTS.NAME,
+                SCHOOL_CONTACTS.FIRST_NAME,
+                SCHOOL_CONTACTS.LAST_NAME,
                 SCHOOL_CONTACTS.EMAIL,
                 SCHOOL_CONTACTS.ADDRESS,
                 SCHOOL_CONTACTS.PHONE)
@@ -153,7 +184,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         db.select(
                 SCHOOL_CONTACTS.ID,
                 SCHOOL_CONTACTS.SCHOOL_ID,
-                SCHOOL_CONTACTS.NAME,
+                SCHOOL_CONTACTS.FIRST_NAME,
+                SCHOOL_CONTACTS.LAST_NAME,
                 SCHOOL_CONTACTS.EMAIL,
                 SCHOOL_CONTACTS.ADDRESS,
                 SCHOOL_CONTACTS.PHONE)
@@ -178,14 +210,16 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    String name = upsertSchoolContactRequest.getName();
+    String firstName = upsertSchoolContactRequest.getFirstName();
+    String lastName = upsertSchoolContactRequest.getLastName();
     String email = upsertSchoolContactRequest.getEmail();
     String address = upsertSchoolContactRequest.getAddress();
     String phone = upsertSchoolContactRequest.getPhone();
 
     SchoolContactsRecord contact =
         db.selectFrom(SCHOOL_CONTACTS)
-            .where(SCHOOL_CONTACTS.NAME.eq(name))
+            .where(SCHOOL_CONTACTS.FIRST_NAME.eq(firstName))
+            .and(SCHOOL_CONTACTS.LAST_NAME.eq(lastName))
             .and(SCHOOL_CONTACTS.EMAIL.eq(email))
             .and(SCHOOL_CONTACTS.ADDRESS.eq(address))
             .and(SCHOOL_CONTACTS.PHONE.eq(phone))
@@ -196,7 +230,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       // If the contact doesn't already exist, create it
       SchoolContactsRecord newContact = db.newRecord(SCHOOL_CONTACTS);
       newContact.setSchoolId(schoolId);
-      newContact.setName(name);
+      newContact.setFirstName(firstName);
+      newContact.setLastName(lastName);
       newContact.setEmail(email);
       newContact.setAddress(address);
       newContact.setPhone(phone);
@@ -205,7 +240,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       return new SchoolContact(
           newContact.getId(),
           newContact.getSchoolId(),
-          newContact.getName(),
+          newContact.getFirstName(),
+          newContact.getLastName(),
           newContact.getEmail(),
           newContact.getAddress(),
           newContact.getPhone());
@@ -219,13 +255,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       return new SchoolContact(
           contact.getId(),
           contact.getSchoolId(),
-          contact.getName(),
+          contact.getFirstName(),
+          contact.getLastName(),
           contact.getEmail(),
           contact.getAddress(),
           contact.getPhone());
     }
 
-    throw new SchoolContactAlreadyExistsException(school.getName(), name);
+    throw new SchoolContactAlreadyExistsException(school.getName(), firstName, lastName);
   }
 
   @Override
@@ -245,18 +282,20 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolContactDoesNotExistException(schoolId, contactId);
     }
 
-    String name = upsertSchoolContactRequest.getName();
+    String firstName = upsertSchoolContactRequest.getFirstName();
+    String lastName = upsertSchoolContactRequest.getLastName();
     String email = upsertSchoolContactRequest.getEmail();
     String address = upsertSchoolContactRequest.getAddress();
     String phone = upsertSchoolContactRequest.getPhone();
 
-    contactRecord.setName(name);
+    contactRecord.setFirstName(firstName);
+    contactRecord.setLastName(lastName);
     contactRecord.setEmail(email);
     contactRecord.setAddress(address);
     contactRecord.setPhone(phone);
     contactRecord.store();
 
-    return new SchoolContact(contactId, schoolId, name, email, address, phone);
+    return new SchoolContact(contactId, schoolId, firstName, lastName, email, address, phone);
   }
 
   @Override
@@ -286,11 +325,19 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     String name = upsertSchoolRequest.getName();
     String address = upsertSchoolRequest.getAddress();
+    String phone = upsertSchoolRequest.getPhone();
+    String email = upsertSchoolRequest.getEmail();
+    String notes = upsertSchoolRequest.getNotes();
+    String area = upsertSchoolRequest.getArea();
     Country country = upsertSchoolRequest.getCountry();
     Boolean hidden = upsertSchoolRequest.getHidden();
 
     school.setName(name);
     school.setAddress(address);
+    school.setPhone(phone);
+    school.setEmail(email);
+    school.setNotes(notes);
+    school.setArea(area);
     school.setCountry(country);
     school.setHidden(hidden);
     school.store();
@@ -343,7 +390,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     return db.select(
             SCHOOL_CONTACTS.ID,
             SCHOOL_CONTACTS.SCHOOL_ID,
-            SCHOOL_CONTACTS.NAME,
+            SCHOOL_CONTACTS.FIRST_NAME,
+            SCHOOL_CONTACTS.LAST_NAME,
             SCHOOL_CONTACTS.ADDRESS,
             SCHOOL_CONTACTS.EMAIL,
             SCHOOL_CONTACTS.PHONE)

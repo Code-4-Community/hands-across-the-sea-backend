@@ -6,13 +6,16 @@ import io.vertx.ext.web.RoutingContext;
 public class SchoolContactAlreadyExistsException extends HandledException {
 
   private String schoolName;
-  private String contactName;
+  private String contactFirstName;
+  private String contactLastName;
 
-  public SchoolContactAlreadyExistsException(String schoolName, String contactName) {
+  public SchoolContactAlreadyExistsException(
+      String schoolName, String contactFirstName, String contactLastName) {
     super();
 
     this.schoolName = schoolName;
-    this.contactName = contactName;
+    this.contactFirstName = contactFirstName;
+    this.contactLastName = contactLastName;
   }
 
   @Override
@@ -24,7 +27,11 @@ public class SchoolContactAlreadyExistsException extends HandledException {
     return schoolName;
   }
 
-  public String getContactName() {
-    return contactName;
+  public String getContactFirstName() {
+    return contactFirstName;
+  }
+
+  public String getContactLastName() {
+    return contactLastName;
   }
 }

@@ -132,6 +132,57 @@
                   <includeTypes>.*</includeTypes>
                   <nullability>NOT_NULL</nullability>
                 </forcedType>
+
+                <!-- Enum converter for contact types -->
+                <forcedType>
+                  <userType>com.codeforcommunity.enums.ContactType</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.school_contacts\.type</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                  <nullability>NOT_NULL</nullability>
+                </forcedType>
+
+                <!-- Enum converter for time roles -->
+                <forcedType>
+                  <userType>com.codeforcommunity.enums.TimeRole</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.school_reports_with_libraries\.assigned_person_role|.*\.school_reports_in_progress_libraries\.assigned_person_role</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                  <nullability>NOT_NULL</nullability>
+                </forcedType>
+
+                <!-- Enum converter for apprentice titles -->
+                <forcedType>
+                  <userType>com.codeforcommunity.enums.ApprenticeTitle</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.school_reports_with_libraries\.assigned_person_title|.*\.school_reports_in_progress_libraries\.assigned_person_title</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                  <nullability>NOT_NULL</nullability>
+                </forcedType>
+
+                <!-- Enum converter for apprentice program -->
+                <forcedType>
+                  <userType>com.codeforcommunity.enums.ApprenticeshipProgram</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.school_reports_with_libraries\.apprenticeship_program|.*\.school_reports_in_progress_libraries\.apprenticeship_program</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                  <nullability>NOT_NULL</nullability>
+                </forcedType>
+
+                <!-- Enum converter for library timeline -->
+                <forcedType>
+                  <userType>com.codeforcommunity.enums.ReadyTimeline</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.school_reports_without_libraries\.ready_timeline</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                  <nullability>NOT_NULL</nullability>
+                </forcedType>
+
               </forcedTypes>
 
             </database>

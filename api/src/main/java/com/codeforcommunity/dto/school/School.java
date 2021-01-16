@@ -9,14 +9,31 @@ public class School {
   private Integer id;
   private String name;
   private String address;
+  private String email;
+  private String phone;
+  private String notes;
+  private String area;
   private Country country;
   private Boolean hidden;
   private List<SchoolContact> contacts;
 
-  public School(Integer id, String name, String address, Country country, Boolean hidden) {
+  public School(
+      Integer id,
+      String name,
+      String address,
+      String email,
+      String phone,
+      String notes,
+      String area,
+      Country country,
+      Boolean hidden) {
     this.id = id;
     this.name = name;
     this.address = address;
+    this.email = email;
+    this.phone = phone;
+    this.notes = notes;
+    this.area = area;
     this.country = country;
     this.hidden = hidden;
     this.contacts = new ArrayList<SchoolContact>();
@@ -26,12 +43,20 @@ public class School {
       Integer id,
       String name,
       String address,
+      String email,
+      String phone,
+      String notes,
+      String area,
       Country country,
       Boolean hidden,
       List<SchoolContact> contacts) {
     this.id = id;
     this.name = name;
     this.address = address;
+    this.email = email;
+    this.phone = phone;
+    this.notes = notes;
+    this.area = area;
     this.country = country;
     this.hidden = hidden;
     this.contacts = contacts;
@@ -83,5 +108,37 @@ public class School {
 
   public void setContacts(List<SchoolContact> contacts) {
     this.contacts = contacts;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPhone() {
+    return phone;
+  }
+
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+
+  public String getNotes() {
+    return notes;
+  }
+
+  public void setNotes(String notes) {
+    this.notes = notes;
+  }
+
+  public String getArea() {
+    return area;
+  }
+
+  public void setArea(String area) {
+    this.area = area;
   }
 }
