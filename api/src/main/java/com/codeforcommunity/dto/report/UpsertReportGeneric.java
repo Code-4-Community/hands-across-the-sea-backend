@@ -1,51 +1,21 @@
 package com.codeforcommunity.dto.report;
 
-public class ReportGeneric {
+import com.codeforcommunity.dto.ApiDto;
+import com.codeforcommunity.exceptions.HandledException;
+import java.util.ArrayList;
+import java.util.List;
 
-  private Integer id;
-  private Integer schoolId;
-  private Integer userId;
+public class UpsertReportGeneric extends ApiDto {
+
   private Integer numberOfChildren;
   private Integer numberOfBooks;
   private Integer mostRecentShipmentYear;
 
-  public ReportGeneric(
-      Integer id,
-      Integer schoolId,
-      Integer userId,
-      Integer numberOfChildren,
-      Integer numberOfBooks,
-      Integer mostRecentShipmentYear) {
-    this.id = id;
-    this.schoolId = schoolId;
-    this.userId = userId;
+  public UpsertReportGeneric(
+      Integer numberOfChildren, Integer numberOfBooks, Integer mostRecentShipmentYear) {
     this.numberOfChildren = numberOfChildren;
     this.numberOfBooks = numberOfBooks;
     this.mostRecentShipmentYear = mostRecentShipmentYear;
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public Integer getSchoolId() {
-    return schoolId;
-  }
-
-  public void setSchoolId(Integer schoolId) {
-    this.schoolId = schoolId;
-  }
-
-  public Integer getUserId() {
-    return userId;
-  }
-
-  public void setUserId(Integer userId) {
-    this.userId = userId;
   }
 
   public Integer getNumberOfChildren() {
@@ -70,5 +40,20 @@ public class ReportGeneric {
 
   public void setMostRecentShipmentYear(Integer mostRecentShipmentYear) {
     this.mostRecentShipmentYear = mostRecentShipmentYear;
+  }
+
+  @Override
+  public List<String> validateFields(String fieldPrefix) throws HandledException {
+    List<String> fields = new ArrayList<String>();
+    if (numberOfChildren == null) {
+      fields.add("numberOfChildren");
+    }
+    if (numberOfBooks == null) {
+      fields.add("numberOfBooks");
+    }
+    if (mostRecentShipmentYear == null) {
+      fields.add("mostRecentShipmentYear");
+    }
+    return fields;
   }
 }

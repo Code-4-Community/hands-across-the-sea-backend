@@ -1,6 +1,8 @@
 package com.codeforcommunity.api.authenticated;
 
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.report.ReportWithLibrary;
+import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
@@ -38,4 +40,7 @@ public interface IProtectedSchoolProcessor {
   void hideSchool(JWTData userData, int schoolId);
 
   void unHideSchool(JWTData userData, int schoolId);
+
+  ReportWithLibrary createReportWithLibrary(
+      JWTData userData, int schoolId, UpsertReportWithLibrary upsertRequest);
 }

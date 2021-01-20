@@ -1,6 +1,7 @@
 package com.codeforcommunity.dto.school;
 
 import com.codeforcommunity.enums.Country;
+import com.codeforcommunity.enums.LibraryStatus;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class School {
   private String area;
   private Country country;
   private Boolean hidden;
+  private LibraryStatus libraryStatus;
   private List<SchoolContact> contacts;
 
   public School(
@@ -26,7 +28,8 @@ public class School {
       String notes,
       String area,
       Country country,
-      Boolean hidden) {
+      Boolean hidden,
+      LibraryStatus libraryStatus) {
     this.id = id;
     this.name = name;
     this.address = address;
@@ -36,6 +39,7 @@ public class School {
     this.area = area;
     this.country = country;
     this.hidden = hidden;
+    this.libraryStatus = libraryStatus;
     this.contacts = new ArrayList<SchoolContact>();
   }
 
@@ -49,6 +53,7 @@ public class School {
       String area,
       Country country,
       Boolean hidden,
+      LibraryStatus libraryStatus,
       List<SchoolContact> contacts) {
     this.id = id;
     this.name = name;
@@ -59,6 +64,7 @@ public class School {
     this.area = area;
     this.country = country;
     this.hidden = hidden;
+    this.libraryStatus = libraryStatus;
     this.contacts = contacts;
   }
 
@@ -140,5 +146,13 @@ public class School {
 
   public void setArea(String area) {
     this.area = area;
+  }
+
+  public LibraryStatus getLibraryStatus() {
+    return libraryStatus;
+  }
+
+  public void setLibraryStatus(LibraryStatus libraryStatus) {
+    this.libraryStatus = libraryStatus;
   }
 }

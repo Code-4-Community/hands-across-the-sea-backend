@@ -3,8 +3,10 @@ package com.codeforcommunity.dto.report;
 import com.codeforcommunity.enums.ApprenticeTitle;
 import com.codeforcommunity.enums.ApprenticeshipProgram;
 import com.codeforcommunity.enums.TimeRole;
+import com.codeforcommunity.exceptions.HandledException;
+import java.util.List;
 
-public class ReportWithLibrary extends ReportGeneric {
+public class UpsertReportWithLibrary extends UpsertReportGeneric {
 
   private Boolean isSharedSpace;
   private Boolean hasInvitingSpace;
@@ -20,10 +22,7 @@ public class ReportWithLibrary extends ReportGeneric {
   private String teacherSupport;
   private String parentSupport;
 
-  public ReportWithLibrary(
-      Integer id,
-      Integer schoolId,
-      Integer userId,
+  public UpsertReportWithLibrary(
       Integer numberOfChildren,
       Integer numberOfBooks,
       Integer mostRecentShipmentYear,
@@ -40,7 +39,7 @@ public class ReportWithLibrary extends ReportGeneric {
       Boolean hasSufficientTraining,
       String teacherSupport,
       String parentSupport) {
-    super(id, schoolId, userId, numberOfChildren, numberOfBooks, mostRecentShipmentYear);
+    super(numberOfChildren, numberOfBooks, mostRecentShipmentYear);
     this.isSharedSpace = isSharedSpace;
     this.hasInvitingSpace = hasInvitingSpace;
     this.assignedPersonRole = assignedPersonRole;
@@ -56,11 +55,11 @@ public class ReportWithLibrary extends ReportGeneric {
     this.parentSupport = parentSupport;
   }
 
-  public Boolean getSharedSpace() {
+  public Boolean getIsSharedSpace() {
     return isSharedSpace;
   }
 
-  public void setSharedSpace(Boolean sharedSpace) {
+  public void setIsSharedSpace(Boolean sharedSpace) {
     isSharedSpace = sharedSpace;
   }
 
@@ -158,5 +157,34 @@ public class ReportWithLibrary extends ReportGeneric {
 
   public void setParentSupport(String parentSupport) {
     this.parentSupport = parentSupport;
+  }
+
+  @Override
+  public List<String> validateFields(String fieldPrefix) throws HandledException {
+    List<String> fields = super.validateFields(fieldPrefix);
+
+    if (isSharedSpace == null) {
+      fields.add("isSharedSpace");
+    }
+    if (hasInvitingSpace == null) {
+      fields.add("hasInvitingSpace");
+    }
+    if (trainsAndMentorsApprentices == null) {
+      fields.add("trainsAndMentorsApprentices");
+    }
+    if (hasCheckInTimetables == null) {
+      fields.add("hasCheckInTimetables");
+    }
+    if (hasBookCheckoutSystem == null) {
+      fields.add("hasBookCheckoutSystem");
+    }
+    if (numberOfStudentLibrarians == null) {
+      fields.add("numberOfStudentLibrarians");
+    }
+    if (hasSufficientTraining == null) {
+      fields.add("hasSufficientTraining");
+    }
+
+    return fields;
   }
 }

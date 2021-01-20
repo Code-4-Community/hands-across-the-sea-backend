@@ -1,16 +1,12 @@
 package com.codeforcommunity.dto.report;
 
-import com.codeforcommunity.enums.ApprenticeTitle;
-import com.codeforcommunity.enums.ApprenticeshipProgram;
-import com.codeforcommunity.enums.TimeRole;
-
-public class ReportWithLibrary extends ReportGeneric {
+public class UpsertReportInProgressLibrary extends UpsertReportGeneric {
 
   private Boolean isSharedSpace;
   private Boolean hasInvitingSpace;
-  private TimeRole assignedPersonRole;
-  private ApprenticeTitle assignedPersonTitle;
-  private ApprenticeshipProgram apprenticeshipProgram;
+  private String assignedPersonRole;
+  private String assignedPersonTitle;
+  private String apprenticeshipProgram;
   private Boolean trainsAndMentorsApprentices;
   private Boolean hasCheckInTimetables;
   private Boolean hasBookCheckoutSystem;
@@ -20,18 +16,15 @@ public class ReportWithLibrary extends ReportGeneric {
   private String teacherSupport;
   private String parentSupport;
 
-  public ReportWithLibrary(
-      Integer id,
-      Integer schoolId,
-      Integer userId,
+  public UpsertReportInProgressLibrary(
       Integer numberOfChildren,
       Integer numberOfBooks,
       Integer mostRecentShipmentYear,
       Boolean isSharedSpace,
       Boolean hasInvitingSpace,
-      TimeRole assignedPersonRole,
-      ApprenticeTitle assignedPersonTitle,
-      ApprenticeshipProgram apprenticeshipProgram,
+      String assignedPersonRole,
+      String assignedPersonTitle,
+      String apprenticeshipProgram,
       Boolean trainsAndMentorsApprentices,
       Boolean hasCheckInTimetables,
       Boolean hasBookCheckoutSystem,
@@ -40,7 +33,7 @@ public class ReportWithLibrary extends ReportGeneric {
       Boolean hasSufficientTraining,
       String teacherSupport,
       String parentSupport) {
-    super(id, schoolId, userId, numberOfChildren, numberOfBooks, mostRecentShipmentYear);
+    super(numberOfChildren, numberOfBooks, mostRecentShipmentYear);
     this.isSharedSpace = isSharedSpace;
     this.hasInvitingSpace = hasInvitingSpace;
     this.assignedPersonRole = assignedPersonRole;
@@ -72,27 +65,27 @@ public class ReportWithLibrary extends ReportGeneric {
     this.hasInvitingSpace = hasInvitingSpace;
   }
 
-  public TimeRole getAssignedPersonRole() {
+  public String getAssignedPersonRole() {
     return assignedPersonRole;
   }
 
-  public void setAssignedPersonRole(TimeRole assignedPersonRole) {
+  public void setAssignedPersonRole(String assignedPersonRole) {
     this.assignedPersonRole = assignedPersonRole;
   }
 
-  public ApprenticeTitle getAssignedPersonTitle() {
+  public String getAssignedPersonTitle() {
     return assignedPersonTitle;
   }
 
-  public void setAssignedPersonTitle(ApprenticeTitle assignedPersonTitle) {
+  public void setAssignedPersonTitle(String assignedPersonTitle) {
     this.assignedPersonTitle = assignedPersonTitle;
   }
 
-  public ApprenticeshipProgram getApprenticeshipProgram() {
+  public String getApprenticeshipProgram() {
     return apprenticeshipProgram;
   }
 
-  public void setApprenticeshipProgram(ApprenticeshipProgram apprenticeshipProgram) {
+  public void setApprenticeshipProgram(String apprenticeshipProgram) {
     this.apprenticeshipProgram = apprenticeshipProgram;
   }
 

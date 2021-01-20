@@ -1,6 +1,7 @@
 package com.codeforcommunity.dto.school;
 
 import com.codeforcommunity.dto.ApiDto;
+import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.exceptions.HandledException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ public class UpsertSchoolContactRequest extends ApiDto {
   private String email;
   private String address;
   private String phone;
+  private ContactType type;
 
   public String getFirstName() {
     return firstName;
@@ -53,6 +55,14 @@ public class UpsertSchoolContactRequest extends ApiDto {
     this.phone = phone;
   }
 
+  public ContactType getType() {
+    return type;
+  }
+
+  public void setType(ContactType type) {
+    this.type = type;
+  }
+
   @Override
   public List<String> validateFields(String fieldPrefix) throws HandledException {
     List<String> fields = new ArrayList<String>();
@@ -70,6 +80,9 @@ public class UpsertSchoolContactRequest extends ApiDto {
     }
     if (phone == null) {
       fields.add("phone");
+    }
+    if (type == null) {
+      fields.add("type");
     }
     return fields;
   }
