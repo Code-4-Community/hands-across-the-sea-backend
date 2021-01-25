@@ -7,33 +7,31 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-class PasswordsTest {
+public class PasswordsTest {
   private String pass = "Password";
 
   @Test
-  void testHashLength() {
+  public void testHashLength() {
     byte[] hash = Passwords.createHash(pass);
     assertEquals(Passwords.KEY_LENGTH / 8 + Passwords.SALT_LENGTH, hash.length);
   }
 
   @Test
-  void testHashSaltRandomized() {
+  public void testHashSaltRandomized() {
     byte[] hash1 = Passwords.createHash(pass);
     byte[] hash2 = Passwords.createHash(pass);
     assertEquals(hash1.length, hash2.length);
-    for (int i = 0; i < hash1.length; i++) {
-      assertNotEquals(hash1[i], hash2[i]);
-    }
+    assertNotEquals(hash1, hash2);
   }
 
   @Test
-  void testIsExpectedPasswordMatchesSamePasses() {
+  public void testIsExpectedPasswordMatchesSamePasses() {
     byte[] hash = Passwords.createHash(pass);
     assertTrue(Passwords.isExpectedPassword(pass, hash));
   }
 
   @Test
-  void testIsExpectedPasswordDeniesDifferentPasses() {
+  public void testIsExpectedPasswordDeniesDifferentPasses() {
     byte[] hash = Passwords.createHash(pass);
     assertFalse(Passwords.isExpectedPassword("password", hash));
     assertFalse(Passwords.isExpectedPassword("", hash));
@@ -41,7 +39,7 @@ class PasswordsTest {
   }
 
   @Test
-  void testGenerateRandomTokenLength() {
+  public void testGenerateRandomTokenLength() {
     String token = Passwords.generateRandomToken(1);
     assertEquals(1, token.length());
 
@@ -53,7 +51,7 @@ class PasswordsTest {
   }
 
   @Test
-  void testGenerateRandomTokenRandomness() {
+  public void testGenerateRandomTokenRandomness() {
     int len = 10;
     String[] tokens = new String[len];
     for (int i = 0; i < len; i++) {
