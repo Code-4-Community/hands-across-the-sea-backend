@@ -132,6 +132,65 @@
                   <includeTypes>.*</includeTypes>
                   <nullability>NOT_NULL</nullability>
                 </forcedType>
+
+                <!-- Enum converter for contact types -->
+                <forcedType>
+                  <userType>com.codeforcommunity.enums.ContactType</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.school_contacts\.type</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                  <nullability>NOT_NULL</nullability>
+                </forcedType>
+
+                <!-- Enum converter for time roles -->
+                <forcedType>
+                  <userType>com.codeforcommunity.enums.TimeRole</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.*\.assigned_person_role</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                  <nullability>NOT_NULL</nullability>
+                </forcedType>
+
+                <!-- Enum converter for apprentice titles -->
+                <forcedType>
+                  <userType>com.codeforcommunity.enums.ApprenticeTitle</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.*\.assigned_person_title</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                </forcedType>
+
+                <!-- Enum converter for apprentice program -->
+                <forcedType>
+                  <userType>com.codeforcommunity.enums.ApprenticeshipProgram</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.*\.apprenticeship_program</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                </forcedType>
+
+                <!-- Enum converter for library timeline -->
+                <forcedType>
+                  <userType>com.codeforcommunity.enums.ReadyTimeline</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.*\.ready_timeline</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                  <nullability>NOT_NULL</nullability>
+                </forcedType>
+
+                <!-- Enum converter for library status -->
+                <forcedType>
+                  <userType>com.codeforcommunity.enums.LibraryStatus</userType>
+                  <enumConverter>true</enumConverter>
+
+                  <includeExpression>.*\.*\.library_status</includeExpression>
+                  <includeTypes>.*</includeTypes>
+                  <nullability>NOT_NULL</nullability>
+                </forcedType>
+
               </forcedTypes>
 
             </database>

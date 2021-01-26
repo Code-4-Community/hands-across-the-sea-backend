@@ -66,8 +66,8 @@ public class FailureHandler {
       RoutingContext ctx, SchoolContactAlreadyExistsException e) {
     String message =
         String.format(
-            "Contact with name '%s' already exists for school '%s'",
-            e.getContactName(), e.getSchoolName());
+            "Contact with name '%s %s' already exists for school '%s'",
+            e.getContactFirstName(), e.getContactLastName(), e.getSchoolName());
     end(ctx, message, 409);
   }
 

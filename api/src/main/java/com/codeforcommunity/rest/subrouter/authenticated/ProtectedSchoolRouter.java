@@ -4,6 +4,8 @@ import static com.codeforcommunity.rest.ApiRouter.end;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.report.ReportWithLibrary;
+import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
@@ -45,6 +47,13 @@ public class ProtectedSchoolRouter implements IRouter {
     registerCreateSchoolContact(router);
     registerUpdateSchoolContact(router);
     registerDeleteSchoolContact(router);
+
+    // Register all school report routes
+    registerCreateReportWithLibrary(router);
+    //    registerCreateReportWithoutLibrary(router);
+    //    registerCreateReportInProgressLibrary(router);
+    //    registerGetLatestReport(router);
+    //    registerGetPaginatedReports(router);
 
     return router;
   }
@@ -105,8 +114,13 @@ public class ProtectedSchoolRouter implements IRouter {
   }
 
   private void registerDeleteSchoolContact(Router router) {
-    Route createContactRoute = router.delete("/:school_id/contacts/:contact_id");
-    createContactRoute.handler(this::handleDeleteSchoolContactRoute);
+    Route deleteContactRoute = router.delete("/:school_id/contacts/:contact_id");
+    deleteContactRoute.handler(this::handleDeleteSchoolContactRoute);
+  }
+
+  private void registerCreateReportWithLibrary(Router router) {
+    Route createReport = router.post("/:school_id/reports");
+    createReport.handler(this::handleCreateReportWithLibrary);
   }
 
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
@@ -200,5 +214,14 @@ public class ProtectedSchoolRouter implements IRouter {
     int contactId = RestFunctions.getPathParamAsInt(ctx, "contact_id");
     processor.deleteSchoolContact(userData, schoolId, contactId);
     end(ctx.response(), 200);
+  }
+
+  private void handleCreateReportWithLibrary(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    UpsertReportWithLibrary request =
+        RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithLibrary.class);
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    ReportWithLibrary report = processor.createReportWithLibrary(userData, schoolId, request);
+    end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
   }
 }

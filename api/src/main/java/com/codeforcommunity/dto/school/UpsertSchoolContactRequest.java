@@ -1,23 +1,34 @@
 package com.codeforcommunity.dto.school;
 
 import com.codeforcommunity.dto.ApiDto;
+import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.exceptions.HandledException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UpsertSchoolContactRequest extends ApiDto {
 
-  private String name;
+  private String firstName;
+  private String lastName;
   private String email;
   private String address;
   private String phone;
+  private ContactType type;
 
-  public String getName() {
-    return name;
+  public String getFirstName() {
+    return firstName;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
   }
 
   public String getEmail() {
@@ -44,11 +55,22 @@ public class UpsertSchoolContactRequest extends ApiDto {
     this.phone = phone;
   }
 
+  public ContactType getType() {
+    return type;
+  }
+
+  public void setType(ContactType type) {
+    this.type = type;
+  }
+
   @Override
   public List<String> validateFields(String fieldPrefix) throws HandledException {
     List<String> fields = new ArrayList<String>();
-    if (name == null || name.isEmpty()) {
-      fields.add("name");
+    if (firstName == null || firstName.isEmpty()) {
+      fields.add("firstName");
+    }
+    if (lastName == null || lastName.isEmpty()) {
+      fields.add("firstName");
     }
     if (email == null) {
       fields.add("email");
@@ -58,6 +80,9 @@ public class UpsertSchoolContactRequest extends ApiDto {
     }
     if (phone == null) {
       fields.add("phone");
+    }
+    if (type == null) {
+      fields.add("type");
     }
     return fields;
   }

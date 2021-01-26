@@ -3,7 +3,7 @@ import os
 import csv
 
 MSG_HELP = "python3 import_schools.py <input_file> <output_file>"
-INSERT_STR = "INSERT INTO schools (name, address, country) VALUES ('{0}', '{1}', '{2}');\n"
+INSERT_STR = "INSERT INTO schools (name, address, country, library_status) VALUES ('{0}', '{1}', '{2}', '{3}');\n"
 
 COUNTRY_MAPPING = {
     "Antigua": "ANTIGUA_AND_BARBUDA",
@@ -65,10 +65,11 @@ def main():
                 exit(1)
 
             address = ""
+            library_status = "UNKNOWN"
             name = line_split[col_school].strip().replace("'", "''")
             country = COUNTRY_MAPPING[country_raw]
 
-            insert_statement = INSERT_STR.format(name, address, country)
+            insert_statement = INSERT_STR.format(name, address, country, library_status)
             output_lines.append(insert_statement)
 
         if col_school == -1 or col_country == -1:

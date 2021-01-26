@@ -2,9 +2,12 @@ package com.codeforcommunity.processor.authenticated;
 
 import static org.jooq.generated.Tables.SCHOOLS;
 import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
+import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.report.ReportWithLibrary;
+import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
@@ -12,7 +15,9 @@ import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
+import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.enums.Country;
+import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
@@ -23,6 +28,7 @@ import java.time.Instant;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
+import org.jooq.generated.tables.records.SchoolReportsWithLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolsRecord;
 
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
@@ -48,7 +54,17 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public School getSchool(JWTData userData, int schoolId) {
     School school =
-        db.select(SCHOOLS.ID, SCHOOLS.NAME, SCHOOLS.ADDRESS, SCHOOLS.COUNTRY, SCHOOLS.HIDDEN)
+        db.select(
+                SCHOOLS.ID,
+                SCHOOLS.NAME,
+                SCHOOLS.ADDRESS,
+                SCHOOLS.EMAIL,
+                SCHOOLS.PHONE,
+                SCHOOLS.NOTES,
+                SCHOOLS.AREA,
+                SCHOOLS.COUNTRY,
+                SCHOOLS.HIDDEN,
+                SCHOOLS.LIBRARY_STATUS)
             .from(SCHOOLS)
             .where(SCHOOLS.DELETED_AT.isNull())
             .and(SCHOOLS.ID.eq(schoolId))
@@ -72,8 +88,13 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     String name = upsertSchoolRequest.getName();
     String address = upsertSchoolRequest.getAddress();
+    String phone = upsertSchoolRequest.getPhone();
+    String email = upsertSchoolRequest.getEmail();
+    String notes = upsertSchoolRequest.getNotes();
+    String area = upsertSchoolRequest.getArea();
     Country country = upsertSchoolRequest.getCountry();
     Boolean hidden = upsertSchoolRequest.getHidden();
+    LibraryStatus libraryStatus = upsertSchoolRequest.getLibraryStatus();
 
     SchoolsRecord school =
         db.selectFrom(SCHOOLS)
@@ -87,22 +108,37 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       SchoolsRecord newSchool = db.newRecord(SCHOOLS);
       newSchool.setName(name);
       newSchool.setAddress(address);
+      newSchool.setPhone(phone);
+      newSchool.setEmail(email);
+      newSchool.setNotes(notes);
+      newSchool.setArea(area);
       newSchool.setCountry(country);
       newSchool.setHidden(hidden);
+      newSchool.setLibraryStatus(libraryStatus);
       newSchool.store();
 
       return new School(
           newSchool.getId(),
           newSchool.getName(),
           newSchool.getAddress(),
+          newSchool.getEmail(),
+          newSchool.getPhone(),
+          newSchool.getNotes(),
+          newSchool.getArea(),
           newSchool.getCountry(),
-          newSchool.getHidden());
+          newSchool.getHidden(),
+          newSchool.getLibraryStatus());
     }
 
     if (school.getDeletedAt() != null || school.getHidden()) {
       // If the school was previously deleted, un-delete it
       school.setDeletedAt(null);
       school.setHidden(hidden);
+      school.setPhone(phone);
+      school.setEmail(email);
+      school.setNotes(notes);
+      school.setArea(area);
+      school.setLibraryStatus(libraryStatus);
       school.store();
 
       Integer schoolId = school.getId();
@@ -112,10 +148,16 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
           school.getId(),
           school.getName(),
           school.getAddress(),
+          school.getEmail(),
+          school.getPhone(),
+          school.getNotes(),
+          school.getArea(),
           school.getCountry(),
           school.getHidden(),
+          school.getLibraryStatus(),
           contacts);
     }
+
     throw new SchoolAlreadyExistsException(name, country);
   }
 
@@ -130,10 +172,12 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         db.select(
                 SCHOOL_CONTACTS.ID,
                 SCHOOL_CONTACTS.SCHOOL_ID,
-                SCHOOL_CONTACTS.NAME,
+                SCHOOL_CONTACTS.FIRST_NAME,
+                SCHOOL_CONTACTS.LAST_NAME,
                 SCHOOL_CONTACTS.EMAIL,
                 SCHOOL_CONTACTS.ADDRESS,
-                SCHOOL_CONTACTS.PHONE)
+                SCHOOL_CONTACTS.PHONE,
+                SCHOOL_CONTACTS.TYPE)
             .from(SCHOOL_CONTACTS)
             .where(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
             .and(SCHOOL_CONTACTS.DELETED_AT.isNull())
@@ -153,10 +197,12 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         db.select(
                 SCHOOL_CONTACTS.ID,
                 SCHOOL_CONTACTS.SCHOOL_ID,
-                SCHOOL_CONTACTS.NAME,
+                SCHOOL_CONTACTS.FIRST_NAME,
+                SCHOOL_CONTACTS.LAST_NAME,
                 SCHOOL_CONTACTS.EMAIL,
                 SCHOOL_CONTACTS.ADDRESS,
-                SCHOOL_CONTACTS.PHONE)
+                SCHOOL_CONTACTS.PHONE,
+                SCHOOL_CONTACTS.TYPE)
             .from(SCHOOL_CONTACTS)
             .where(SCHOOL_CONTACTS.ID.eq(contactId))
             .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
@@ -178,37 +224,45 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    String name = upsertSchoolContactRequest.getName();
+    String firstName = upsertSchoolContactRequest.getFirstName();
+    String lastName = upsertSchoolContactRequest.getLastName();
     String email = upsertSchoolContactRequest.getEmail();
     String address = upsertSchoolContactRequest.getAddress();
     String phone = upsertSchoolContactRequest.getPhone();
+    ContactType type = upsertSchoolContactRequest.getType();
 
     SchoolContactsRecord contact =
         db.selectFrom(SCHOOL_CONTACTS)
-            .where(SCHOOL_CONTACTS.NAME.eq(name))
+            .where(SCHOOL_CONTACTS.FIRST_NAME.eq(firstName))
+            .and(SCHOOL_CONTACTS.LAST_NAME.eq(lastName))
             .and(SCHOOL_CONTACTS.EMAIL.eq(email))
             .and(SCHOOL_CONTACTS.ADDRESS.eq(address))
             .and(SCHOOL_CONTACTS.PHONE.eq(phone))
             .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+            .and(SCHOOL_CONTACTS.TYPE.eq(type))
             .fetchOne();
 
     if (contact == null) {
       // If the contact doesn't already exist, create it
       SchoolContactsRecord newContact = db.newRecord(SCHOOL_CONTACTS);
       newContact.setSchoolId(schoolId);
-      newContact.setName(name);
+      newContact.setFirstName(firstName);
+      newContact.setLastName(lastName);
       newContact.setEmail(email);
       newContact.setAddress(address);
       newContact.setPhone(phone);
+      newContact.setType(type);
       newContact.store();
 
       return new SchoolContact(
           newContact.getId(),
           newContact.getSchoolId(),
-          newContact.getName(),
+          newContact.getFirstName(),
+          newContact.getLastName(),
           newContact.getEmail(),
           newContact.getAddress(),
-          newContact.getPhone());
+          newContact.getPhone(),
+          newContact.getType());
     }
 
     if (contact.getDeletedAt() != null) {
@@ -219,13 +273,15 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       return new SchoolContact(
           contact.getId(),
           contact.getSchoolId(),
-          contact.getName(),
+          contact.getFirstName(),
+          contact.getLastName(),
           contact.getEmail(),
           contact.getAddress(),
-          contact.getPhone());
+          contact.getPhone(),
+          contact.getType());
     }
 
-    throw new SchoolContactAlreadyExistsException(school.getName(), name);
+    throw new SchoolContactAlreadyExistsException(school.getName(), firstName, lastName);
   }
 
   @Override
@@ -245,18 +301,22 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolContactDoesNotExistException(schoolId, contactId);
     }
 
-    String name = upsertSchoolContactRequest.getName();
+    String firstName = upsertSchoolContactRequest.getFirstName();
+    String lastName = upsertSchoolContactRequest.getLastName();
     String email = upsertSchoolContactRequest.getEmail();
     String address = upsertSchoolContactRequest.getAddress();
     String phone = upsertSchoolContactRequest.getPhone();
+    ContactType type = upsertSchoolContactRequest.getType();
 
-    contactRecord.setName(name);
+    contactRecord.setFirstName(firstName);
+    contactRecord.setLastName(lastName);
     contactRecord.setEmail(email);
     contactRecord.setAddress(address);
     contactRecord.setPhone(phone);
+    contactRecord.setType(type);
     contactRecord.store();
 
-    return new SchoolContact(contactId, schoolId, name, email, address, phone);
+    return new SchoolContact(contactId, schoolId, firstName, lastName, email, address, phone, type);
   }
 
   @Override
@@ -286,13 +346,23 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     String name = upsertSchoolRequest.getName();
     String address = upsertSchoolRequest.getAddress();
+    String phone = upsertSchoolRequest.getPhone();
+    String email = upsertSchoolRequest.getEmail();
+    String notes = upsertSchoolRequest.getNotes();
+    String area = upsertSchoolRequest.getArea();
     Country country = upsertSchoolRequest.getCountry();
     Boolean hidden = upsertSchoolRequest.getHidden();
+    LibraryStatus libraryStatus = upsertSchoolRequest.getLibraryStatus();
 
     school.setName(name);
     school.setAddress(address);
+    school.setPhone(phone);
+    school.setEmail(email);
+    school.setNotes(notes);
+    school.setArea(area);
     school.setCountry(country);
     school.setHidden(hidden);
+    school.setLibraryStatus(libraryStatus);
     school.store();
   }
 
@@ -332,6 +402,62 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.store();
   }
 
+  @Override
+  public ReportWithLibrary createReportWithLibrary(
+      JWTData userData, int schoolId, UpsertReportWithLibrary req) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+
+    // Update this school to have a new library status
+    school.setLibraryStatus(LibraryStatus.EXISTS);
+    school.store();
+
+    // Save a record to the school_reports_with_libraries table
+    SchoolReportsWithLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITH_LIBRARIES);
+    newReport.setUserId(userData.getUserId());
+    newReport.setSchoolId(schoolId);
+    newReport.setNumberOfChildren(req.getNumberOfChildren());
+    newReport.setNumberOfBooks(req.getNumberOfBooks());
+    newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
+    newReport.setIsSharedSpace(req.getIsSharedSpace());
+    newReport.setHasInvitingSpace(req.getHasInvitingSpace());
+    newReport.setAssignedPersonRole(req.getAssignedPersonRole());
+    newReport.setAssignedPersonTitle(req.getAssignedPersonTitle());
+    newReport.setApprenticeshipProgram(req.getApprenticeshipProgram());
+    newReport.setTrainsAndMentorsApprentices(req.getTrainsAndMentorsApprentices());
+    newReport.setHasCheckInTimetables(req.getHasCheckInTimetables());
+    newReport.setHasBookCheckoutSystem(req.getHasBookCheckoutSystem());
+    newReport.setNumberOfStudentLibrarians(req.getNumberOfStudentLibrarians());
+    newReport.setReasonNoStudentLibrarians(req.getReasonNoStudentLibrarians());
+    newReport.setHasSufficientTraining(req.getHasSufficientTraining());
+    newReport.setTeacherSupport(req.getTeacherSupport());
+    newReport.setParentSupport(req.getParentSupport());
+    newReport.store();
+
+    return new ReportWithLibrary(
+        newReport.getId(),
+        schoolId,
+        userData.getUserId(),
+        req.getNumberOfChildren(),
+        req.getNumberOfBooks(),
+        req.getMostRecentShipmentYear(),
+        req.getIsSharedSpace(),
+        req.getHasInvitingSpace(),
+        req.getAssignedPersonRole(),
+        req.getAssignedPersonTitle(),
+        req.getApprenticeshipProgram(),
+        req.getTrainsAndMentorsApprentices(),
+        req.getHasCheckInTimetables(),
+        req.getHasBookCheckoutSystem(),
+        req.getNumberOfStudentLibrarians(),
+        req.getReasonNoStudentLibrarians(),
+        req.getHasSufficientTraining(),
+        req.getTeacherSupport(),
+        req.getParentSupport());
+  }
+
   private SchoolsRecord queryForSchool(int schoolId) {
     return db.selectFrom(SCHOOLS)
         .where(SCHOOLS.ID.eq(schoolId))
@@ -343,10 +469,12 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     return db.select(
             SCHOOL_CONTACTS.ID,
             SCHOOL_CONTACTS.SCHOOL_ID,
-            SCHOOL_CONTACTS.NAME,
-            SCHOOL_CONTACTS.ADDRESS,
+            SCHOOL_CONTACTS.FIRST_NAME,
+            SCHOOL_CONTACTS.LAST_NAME,
             SCHOOL_CONTACTS.EMAIL,
-            SCHOOL_CONTACTS.PHONE)
+            SCHOOL_CONTACTS.ADDRESS,
+            SCHOOL_CONTACTS.PHONE,
+            SCHOOL_CONTACTS.TYPE)
         .from(SCHOOL_CONTACTS)
         .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
         .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
