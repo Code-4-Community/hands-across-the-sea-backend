@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -29,21 +31,21 @@ import org.jooq.tools.jdbc.MockResult;
  * A class to mock database interactions.
  *
  * @author Conner Nilsen
+ * @version 1.1
  */
 public class JooqMock implements MockDataProvider {
+  private static final Logger log = LogManager.getLogger(JooqMock.class);
   // Operations mapped to the list of things to walk through
-  private final Map<String, Operations> recordReturns;
-  // Actual DSL context
-  private final DSLContext raw_context;
+  private final Map<OperationType, Operations> recordReturns;
   // Spy DSL Context to use
   private final DSLContext context;
   // Map of class names to classes
-  private final Map<String, Table> classMap;
+  private final Map<String, Table<?>> classMap;
   // the id to give a table object
   private int id;
 
   /** A class to hold all operation handler functions and call information. */
-  class Operations {
+  private class Operations {
     // List of Supplier functions to call in order, acts as a queue for record Supplier functions
     private final List<Supplier<Result<? extends Record>>> recordReturns;
     // Current location in the recordReturns list
@@ -122,11 +124,6 @@ public class JooqMock implements MockDataProvider {
       recordReturns.add(recordFunction);
     }
 
-    /** Adds an empty return to the end of the Supplier queue. */
-    private void addEmptyReturn() {
-      recordReturns.add(context::newResult);
-    }
-
     /**
      * Increment callCount, and call next record Supplier. If currently at the final record
      * supplier, then call the last record supplier in the queue.
@@ -198,11 +195,43 @@ public class JooqMock implements MockDataProvider {
     }
   }
 
-  /** Constructor for JooqMock. 'UNKNOWN' and 'DROP/CREATE' operations are added by default. */
+  /**
+   * Represents an operation type in SQL. For all explicitly unsupported types you want to use, the
+   * {@link OperationType#UNKNOWN} type acts as a catchall.
+   */
+  public enum OperationType {
+    SELECT,
+    UPDATE,
+    EXISTS,
+    DELETE,
+    CREATE,
+    DROP,
+    INSERT,
+    UNKNOWN;
+
+    public static OperationType parse(String value) {
+      try {
+        OperationType type = OperationType.valueOf(value.toUpperCase());
+        log.warn(
+            "Please use an OperationType rather than passing in a string for the SQL operation");
+        return type;
+      } catch (IllegalArgumentException e) {
+        log.fatal("Error trying to parse operation type, must be convertible to an OperationType");
+        throw e;
+      }
+    }
+  }
+
+  /**
+   * Constructor for JooqMock. 'UNKNOWN' and 'DROP'/'CREATE' operations are added by default.
+   * Mockito is also used to provide an id for a record automatically when it's inserted. The next
+   * id can be retrieved through the getId() method, and it increases sequentially.
+   */
   public JooqMock() {
     // create DSL context
     MockConnection connection = new MockConnection(this);
-    raw_context = DSL.using(connection, SQLDialect.POSTGRES);
+    // Actual DSL context
+    DSLContext raw_context = DSL.using(connection, SQLDialect.POSTGRES);
     context = spy(raw_context);
     id = 1;
 
@@ -226,8 +255,9 @@ public class JooqMock implements MockDataProvider {
 
     // create the recordReturns object and add the 'UNKNOWN' and 'DROP/CREATE' operations
     recordReturns = new HashMap<>();
-    recordReturns.put("UNKNOWN", new Operations());
-    recordReturns.put("DROP/CREATE", new Operations());
+    recordReturns.put(OperationType.UNKNOWN, new Operations());
+    recordReturns.put(OperationType.DROP, new Operations());
+    recordReturns.put(OperationType.CREATE, new Operations());
 
     // create the classMap object and seed with database tables
     classMap = new HashMap<>();
@@ -281,8 +311,33 @@ public class JooqMock implements MockDataProvider {
    *
    * @param operation The operation to return this for (e.g. 'SELECT', 'INSERT', ...).
    * @param record The record to return
+   * @deprecated in favor of the StatementType version
    */
+  @Deprecated
   public void addReturn(String operation, Record record) {
+    this.addSafeReturn(OperationType.valueOf(operation), record);
+  }
+
+  /**
+   * Add record to return during a call of execute. Will return this record after returning all
+   * record (functions) that have been added prior to this. The final record acts as the default
+   * record for when new records run out.
+   *
+   * <p>The 'UNKNOWN' and 'DROP/CREATE' operations are added by default since they return nothing.
+   *
+   * @param operation The operation to return this for (e.g. 'SELECT', 'INSERT', ...).
+   * @param record The record to return
+   */
+  public void addReturn(OperationType operation, Record record) {
+    if (record == null) {
+      log.warn("addEmptyReturn() is preferred to adding a null record with addReturn()");
+    }
+
+    this.addSafeReturn(operation, record);
+  }
+
+  /** A method for adding records that doesn't log empty return if not required. */
+  private void addSafeReturn(OperationType operation, Record record) {
     if (record == null && !recordReturns.containsKey(operation)) {
       recordReturns.put(operation, new Operations(context::newResult));
     }
@@ -302,8 +357,24 @@ public class JooqMock implements MockDataProvider {
    *
    * @param operation The operation to return this for (e.g. 'SELECT', 'INSERT', ...).
    * @param records The List of records to return
+   * @deprecated in favor of the StatementType version
    */
+  @Deprecated
   public void addReturn(String operation, List<? extends Record> records) {
+    this.addReturn(OperationType.parse(operation), records);
+  }
+
+  /**
+   * Add List of records to return during a call of execute. Will return this list after returning
+   * all record (functions) that have been added prior to this. The final record acts as the default
+   * record for when new records run out.
+   *
+   * <p>The 'UNKNOWN' and 'DROP/CREATE' operations are added by default since they return nothing.
+   *
+   * @param operation The operation to return this for (e.g. 'SELECT', 'INSERT', ...).
+   * @param records The List of records to return
+   */
+  public void addReturn(OperationType operation, List<? extends Record> records) {
     if (!recordReturns.containsKey(operation)) {
       recordReturns.put(operation, new Operations(records));
       return;
@@ -320,8 +391,25 @@ public class JooqMock implements MockDataProvider {
    *
    * @param operation THe operation to run this for (e.g. 'SELECT', 'INSERT'...).
    * @param recordFunction The function to run when execute is called.
+   * @deprecated in favor of the StatementType version
    */
+  @Deprecated
   public void addReturn(String operation, Supplier<Result<? extends Record>> recordFunction) {
+    this.addReturn(OperationType.parse(operation), recordFunction);
+  }
+
+  /**
+   * Add custom record return function to run during call of execute. Will return record the
+   * supplier supplies after returning all record (functions) that have been added prior to this.
+   * The final record acts as the default record for when new records run out.
+   *
+   * <p>The 'UNKNOWN' and 'DROP/CREATE' operations are added by default since they return nothing.
+   *
+   * @param operation THe operation to run this for (e.g. 'SELECT', 'INSERT'...).
+   * @param recordFunction The function to run when execute is called.
+   */
+  public void addReturn(
+      OperationType operation, Supplier<Result<? extends Record>> recordFunction) {
     if (!recordReturns.containsKey(operation)) {
       recordReturns.put(operation, new Operations(recordFunction));
       return;
@@ -338,11 +426,11 @@ public class JooqMock implements MockDataProvider {
    *
    * @param records A map of operations to records to be returned.
    */
-  public void addReturn(Map<String, List<? extends Record>> records) {
+  public void addReturn(Map<OperationType, List<? extends Record>> records) {
     records.forEach(
         (k, v) -> {
           for (Record record : v) {
-            addReturn(k, record);
+            addSafeReturn(k, record);
           }
         });
   }
@@ -351,9 +439,45 @@ public class JooqMock implements MockDataProvider {
    * Adds an empty return to the last position for the current value.
    *
    * @param operation the operation to add the empty return to.
+   * @deprecated in favor of the StatementType version
    */
+  @Deprecated
   public void addEmptyReturn(String operation) {
+    this.addEmptyReturn(OperationType.parse(operation));
+  }
+
+  /**
+   * Adds an empty return to the last position for the current value.
+   *
+   * @param operation the operation to add the empty return to.
+   */
+  public void addEmptyReturn(OperationType operation) {
     addReturn(operation, Collections.emptyList());
+  }
+
+  /**
+   * Adds a return for an {@link OperationType#EXISTS} operation. Gets a table that exists and
+   * returns a valid record for it.
+   */
+  public void addExistsReturn() {
+    addReturn(OperationType.EXISTS, context.newRecord((Table<?>) classMap.values().toArray()[0]));
+  }
+
+  /**
+   * Return count of times operation was called.
+   *
+   * @param operation Operation to get value for.
+   * @return Count of times operation was called or -1 if key does not exist.
+   * @deprecated in favor of the StatementType version
+   */
+  @Deprecated
+  public int timesCalled(String operation) {
+    OperationType type = OperationType.parse(operation);
+    if (!recordReturns.containsKey(type)) {
+      return -1;
+    }
+
+    return recordReturns.get(type).getCallCount();
   }
 
   /**
@@ -362,7 +486,7 @@ public class JooqMock implements MockDataProvider {
    * @param operation Operation to get value for.
    * @return Count of times operation was called or -1 if key does not exist.
    */
-  public int timesCalled(String operation) {
+  public int timesCalled(OperationType operation) {
     if (!recordReturns.containsKey(operation)) {
       return -1;
     }
@@ -374,10 +498,31 @@ public class JooqMock implements MockDataProvider {
    * Combines everything in the List<List<String>> into one list to be what each Operation's name is
    * mapped to.
    *
-   * @return Map of each Operation to each SQL statement used
+   * @return Map of each Operation to each SQL operation used
+   * @deprecated Use {@link JooqMock#getSqlOperationStrings()}
    */
+  @Deprecated
   public Map<String, List<String>> getSqlStrings() {
     Map<String, List<String>> result = new HashMap<>();
+    recordReturns.forEach(
+        (k, v) -> {
+          List<String> opResult = new ArrayList<>();
+          for (List<String> list : v.getSqlStrings()) {
+            opResult.addAll(list);
+          }
+          result.put(k.toString(), opResult);
+        });
+    return result;
+  }
+
+  /**
+   * Combines everything in the List<List<String>> into one list to be what each {@link
+   * OperationType}'s name is mapped to.
+   *
+   * @return Map of each Operation to each SQL operation used
+   */
+  public Map<OperationType, List<String>> getSqlOperationStrings() {
+    Map<OperationType, List<String>> result = new HashMap<>();
     recordReturns.forEach(
         (k, v) -> {
           List<String> opResult = new ArrayList<>();
@@ -394,9 +539,31 @@ public class JooqMock implements MockDataProvider {
    * is mapped to.
    *
    * @return Map of each Operation to each SQL binding used
+   * @deprecated in favor of {@link JooqMock#getSqlOperationBindings()} or {@link
+   *     JooqMock#getRawSqlBindings()}
    */
   public Map<String, List<Object[]>> getSqlBindings() {
     Map<String, List<Object[]>> result = new HashMap<>();
+    recordReturns.forEach(
+        (k, v) -> {
+          List<Object[]> opResult = new ArrayList<>();
+          for (List<Object[]> list : v.getSqlBindings()) {
+            opResult.addAll(list);
+          }
+          result.put(k.toString(), opResult);
+        });
+    return result;
+  }
+
+  /**
+   * Combines everything in the List<List<Object[]>> into one list to be what each Operation's name
+   * is mapped to. See {@link JooqMock#getRawSqlBindings()} for inspecting the bindings used at each
+   * call (which only really matters when an individual return is used multiple times).
+   *
+   * @return List of each binding used with the operation.
+   */
+  public Map<OperationType, List<Object[]>> getSqlOperationBindings() {
+    Map<OperationType, List<Object[]>> result = new HashMap<>();
     recordReturns.forEach(
         (k, v) -> {
           List<Object[]> opResult = new ArrayList<>();
@@ -409,7 +576,24 @@ public class JooqMock implements MockDataProvider {
   }
 
   /**
-   * Returns the ID of the next insertion.
+   * Same as {@link JooqMock#getSqlOperationBindings()}, but also allows for inspecting bindings
+   * used at each call. Only differs from {@code getSqlBindings(OperationType)} when an individual
+   * return is used multiple times.
+   *
+   * @return List of list of each binding used with the operation.
+   */
+  public Map<OperationType, List<List<Object[]>>> getRawSqlBindings() {
+    Map<OperationType, List<List<Object[]>>> result = new HashMap<>();
+    recordReturns.forEach(
+        (k, v) -> {
+          List<List<Object[]>> opResult = v.getSqlBindings();
+          result.put(k, opResult);
+        });
+    return result;
+  }
+
+  /**
+   * Returns the ID of the next insertion. Insertions occur sequentially.
    *
    * @return an integer representing the ID.
    */
@@ -427,51 +611,39 @@ public class JooqMock implements MockDataProvider {
   }
 
   /**
-   * Execute a single sql statement and return result.
+   * Execute a single sql operation and return result.
    *
    * @param ctx Mock context supplied to execute.
    * @return MockResult requested.
    */
-  private MockResult getResult(MockExecuteContext ctx) throws SQLException {
+  private MockResult getResult(MockExecuteContext ctx) {
     String sql = ctx.sql();
-    String operation;
-    String table;
+    OperationType operation;
 
-    // Handle 'DROP' and 'CREATE' statements
-    if (sql.toUpperCase().startsWith("DROP") || sql.toUpperCase().startsWith("CREATE")) {
+    if (sql.toUpperCase().startsWith("DROP")) {
       Result<Record> result = context.newResult();
-      recordReturns.get("DROP/CREATE").call(ctx);
+      recordReturns.get(OperationType.DROP).call(ctx);
       return new MockResult(result.size(), result);
     }
-
-    // Handle 'SELECT' statements
-    if (sql.toUpperCase().startsWith("SELECT")) {
-      table = sql.split("from")[1].split("\"")[1];
-      operation = "SELECT";
-    }
-
-    // Handle 'INSERT' statements
-    else if (sql.toUpperCase().startsWith("INSERT")) {
-      table = sql.split("into")[1].split("\"")[1];
-      operation = "INSERT";
-    }
-
-    // Handle 'UPDATE' statements
-    else if (sql.toUpperCase().startsWith("UPDATE")) {
-      table = sql.split("\"")[1];
-      operation = "UPDATE";
-    }
-
-    // Handle 'DELETE' statements
-    else if (sql.toUpperCase().startsWith("DELETE")) {
-      table = sql.split("from")[1].split("\"")[1];
-      operation = "DELETE";
-    }
-
-    // Handle 'UNKNOWN' statements
-    else {
+    if (sql.toUpperCase().startsWith("CREATE")) {
       Result<Record> result = context.newResult();
-      recordReturns.get("UNKNOWN").call(ctx);
+      recordReturns.get(OperationType.CREATE).call(ctx);
+      return new MockResult(result.size(), result);
+    }
+    if (sql.toUpperCase().contains("WHERE EXISTS")) {
+      operation = OperationType.EXISTS;
+    } else if (sql.toUpperCase().startsWith("SELECT")) {
+      operation = OperationType.SELECT;
+    } else if (sql.toUpperCase().startsWith("INSERT")) {
+      operation = OperationType.INSERT;
+    } else if (sql.toUpperCase().startsWith("UPDATE")) {
+      operation = OperationType.UPDATE;
+    } else if (sql.toUpperCase().startsWith("DELETE")) {
+      operation = OperationType.DELETE;
+    } else {
+      Result<Record> result = context.newResult();
+      log.info("Unknown operation encountered, adding to UNKNOWN StatementType: {}", ctx.sql());
+      recordReturns.get(OperationType.UNKNOWN).call(ctx);
       return new MockResult(result.size(), result);
     }
 
@@ -480,11 +652,10 @@ public class JooqMock implements MockDataProvider {
     try {
       result = recordReturns.get(operation).call(ctx);
     } catch (NullPointerException e) {
-      System.out.println(
+      log.warn(
           "WARNING: JooqMock could not find a primed result for the given operation,"
-              + "so an empty result is being returned. Provided SQL string was '"
-              + ctx.sql()
-              + "'");
+              + "so an empty result is being returned. Provided SQL string was '{}'",
+          ctx.sql());
       result = context.newResult();
     }
     return new MockResult(result.size(), result);
