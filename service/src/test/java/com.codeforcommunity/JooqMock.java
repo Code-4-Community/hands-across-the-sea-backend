@@ -458,9 +458,16 @@ public class JooqMock implements MockDataProvider {
   /**
    * Adds a return for an {@link OperationType#EXISTS} operation. Gets a table that exists and
    * returns a valid record for it.
+   *
+   * @param returnTrue Whether or not the exists query should return true or false
    */
-  public void addExistsReturn() {
-    addReturn(OperationType.EXISTS, context.newRecord((Table<?>) classMap.values().toArray()[0]));
+  public void addExistsReturn(boolean returnTrue) {
+    List<Record> records = new ArrayList<>();
+    if (returnTrue)  {
+      records.add(context.newRecord((Table<?>) classMap.values().toArray()[0]));
+    }
+
+    addReturn(OperationType.EXISTS, records);
   }
 
   /**

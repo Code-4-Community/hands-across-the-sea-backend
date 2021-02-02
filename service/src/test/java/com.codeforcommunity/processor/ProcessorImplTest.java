@@ -1,6 +1,7 @@
 package com.codeforcommunity.processor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.codeforcommunity.JooqMock;
@@ -27,10 +28,20 @@ public class ProcessorImplTest {
   }
 
   @Test
-  public void testFetchExists() {
+  public void testFetchExistsTrue() {
+    setup();
     DSLContext db = mockDb.getContext();
-    mockDb.addExistsReturn();
-    db.fetchExists(db.selectFrom(Tables.USERS).where(Tables.USERS.ID.eq(1)));
+    mockDb.addExistsReturn(true);
+    assertTrue(db.fetchExists(db.selectFrom(Tables.USERS).where(Tables.USERS.ID.eq(1))));
+    assertEquals(1, mockDb.getSqlOperationBindings().get(OperationType.EXISTS).size());
+  }
+
+  @Test
+  public void testFetchExistsFalse() {
+    setup();
+    DSLContext db = mockDb.getContext();
+    mockDb.addExistsReturn(false);
+    assertFalse(db.fetchExists(db.selectFrom(Tables.USERS).where(Tables.USERS.ID.eq(1))));
     assertEquals(1, mockDb.getSqlOperationBindings().get(OperationType.EXISTS).size());
   }
 }
