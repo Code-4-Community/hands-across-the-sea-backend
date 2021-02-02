@@ -7,6 +7,7 @@ import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
+import com.codeforcommunity.dto.school.SchoolReportListResponse;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 
@@ -19,6 +20,8 @@ public interface IProtectedSchoolProcessor {
   SchoolContactListResponse getAllSchoolContacts(JWTData userData, int schoolId);
 
   SchoolContact getSchoolContact(JWTData userData, int schoolId, int contactId);
+
+  SchoolReportListResponse getAllSchoolReports(JWTData userData, int schoolId);
 
   SchoolContact createSchoolContact(
       JWTData userData, int schoolId, UpsertSchoolContactRequest upsertSchoolContactRequest);

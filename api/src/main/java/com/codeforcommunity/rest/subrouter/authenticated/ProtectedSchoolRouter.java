@@ -50,6 +50,7 @@ public class ProtectedSchoolRouter implements IRouter {
 
     // Register all school report routes
     registerCreateReportWithLibrary(router);
+    registerGetAllReportsForOneSchool(router);
     //    registerCreateReportWithoutLibrary(router);
     //    registerCreateReportInProgressLibrary(router);
     //    registerGetLatestReport(router);
@@ -121,6 +122,11 @@ public class ProtectedSchoolRouter implements IRouter {
   private void registerCreateReportWithLibrary(Router router) {
     Route createReport = router.post("/:school_id/reports");
     createReport.handler(this::handleCreateReportWithLibrary);
+  }
+
+  private void registerGetAllReportsForOneSchool(Router router) {
+    Route getReports = router.get("/:school_id/reports");
+    getReports.handler(this::handleGetAllReportsForOneSchool);
   }
 
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
@@ -223,5 +229,12 @@ public class ProtectedSchoolRouter implements IRouter {
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     ReportWithLibrary report = processor.createReportWithLibrary(userData, schoolId, request);
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
+  }
+
+  private void handleGetAllReportsForOneSchool(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    SchoolReportListResponse report = processor.getAllSchoolReports(userData, schoolId);
+    end(ctx.response(), 200, JsonObject.mapFrom(report).toString());
   }
 }
