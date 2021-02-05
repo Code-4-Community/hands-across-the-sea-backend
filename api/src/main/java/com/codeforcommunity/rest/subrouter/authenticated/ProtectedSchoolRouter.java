@@ -4,7 +4,6 @@ import static com.codeforcommunity.rest.ApiRouter.end;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
-import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportGenericListResponse;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.dto.report.ReportWithLibraryInProgress;
@@ -125,17 +124,17 @@ public class ProtectedSchoolRouter implements IRouter {
   }
 
   private void registerCreateReportWithLibrary(Router router) {
-    Route createReport = router.post("/:school_id/reports");
+    Route createReport = router.post("/:school_id/reports/with-library");
     createReport.handler(this::handleCreateReportWithLibrary);
   }
 
   private void registerCreateReportWithoutLibrary(Router router) {
-    Route createReport = router.post("/:school_id/reports");
+    Route createReport = router.post("/:school_id/reports/without-library");
     createReport.handler(this::handleCreateReportWithoutLibrary);
   }
 
   private void registerCreateReportInProgressLibrary(Router router) {
-    Route createReport = router.post("/:school_id/reports");
+    Route createReport = router.post("/:school_id/reports/in-progress-library");
     createReport.handler(this::handleCreateReportInProgressLibrary);
   }
 
@@ -268,7 +267,8 @@ public class ProtectedSchoolRouter implements IRouter {
   private void handleGetPaginatedReport(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    ReportGenericListResponse reports = processor.getPaginatedReports(userData, schoolId);
+    int page = RestFunctions.getRequestParameterAsInt(ctx.request(), "p");
+    ReportGenericListResponse reports = processor.getPaginatedReports(userData, schoolId, page);
     end(ctx.response(), 200, JsonObject.mapFrom(reports).toString());
   }
 }

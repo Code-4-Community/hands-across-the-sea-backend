@@ -22,39 +22,6 @@ public class UpsertReportWithLibrary extends UpsertReportGeneric {
   private String teacherSupport;
   private String parentSupport;
 
-  public UpsertReportWithLibrary(
-      Integer numberOfChildren,
-      Integer numberOfBooks,
-      Integer mostRecentShipmentYear,
-      Boolean isSharedSpace,
-      Boolean hasInvitingSpace,
-      TimeRole assignedPersonRole,
-      ApprenticeTitle assignedPersonTitle,
-      ApprenticeshipProgram apprenticeshipProgram,
-      Boolean trainsAndMentorsApprentices,
-      Boolean hasCheckInTimetables,
-      Boolean hasBookCheckoutSystem,
-      Integer numberOfStudentLibrarians,
-      String reasonNoStudentLibrarians,
-      Boolean hasSufficientTraining,
-      String teacherSupport,
-      String parentSupport) {
-    super(numberOfChildren, numberOfBooks, mostRecentShipmentYear);
-    this.isSharedSpace = isSharedSpace;
-    this.hasInvitingSpace = hasInvitingSpace;
-    this.assignedPersonRole = assignedPersonRole;
-    this.assignedPersonTitle = assignedPersonTitle;
-    this.apprenticeshipProgram = apprenticeshipProgram;
-    this.trainsAndMentorsApprentices = trainsAndMentorsApprentices;
-    this.hasCheckInTimetables = hasCheckInTimetables;
-    this.hasBookCheckoutSystem = hasBookCheckoutSystem;
-    this.numberOfStudentLibrarians = numberOfStudentLibrarians;
-    this.reasonNoStudentLibrarians = reasonNoStudentLibrarians;
-    this.hasSufficientTraining = hasSufficientTraining;
-    this.teacherSupport = teacherSupport;
-    this.parentSupport = parentSupport;
-  }
-
   public Boolean getIsSharedSpace() {
     return isSharedSpace;
   }

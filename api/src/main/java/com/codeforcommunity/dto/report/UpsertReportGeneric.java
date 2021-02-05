@@ -11,13 +11,6 @@ public class UpsertReportGeneric extends ApiDto {
   private Integer numberOfBooks;
   private Integer mostRecentShipmentYear;
 
-  public UpsertReportGeneric(
-      Integer numberOfChildren, Integer numberOfBooks, Integer mostRecentShipmentYear) {
-    this.numberOfChildren = numberOfChildren;
-    this.numberOfBooks = numberOfBooks;
-    this.mostRecentShipmentYear = mostRecentShipmentYear;
-  }
-
   public Integer getNumberOfChildren() {
     return numberOfChildren;
   }

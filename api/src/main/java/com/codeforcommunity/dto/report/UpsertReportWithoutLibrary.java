@@ -8,23 +8,6 @@ public class UpsertReportWithoutLibrary extends UpsertReportGeneric {
   private String currentStatus;
   private String readyTimeline;
 
-  public UpsertReportWithoutLibrary(
-      Integer numberOfChildren,
-      Integer numberOfBooks,
-      Integer mostRecentShipmentYear,
-      String reasonWhyNot,
-      Boolean wantsLibrary,
-      Boolean hasSpace,
-      String currentStatus,
-      String readyTimeline) {
-    super(numberOfChildren, numberOfBooks, mostRecentShipmentYear);
-    this.reasonWhyNot = reasonWhyNot;
-    this.wantsLibrary = wantsLibrary;
-    this.hasSpace = hasSpace;
-    this.currentStatus = currentStatus;
-    this.readyTimeline = readyTimeline;
-  }
-
   public String getReasonWhyNot() {
     return reasonWhyNot;
   }
