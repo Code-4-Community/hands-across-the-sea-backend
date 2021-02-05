@@ -4,6 +4,8 @@ import static com.codeforcommunity.rest.ApiRouter.end;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.report.ReportGeneric;
+import com.codeforcommunity.dto.report.ReportGenericListResponse;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.school.School;
@@ -53,7 +55,7 @@ public class ProtectedSchoolRouter implements IRouter {
     //    registerCreateReportWithoutLibrary(router);
     //    registerCreateReportInProgressLibrary(router);
     //    registerGetLatestReport(router);
-    //    registerGetPaginatedReports(router);
+    registerGetPaginatedReports(router);
 
     return router;
   }
@@ -121,6 +123,11 @@ public class ProtectedSchoolRouter implements IRouter {
   private void registerCreateReportWithLibrary(Router router) {
     Route createReport = router.post("/:school_id/reports");
     createReport.handler(this::handleCreateReportWithLibrary);
+  }
+
+  private void registerGetPaginatedReports(Router router) {
+    Route getReports = router.get("/:school_id/reports");
+    getReports.handler(this::handleGetPaginatedReport);
   }
 
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
@@ -204,8 +211,8 @@ public class ProtectedSchoolRouter implements IRouter {
         RestFunctions.getJsonBodyAsClass(ctx, UpsertSchoolContactRequest.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int contactId = RestFunctions.getPathParamAsInt(ctx, "contact_id");
-    SchoolContact response = processor.updateSchoolContact(userData, schoolId, contactId, request);
-    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
+    processor.updateSchoolContact(userData, schoolId, contactId, request);
+    end(ctx.response(), 200);
   }
 
   private void handleDeleteSchoolContactRoute(RoutingContext ctx) {
@@ -223,5 +230,12 @@ public class ProtectedSchoolRouter implements IRouter {
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     ReportWithLibrary report = processor.createReportWithLibrary(userData, schoolId, request);
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
+  }
+
+  private void handleGetPaginatedReport(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    ReportGenericListResponse reports = processor.getPaginatedReports(userData, schoolId);
+    end(ctx.response(), 200, JsonObject.mapFrom(reports).toString());
   }
 }

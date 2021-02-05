@@ -6,6 +6,8 @@ import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.report.ReportGeneric;
+import com.codeforcommunity.dto.report.ReportGenericListResponse;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.school.School;
@@ -15,17 +17,22 @@ import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
+import com.codeforcommunity.enums.ApprenticeTitle;
+import com.codeforcommunity.enums.ApprenticeshipProgram;
 import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
+import com.codeforcommunity.enums.TimeRole;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithLibrariesRecord;
@@ -55,16 +62,16 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   public School getSchool(JWTData userData, int schoolId) {
     School school =
         db.select(
-                SCHOOLS.ID,
-                SCHOOLS.NAME,
-                SCHOOLS.ADDRESS,
-                SCHOOLS.EMAIL,
-                SCHOOLS.PHONE,
-                SCHOOLS.NOTES,
-                SCHOOLS.AREA,
-                SCHOOLS.COUNTRY,
-                SCHOOLS.HIDDEN,
-                SCHOOLS.LIBRARY_STATUS)
+            SCHOOLS.ID,
+            SCHOOLS.NAME,
+            SCHOOLS.ADDRESS,
+            SCHOOLS.EMAIL,
+            SCHOOLS.PHONE,
+            SCHOOLS.NOTES,
+            SCHOOLS.AREA,
+            SCHOOLS.COUNTRY,
+            SCHOOLS.HIDDEN,
+            SCHOOLS.LIBRARY_STATUS)
             .from(SCHOOLS)
             .where(SCHOOLS.DELETED_AT.isNull())
             .and(SCHOOLS.ID.eq(schoolId))
@@ -170,14 +177,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     List<SchoolContact> schoolContacts =
         db.select(
-                SCHOOL_CONTACTS.ID,
-                SCHOOL_CONTACTS.SCHOOL_ID,
-                SCHOOL_CONTACTS.FIRST_NAME,
-                SCHOOL_CONTACTS.LAST_NAME,
-                SCHOOL_CONTACTS.EMAIL,
-                SCHOOL_CONTACTS.ADDRESS,
-                SCHOOL_CONTACTS.PHONE,
-                SCHOOL_CONTACTS.TYPE)
+            SCHOOL_CONTACTS.ID,
+            SCHOOL_CONTACTS.SCHOOL_ID,
+            SCHOOL_CONTACTS.FIRST_NAME,
+            SCHOOL_CONTACTS.LAST_NAME,
+            SCHOOL_CONTACTS.EMAIL,
+            SCHOOL_CONTACTS.ADDRESS,
+            SCHOOL_CONTACTS.PHONE,
+            SCHOOL_CONTACTS.TYPE)
             .from(SCHOOL_CONTACTS)
             .where(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
             .and(SCHOOL_CONTACTS.DELETED_AT.isNull())
@@ -195,14 +202,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     SchoolContact schoolContact =
         db.select(
-                SCHOOL_CONTACTS.ID,
-                SCHOOL_CONTACTS.SCHOOL_ID,
-                SCHOOL_CONTACTS.FIRST_NAME,
-                SCHOOL_CONTACTS.LAST_NAME,
-                SCHOOL_CONTACTS.EMAIL,
-                SCHOOL_CONTACTS.ADDRESS,
-                SCHOOL_CONTACTS.PHONE,
-                SCHOOL_CONTACTS.TYPE)
+            SCHOOL_CONTACTS.ID,
+            SCHOOL_CONTACTS.SCHOOL_ID,
+            SCHOOL_CONTACTS.FIRST_NAME,
+            SCHOOL_CONTACTS.LAST_NAME,
+            SCHOOL_CONTACTS.EMAIL,
+            SCHOOL_CONTACTS.ADDRESS,
+            SCHOOL_CONTACTS.PHONE,
+            SCHOOL_CONTACTS.TYPE)
             .from(SCHOOL_CONTACTS)
             .where(SCHOOL_CONTACTS.ID.eq(contactId))
             .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
@@ -285,7 +292,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public SchoolContact updateSchoolContact(
+  public void updateSchoolContact(
       JWTData userData,
       int schoolId,
       int contactId,
@@ -315,8 +322,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     contactRecord.setPhone(phone);
     contactRecord.setType(type);
     contactRecord.store();
-
-    return new SchoolContact(contactId, schoolId, firstName, lastName, email, address, phone, type);
   }
 
   @Override
@@ -458,6 +463,45 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         req.getParentSupport());
   }
 
+  @Override
+  public ReportGenericListResponse getPaginatedReports(JWTData userData, int schoolId) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+
+    List<ReportGeneric> reports;
+
+    List<ReportWithLibrary> libraryReports = db
+        .select(
+            SCHOOL_REPORTS_WITH_LIBRARIES.ID,
+            SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID,
+            SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID,
+            SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_CHILDREN,
+            SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_BOOKS,
+            SCHOOL_REPORTS_WITH_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
+            SCHOOL_REPORTS_WITH_LIBRARIES.IS_SHARED_SPACE,
+            SCHOOL_REPORTS_WITH_LIBRARIES.HAS_INVITING_SPACE,
+            SCHOOL_REPORTS_WITH_LIBRARIES.ASSIGNED_PERSON_ROLE,
+            SCHOOL_REPORTS_WITH_LIBRARIES.ASSIGNED_PERSON_TITLE,
+            SCHOOL_REPORTS_WITH_LIBRARIES.APPRENTICESHIP_PROGRAM,
+            SCHOOL_REPORTS_WITH_LIBRARIES.TRAINS_AND_MENTORS_APPRENTICES,
+            SCHOOL_REPORTS_WITH_LIBRARIES.HAS_CHECK_IN_TIMETABLES,
+            SCHOOL_REPORTS_WITH_LIBRARIES.HAS_BOOK_CHECKOUT_SYSTEM,
+            SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_STUDENT_LIBRARIANS,
+            SCHOOL_REPORTS_WITH_LIBRARIES.REASON_NO_STUDENT_LIBRARIANS,
+            SCHOOL_REPORTS_WITH_LIBRARIES.HAS_SUFFICIENT_TRAINING,
+            SCHOOL_REPORTS_WITH_LIBRARIES.TEACHER_SUPPORT,
+            SCHOOL_REPORTS_WITH_LIBRARIES.PARENT_SUPPORT
+        )
+        .from(SCHOOL_REPORTS_WITH_LIBRARIES)
+        .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+        .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
+        .fetchInto(ReportWithLibrary.class);
+
+    return null;
+  }
+
   private SchoolsRecord queryForSchool(int schoolId) {
     return db.selectFrom(SCHOOLS)
         .where(SCHOOLS.ID.eq(schoolId))
@@ -467,14 +511,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   private List<SchoolContact> queryForSchoolContacts(int schoolId) {
     return db.select(
-            SCHOOL_CONTACTS.ID,
-            SCHOOL_CONTACTS.SCHOOL_ID,
-            SCHOOL_CONTACTS.FIRST_NAME,
-            SCHOOL_CONTACTS.LAST_NAME,
-            SCHOOL_CONTACTS.EMAIL,
-            SCHOOL_CONTACTS.ADDRESS,
-            SCHOOL_CONTACTS.PHONE,
-            SCHOOL_CONTACTS.TYPE)
+        SCHOOL_CONTACTS.ID,
+        SCHOOL_CONTACTS.SCHOOL_ID,
+        SCHOOL_CONTACTS.FIRST_NAME,
+        SCHOOL_CONTACTS.LAST_NAME,
+        SCHOOL_CONTACTS.EMAIL,
+        SCHOOL_CONTACTS.ADDRESS,
+        SCHOOL_CONTACTS.PHONE,
+        SCHOOL_CONTACTS.TYPE)
         .from(SCHOOL_CONTACTS)
         .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
         .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
