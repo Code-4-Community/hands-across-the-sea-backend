@@ -532,7 +532,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setNumberOfChildren(upsertRequest.getNumberOfChildren());
     newReport.setAssignedPersonTitle(ApprenticeTitle.from(upsertRequest.getAssignedPersonTitle()));
     newReport.setTrainsAndMentorsApprentices(upsertRequest.getTrainsAndMentorsApprentices());
-
+    newReport.store();
 
     return new ReportWithLibraryInProgress(
         newReport.getId(),

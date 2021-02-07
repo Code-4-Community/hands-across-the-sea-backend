@@ -2,8 +2,8 @@ package com.codeforcommunity.dto.report;
 
 public class ReportWithoutLibrary extends ReportGeneric {
 
-  private boolean wantsLibrary;
-  private boolean hasSpace;
+  private Boolean wantsLibrary;
+  private Boolean hasSpace;
   private String currentStatus;
   private String reason;
   private String timeline;
@@ -15,8 +15,8 @@ public class ReportWithoutLibrary extends ReportGeneric {
       Integer numberOfChildren,
       Integer numberOfBooks,
       Integer mostRecentShipmentYear,
-      boolean wantsLibrary,
-      boolean hasSpace,
+      Boolean wantsLibrary,
+      Boolean hasSpace,
       String currentStatus,
       String reason,
       String timeline) {

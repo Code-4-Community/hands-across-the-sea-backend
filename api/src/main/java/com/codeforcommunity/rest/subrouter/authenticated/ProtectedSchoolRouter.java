@@ -128,12 +128,12 @@ public class ProtectedSchoolRouter implements IRouter {
   }
 
   private void registerCreateReportWithoutLibrary(Router router) {
-    Route createReport = router.post("/:school_id/reports");
+    Route createReport = router.post("/:school_id/reports/without-library");
     createReport.handler(this::handleCreateReportWithoutLibrary);
   }
 
   private void registerCreateReportInProgressLibrary(Router router) {
-    Route createReport = router.post("/:school_id/reports");
+    Route createReport = router.post("/:school_id/reports/in-progress");
     createReport.handler(this::handleCreateReportInProgressLibrary);
   }
 
