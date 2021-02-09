@@ -15,10 +15,7 @@ import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.PrivilegeLevel;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.processor.authenticated.ProtectedSchoolProcessorImpl;
-
 import java.util.Random;
-
-import org.jooq.Record;
 import org.jooq.generated.tables.records.SchoolsRecord;
 import org.junit.jupiter.api.Test;
 
@@ -32,9 +29,7 @@ public class ProtectedSchoolProcessorImplTest {
     this.schoolProcessor = new ProtectedSchoolProcessorImpl(myJooqMock.getContext());
   }
 
-  /**
-   * Test attempting to create a school as a standard user.
-   */
+  /** Test attempting to create a school as a standard user. */
   @Test
   public void testCreateSchoolNonAdmin() {
     this.setup();
@@ -79,9 +74,7 @@ public class ProtectedSchoolProcessorImplTest {
     }
   }
 
-  /**
-   * Test attempting to create a school as a standard user.
-   */
+  /** Test attempting to create a school as a standard user. */
   @Test
   public void testCreateSchoolAdmin() {
     this.setup();
@@ -131,8 +124,8 @@ public class ProtectedSchoolProcessorImplTest {
     record.setCountry(country);
     record.setLibraryStatus(status);
 
-    myJooqMock.addReturn("SELECT", (Record) null);  // Check if school exists
-    myJooqMock.addReturn("INSERT", record);  // Insert school
+    myJooqMock.addEmptyReturn("SELECT"); // Check if school exists
+    myJooqMock.addReturn("INSERT", record); // Insert school
 
     School res = schoolProcessor.createSchool(user, request);
     assertEquals(record.getName(), res.getName());

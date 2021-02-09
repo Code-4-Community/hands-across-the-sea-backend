@@ -1,10 +1,20 @@
 package com.codeforcommunity.processor.authenticated;
 
+import static org.jooq.generated.Tables.SCHOOLS;
+import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
+import static org.jooq.generated.Tables.SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES;
+import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITHOUT_LIBRARIES;
+import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
+
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
+import com.codeforcommunity.dto.report.ReportWithLibraryInProgress;
+import com.codeforcommunity.dto.report.ReportWithoutLibrary;
+import com.codeforcommunity.dto.report.UpsertReportInProgressLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
+import com.codeforcommunity.dto.report.UpsertReportWithoutLibrary;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
@@ -12,17 +22,28 @@ import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
+import com.codeforcommunity.enums.ApprenticeTitle;
+import com.codeforcommunity.enums.ApprenticeshipProgram;
 import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.*;
 
+import com.codeforcommunity.enums.ReadyTimeline;
+import com.codeforcommunity.enums.TimeRole;
+import com.codeforcommunity.exceptions.AdminOnlyRouteException;
+import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
+import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
+import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
+import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
+import org.jooq.generated.tables.records.SchoolReportsInProgressLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithLibrariesRecord;
+import org.jooq.generated.tables.records.SchoolReportsWithoutLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolsRecord;
 
 import static org.jooq.generated.Tables.*;
@@ -493,6 +514,86 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
                       .and(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.SCHOOL_ID.eq(schoolId))
                       .fetchOne(ReportWithLibraryInProgress.class);
     }
+  }
+
+
+  @Override
+  public ReportWithoutLibrary createReportWithoutLibrary(
+      JWTData userData, int schoolId, UpsertReportWithoutLibrary req
+  ) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+    school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
+    school.store();
+
+    SchoolReportsWithoutLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITHOUT_LIBRARIES);
+    newReport.setUserId(userData.getUserId());
+    newReport.setHasSpace(req.getHasSpace());
+    newReport.setCurrentStatus(req.getCurrentStatus());
+    newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
+    newReport.setNumberOfBooks(req.getNumberOfBooks());
+    newReport.setNumberOfChildren(req.getNumberOfChildren());
+    newReport.setReasonWhyNot(req.getReasonWhyNot());
+    newReport.setWantsLibrary(req.getWantsLibrary());
+    newReport.setReadyTimeline(ReadyTimeline.from(req.getReadyTimeline()));
+    newReport.store();
+
+    return new ReportWithoutLibrary(
+        newReport.getId(),
+        newReport.getSchoolId(),
+        newReport.getUserId(),
+        newReport.getNumberOfChildren(),
+        newReport.getNumberOfBooks(),
+        newReport.getMostRecentShipmentYear(),
+        newReport.getWantsLibrary(),
+        newReport.getHasSpace(),
+        newReport.getCurrentStatus(),
+        newReport.getReasonWhyNot(),
+        req.getReadyTimeline()
+    );
+  }
+
+  @Override
+  public ReportWithLibraryInProgress createReportWithLibraryInProgress(JWTData userData,
+      int schoolId, UpsertReportInProgressLibrary upsertRequest) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+    school.setLibraryStatus(LibraryStatus.IN_PROGRESS);
+    school.store();
+
+    SchoolReportsInProgressLibrariesRecord newReport =
+        db.newRecord(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES);
+    newReport.setApprenticeshipProgram(ApprenticeshipProgram.
+        from(upsertRequest.getApprenticeshipProgram()));
+    newReport.setAssignedPersonRole(TimeRole.from(upsertRequest.getAssignedPersonRole()));
+    newReport.setHasInvitingSpace(upsertRequest.getHasInvitingSpace());
+    newReport.setIsSharedSpace(upsertRequest.getSharedSpace());
+    newReport.setMostRecentShipmentYear(upsertRequest.getMostRecentShipmentYear());
+    newReport.setUserId(userData.getUserId());
+    newReport.setNumberOfBooks(upsertRequest.getNumberOfBooks());
+    newReport.setNumberOfChildren(upsertRequest.getNumberOfChildren());
+    newReport.setAssignedPersonTitle(ApprenticeTitle.from(upsertRequest.getAssignedPersonTitle()));
+    newReport.setTrainsAndMentorsApprentices(upsertRequest.getTrainsAndMentorsApprentices());
+    newReport.store();
+
+    return new ReportWithLibraryInProgress(
+        newReport.getId(),
+        newReport.getSchoolId(),
+        newReport.getUserId(),
+        newReport.getNumberOfChildren(),
+        newReport.getNumberOfBooks(),
+        newReport.getMostRecentShipmentYear(),
+        newReport.getIsSharedSpace(),
+        newReport.getHasInvitingSpace(),
+        newReport.getAssignedPersonRole(),
+        newReport.getAssignedPersonTitle(),
+        newReport.getTrainsAndMentorsApprentices()
+    );
+
   }
 
   private SchoolsRecord queryForSchool(int schoolId) {
