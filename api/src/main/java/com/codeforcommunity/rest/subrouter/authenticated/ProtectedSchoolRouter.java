@@ -131,7 +131,7 @@ public class ProtectedSchoolRouter implements IRouter {
     createReport.handler(this::handleCreateReportWithLibrary);
   }
 
-  private void registerGetMostRecentReport(Router router){
+  private void registerGetMostRecentReport(Router router) {
     Route getMostRecentReport = router.get("/:school_id/report");
     getMostRecentReport.handler(this::handleGetMostRecentReport);
   }
@@ -248,7 +248,7 @@ public class ProtectedSchoolRouter implements IRouter {
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
   }
 
-  private void handleGetMostRecentReport(RoutingContext ctx){
+  private void handleGetMostRecentReport(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     ReportGeneric report = processor.getMostRecentReport(userData, schoolId);

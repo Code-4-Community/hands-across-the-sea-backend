@@ -21,5 +21,4 @@ public class NoReportFoundException extends HandledException {
   public int getSchoolId() {
     return schoolId;
   }
-
 }

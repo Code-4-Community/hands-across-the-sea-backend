@@ -11,7 +11,8 @@ public class ReportWithLibraryInProgress extends ReportGeneric {
   private ApprenticeTitle apprenticeTitle;
   private Boolean trainsAndMentorsApprentices;
 
-  public ReportWithLibraryInProgress(Integer id,
+  public ReportWithLibraryInProgress(
+      Integer id,
       Integer schoolId,
       Integer userId,
       Integer numberOfChildren,
@@ -21,8 +22,7 @@ public class ReportWithLibraryInProgress extends ReportGeneric {
       Boolean hasInvitingSpace,
       TimeRole assignedPersonRole,
       ApprenticeTitle apprenticeTitle,
-      Boolean trainsAndMentorsApprentices
-      ) {
+      Boolean trainsAndMentorsApprentices) {
     super(id, schoolId, userId, numberOfChildren, numberOfBooks, mostRecentShipmentYear);
     this.isSharedSpace = isSharedSpace;
     this.hasInvitingSpace = hasInvitingSpace;
@@ -31,13 +31,23 @@ public class ReportWithLibraryInProgress extends ReportGeneric {
     this.trainsAndMentorsApprentices = trainsAndMentorsApprentices;
   }
 
-  public Boolean getIsSharedSpace() { return this.isSharedSpace; }
+  public Boolean getIsSharedSpace() {
+    return this.isSharedSpace;
+  }
 
-  public Boolean getHasInvitingSpace() { return this.hasInvitingSpace; }
+  public Boolean getHasInvitingSpace() {
+    return this.hasInvitingSpace;
+  }
 
-  public TimeRole getAssignedPersonRole() { return this.assignedPersonRole; }
+  public TimeRole getAssignedPersonRole() {
+    return this.assignedPersonRole;
+  }
 
-  public ApprenticeTitle getApprenticeTitle() { return this.apprenticeTitle; }
+  public ApprenticeTitle getApprenticeTitle() {
+    return this.apprenticeTitle;
+  }
 
-  public Boolean getTrainsAndMentorsApprentices() { return this.trainsAndMentorsApprentices; }
+  public Boolean getTrainsAndMentorsApprentices() {
+    return this.trainsAndMentorsApprentices;
+  }
 }

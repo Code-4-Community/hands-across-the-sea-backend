@@ -28,8 +28,7 @@ public class FailureHandler {
   }
 
   public void handleNoReportFound(RoutingContext ctx, NoReportFoundException e) {
-    String message =
-            String.format("Report not found for school with id %d", e.getSchoolId());
+    String message = String.format("Report not found for school with id %d", e.getSchoolId());
     end(ctx, message, 404);
   }
 

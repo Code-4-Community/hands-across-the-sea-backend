@@ -28,14 +28,23 @@ public class ReportWithoutLibrary extends ReportGeneric {
     this.timeline = timeline;
   }
 
-  public boolean getWantsLibrary() { return this.wantsLibrary; }
+  public boolean getWantsLibrary() {
+    return this.wantsLibrary;
+  }
 
-  public boolean getHasSpace() { return this.hasSpace; }
+  public boolean getHasSpace() {
+    return this.hasSpace;
+  }
 
-  public String getCurrentStatus() { return this.currentStatus; }
+  public String getCurrentStatus() {
+    return this.currentStatus;
+  }
 
-  public String getReason() { return this.reason; }
+  public String getReason() {
+    return this.reason;
+  }
 
-  public String getTimeline() { return this.timeline; }
-
+  public String getTimeline() {
+    return this.timeline;
+  }
 }

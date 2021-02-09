@@ -1,5 +1,6 @@
 package com.codeforcommunity.processor.authenticated;
 
+import static org.jooq.generated.Tables.*;
 import static org.jooq.generated.Tables.SCHOOLS;
 import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
 import static org.jooq.generated.Tables.SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES;
@@ -27,10 +28,9 @@ import com.codeforcommunity.enums.ApprenticeshipProgram;
 import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
-import com.codeforcommunity.exceptions.*;
-
 import com.codeforcommunity.enums.ReadyTimeline;
 import com.codeforcommunity.enums.TimeRole;
+import com.codeforcommunity.exceptions.*;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
@@ -45,8 +45,6 @@ import org.jooq.generated.tables.records.SchoolReportsInProgressLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithoutLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolsRecord;
-
-import static org.jooq.generated.Tables.*;
 
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
@@ -484,43 +482,81 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     LibraryStatus libraryStatus = school.getLibraryStatus();
 
-    if(libraryStatus == null || libraryStatus == LibraryStatus.UNKNOWN){
-      throw new NoReportFoundException(schoolId);
-    }
-    if(libraryStatus == LibraryStatus.EXISTS){
-
-    }
-    if(libraryStatus == LibraryStatus.DOES_NOT_EXIST){
-
-    }
-    if(libraryStatus == LibraryStatus.IN_PROGRESS){
+    if (libraryStatus == LibraryStatus.EXISTS) {
       return db.select(
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ID,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.CREATED_AT,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.UPDATED_AT,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.SCHOOL_ID,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.USER_ID,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.NUMBER_OF_CHILDREN,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.NUMBER_OF_BOOKS,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.IS_SHARED_SPACE,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.HAS_INVITING_SPACE,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ASSIGNED_PERSON_ROLE,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ASSIGNED_PERSON_TITLE,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.APPRENTICESHIP_PROGRAM,
-                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.TRAINS_AND_MENTORS_APPRENTICES)
-                      .from(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES)
-                      .where(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.DELETED_AT.isNull())
-                      .and(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.SCHOOL_ID.eq(schoolId))
-                      .fetchOne(ReportWithLibraryInProgress.class);
+              SCHOOL_REPORTS_WITH_LIBRARIES.ID,
+              SCHOOL_REPORTS_WITH_LIBRARIES.CREATED_AT,
+              SCHOOL_REPORTS_WITH_LIBRARIES.UPDATED_AT,
+              SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID,
+              SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID,
+              SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_CHILDREN,
+              SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_BOOKS,
+              SCHOOL_REPORTS_WITH_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
+              SCHOOL_REPORTS_WITH_LIBRARIES.IS_SHARED_SPACE,
+              SCHOOL_REPORTS_WITH_LIBRARIES.HAS_INVITING_SPACE,
+              SCHOOL_REPORTS_WITH_LIBRARIES.ASSIGNED_PERSON_ROLE,
+              SCHOOL_REPORTS_WITH_LIBRARIES.ASSIGNED_PERSON_TITLE,
+              SCHOOL_REPORTS_WITH_LIBRARIES.APPRENTICESHIP_PROGRAM,
+              SCHOOL_REPORTS_WITH_LIBRARIES.TRAINS_AND_MENTORS_APPRENTICES,
+              SCHOOL_REPORTS_WITH_LIBRARIES.HAS_CHECK_IN_TIMETABLES,
+              SCHOOL_REPORTS_WITH_LIBRARIES.HAS_BOOK_CHECKOUT_SYSTEM,
+              SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_STUDENT_LIBRARIANS,
+              SCHOOL_REPORTS_WITH_LIBRARIES.REASON_NO_STUDENT_LIBRARIANS,
+              SCHOOL_REPORTS_WITH_LIBRARIES.HAS_SUFFICIENT_TRAINING,
+              SCHOOL_REPORTS_WITH_LIBRARIES.TEACHER_SUPPORT,
+              SCHOOL_REPORTS_WITH_LIBRARIES.PARENT_SUPPORT)
+          .from(SCHOOL_REPORTS_WITH_LIBRARIES)
+          .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+          .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
+          .fetchOneInto(ReportWithLibrary.class);
     }
+    if (libraryStatus == LibraryStatus.DOES_NOT_EXIST) {
+      return db.select(
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.CREATED_AT,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.UPDATED_AT,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.USER_ID,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.NUMBER_OF_CHILDREN,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.NUMBER_OF_BOOKS,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.WANTS_LIBRARY,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.HAS_SPACE,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.CURRENT_STATUS,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.REASON_WHY_NOT,
+              SCHOOL_REPORTS_WITHOUT_LIBRARIES.READY_TIMELINE)
+          .from(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+          .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+          .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
+          .fetchOneInto(ReportWithoutLibrary.class);
+    }
+    if (libraryStatus == LibraryStatus.IN_PROGRESS) {
+      return db.select(
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ID,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.CREATED_AT,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.UPDATED_AT,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.SCHOOL_ID,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.USER_ID,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.NUMBER_OF_CHILDREN,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.NUMBER_OF_BOOKS,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.IS_SHARED_SPACE,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.HAS_INVITING_SPACE,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ASSIGNED_PERSON_ROLE,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ASSIGNED_PERSON_TITLE,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.APPRENTICESHIP_PROGRAM,
+              SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.TRAINS_AND_MENTORS_APPRENTICES)
+          .from(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES)
+          .where(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.DELETED_AT.isNull())
+          .and(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.SCHOOL_ID.eq(schoolId))
+          .fetchOneInto(ReportWithLibraryInProgress.class);
+    }
+    throw new NoReportFoundException(schoolId);
   }
-
 
   @Override
   public ReportWithoutLibrary createReportWithoutLibrary(
-      JWTData userData, int schoolId, UpsertReportWithoutLibrary req
-  ) {
+      JWTData userData, int schoolId, UpsertReportWithoutLibrary req) {
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
@@ -551,13 +587,12 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getHasSpace(),
         newReport.getCurrentStatus(),
         newReport.getReasonWhyNot(),
-        req.getReadyTimeline()
-    );
+        req.getReadyTimeline());
   }
 
   @Override
-  public ReportWithLibraryInProgress createReportWithLibraryInProgress(JWTData userData,
-      int schoolId, UpsertReportInProgressLibrary upsertRequest) {
+  public ReportWithLibraryInProgress createReportWithLibraryInProgress(
+      JWTData userData, int schoolId, UpsertReportInProgressLibrary upsertRequest) {
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
@@ -567,8 +602,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     SchoolReportsInProgressLibrariesRecord newReport =
         db.newRecord(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES);
-    newReport.setApprenticeshipProgram(ApprenticeshipProgram.
-        from(upsertRequest.getApprenticeshipProgram()));
+    newReport.setApprenticeshipProgram(
+        ApprenticeshipProgram.from(upsertRequest.getApprenticeshipProgram()));
     newReport.setAssignedPersonRole(TimeRole.from(upsertRequest.getAssignedPersonRole()));
     newReport.setHasInvitingSpace(upsertRequest.getHasInvitingSpace());
     newReport.setIsSharedSpace(upsertRequest.getSharedSpace());
@@ -591,9 +626,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getHasInvitingSpace(),
         newReport.getAssignedPersonRole(),
         newReport.getAssignedPersonTitle(),
-        newReport.getTrainsAndMentorsApprentices()
-    );
-
+        newReport.getTrainsAndMentorsApprentices());
   }
 
   private SchoolsRecord queryForSchool(int schoolId) {

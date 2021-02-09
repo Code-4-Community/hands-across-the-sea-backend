@@ -51,9 +51,9 @@ public interface IProtectedSchoolProcessor {
   ReportWithLibrary createReportWithLibrary(
       JWTData userData, int schoolId, UpsertReportWithLibrary upsertRequest);
 
-  ReportWithoutLibrary createReportWithoutLibrary(JWTData userData, int schoolId,
-      UpsertReportWithoutLibrary upsertRequest);
+  ReportWithoutLibrary createReportWithoutLibrary(
+      JWTData userData, int schoolId, UpsertReportWithoutLibrary upsertRequest);
 
-  ReportWithLibraryInProgress createReportWithLibraryInProgress(JWTData userData,
-      int schoolId, UpsertReportInProgressLibrary upsertRequest);
+  ReportWithLibraryInProgress createReportWithLibraryInProgress(
+      JWTData userData, int schoolId, UpsertReportInProgressLibrary upsertRequest);
 }
