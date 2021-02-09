@@ -1,11 +1,8 @@
 package com.codeforcommunity.processor.authenticated;
 
-import static org.jooq.generated.Tables.SCHOOLS;
-import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
-import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
-
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.school.School;
@@ -18,11 +15,8 @@ import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
-import com.codeforcommunity.exceptions.AdminOnlyRouteException;
-import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
-import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
-import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
-import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
+import com.codeforcommunity.exceptions.*;
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -30,6 +24,8 @@ import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolsRecord;
+
+import static org.jooq.generated.Tables.*;
 
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
@@ -456,6 +452,47 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         req.getHasSufficientTraining(),
         req.getTeacherSupport(),
         req.getParentSupport());
+  }
+
+  @Override
+  public ReportGeneric getMostRecentReport(JWTData userData, int schoolId) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+
+    LibraryStatus libraryStatus = school.getLibraryStatus();
+
+    if(libraryStatus == null || libraryStatus == LibraryStatus.UNKNOWN){
+      throw new NoReportFoundException(schoolId);
+    }
+    if(libraryStatus == LibraryStatus.EXISTS){
+
+    }
+    if(libraryStatus == LibraryStatus.DOES_NOT_EXIST){
+
+    }
+    if(libraryStatus == LibraryStatus.IN_PROGRESS){
+      return db.select(
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ID,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.CREATED_AT,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.UPDATED_AT,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.SCHOOL_ID,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.USER_ID,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.NUMBER_OF_CHILDREN,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.NUMBER_OF_BOOKS,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.IS_SHARED_SPACE,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.HAS_INVITING_SPACE,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ASSIGNED_PERSON_ROLE,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ASSIGNED_PERSON_TITLE,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.APPRENTICESHIP_PROGRAM,
+                      SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.TRAINS_AND_MENTORS_APPRENTICES)
+                      .from(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES)
+                      .where(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.DELETED_AT.isNull())
+                      .and(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.SCHOOL_ID.eq(schoolId))
+                      .fetchOne(ReportWithLibraryInProgress.class);
+    }
   }
 
   private SchoolsRecord queryForSchool(int schoolId) {
