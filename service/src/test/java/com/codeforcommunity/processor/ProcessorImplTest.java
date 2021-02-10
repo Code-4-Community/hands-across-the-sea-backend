@@ -44,8 +44,4 @@ public class ProcessorImplTest {
     assertFalse(db.fetchExists(db.selectFrom(Tables.USERS).where(Tables.USERS.ID.eq(1))));
     assertEquals(1, mockDb.getSqlOperationBindings().get(OperationType.EXISTS).size());
   }
-
-  public void testSetup() {
-    mockDb.getContext();
-  }
 }
