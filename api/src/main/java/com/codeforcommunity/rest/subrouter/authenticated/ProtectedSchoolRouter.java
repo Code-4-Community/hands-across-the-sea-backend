@@ -134,7 +134,7 @@ public class ProtectedSchoolRouter implements IRouter {
   }
 
   private void registerCreateReportInProgressLibrary(Router router) {
-    Route createReport = router.post("/:school_id/reports/in-progress-library");
+    Route createReport = router.post("/:school_id/reports/in-progress");
     createReport.handler(this::handleCreateReportInProgressLibrary);
   }
 
