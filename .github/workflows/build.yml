@@ -1,4 +1,5 @@
-name: Deploy master
+name: build
+
 on:
   push:
     branches: [ master ]
@@ -22,5 +23,5 @@ jobs:
 
 
       - name: Build
-        - run: cp common/src/main/resources/properties/server.properties.example common/src/main/resources/properties/server.properties
-        - run: mvn clean install
+      - run: cp common/src/main/resources/properties/server.properties.example common/src/main/resources/properties/server.properties
+      - run: mvn clean install
