@@ -20,6 +20,8 @@ jobs:
         env:
           POSTGRES_PASSWORD: placeholder_db_password
           POSTGRES_DB: backend-scaffold
+        ports:
+          - 5432:5432
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -41,6 +43,8 @@ jobs:
 
 
       - run: cp common/src/main/resources/properties/server.properties.example common/src/main/resources/properties/server.properties
+
+      - run: psql -d postgresql://localhost:5432/backend-scaffold -f "CREATE DATABASE 'backend-scaffold';"
 
       - name: build and test
         run: mvn clean install
