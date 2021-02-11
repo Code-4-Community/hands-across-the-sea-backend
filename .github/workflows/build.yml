@@ -40,4 +40,5 @@ jobs:
 
 
       - run: cp common/src/main/resources/properties/server.properties.example common/src/main/resources/properties/server.properties
+      - run: psql -c 'create database "backend-scaffold";' -U postgres
       - run: mvn clean install
