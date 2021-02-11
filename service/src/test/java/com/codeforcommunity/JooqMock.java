@@ -463,7 +463,7 @@ public class JooqMock implements MockDataProvider {
    */
   public void addExistsReturn(boolean returnTrue) {
     List<Record> records = new ArrayList<>();
-    if (returnTrue)  {
+    if (returnTrue) {
       records.add(context.newRecord((Table<?>) classMap.values().toArray()[0]));
     }
 
