@@ -41,11 +41,11 @@ public class ReportWithoutLibrary extends ReportGeneric {
     this.timeline = timeline;
   }
 
-  public boolean getWantsLibrary() {
+  public Boolean getWantsLibrary() {
     return this.wantsLibrary;
   }
 
-  public boolean getHasSpace() {
+  public Boolean getHasSpace() {
     return this.hasSpace;
   }
 
