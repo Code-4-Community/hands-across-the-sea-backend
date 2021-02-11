@@ -23,13 +23,9 @@ import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
-import com.codeforcommunity.enums.ApprenticeTitle;
-import com.codeforcommunity.enums.ApprenticeshipProgram;
 import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
-import com.codeforcommunity.enums.ReadyTimeline;
-import com.codeforcommunity.enums.TimeRole;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
@@ -449,8 +445,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setHasSufficientTraining(req.getHasSufficientTraining());
     newReport.setTeacherSupport(req.getTeacherSupport());
     newReport.setParentSupport(req.getParentSupport());
-    newReport.store();
 
+    newReport.store();
     newReport.refresh();
 
     return new ReportWithLibrary(
@@ -488,17 +484,18 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.store();
 
     SchoolReportsWithoutLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITHOUT_LIBRARIES);
+    newReport.setSchoolId(schoolId);
     newReport.setUserId(userData.getUserId());
+    newReport.setNumberOfChildren(req.getNumberOfChildren());
+    newReport.setNumberOfBooks(req.getNumberOfBooks());
+    newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
     newReport.setHasSpace(req.getHasSpace());
     newReport.setCurrentStatus(req.getCurrentStatus());
-    newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
-    newReport.setNumberOfBooks(req.getNumberOfBooks());
-    newReport.setNumberOfChildren(req.getNumberOfChildren());
     newReport.setReasonWhyNot(req.getReasonWhyNot());
     newReport.setWantsLibrary(req.getWantsLibrary());
-    newReport.setReadyTimeline(ReadyTimeline.from(req.getReadyTimeline()));
-    newReport.store();
+    newReport.setReadyTimeline(req.getReadyTimeline());
 
+    newReport.store();
     newReport.refresh();
 
     return new ReportWithoutLibrary(
@@ -529,21 +526,20 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     SchoolReportsInProgressLibrariesRecord newReport =
         db.newRecord(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES);
-    newReport.setApprenticeshipProgram(
-        ApprenticeshipProgram.from(upsertRequest.getApprenticeshipProgram()));
-    newReport.setAssignedPersonRole(TimeRole.from(upsertRequest.getAssignedPersonRole()));
-    newReport.setHasInvitingSpace(upsertRequest.getHasInvitingSpace());
-    newReport.setIsSharedSpace(upsertRequest.getSharedSpace());
-    newReport.setMostRecentShipmentYear(upsertRequest.getMostRecentShipmentYear());
-    newReport.setUserId(userData.getUserId());
-    newReport.setNumberOfBooks(upsertRequest.getNumberOfBooks());
-    newReport.setNumberOfChildren(upsertRequest.getNumberOfChildren());
-    newReport.setAssignedPersonTitle(ApprenticeTitle.from(upsertRequest.getAssignedPersonTitle()));
-    newReport.setApprenticeshipProgram(
-        ApprenticeshipProgram.from(upsertRequest.getApprenticeshipProgram()));
-    newReport.setTrainsAndMentorsApprentices(upsertRequest.getTrainsAndMentorsApprentices());
-    newReport.store();
 
+    newReport.setSchoolId(schoolId);
+    newReport.setUserId(userData.getUserId());
+    newReport.setNumberOfChildren(upsertRequest.getNumberOfChildren());
+    newReport.setNumberOfBooks(upsertRequest.getNumberOfBooks());
+    newReport.setMostRecentShipmentYear(upsertRequest.getMostRecentShipmentYear());
+    newReport.setApprenticeshipProgram(upsertRequest.getApprenticeshipProgram());
+    newReport.setHasInvitingSpace(upsertRequest.getHasInvitingSpace());
+    newReport.setIsSharedSpace(upsertRequest.getIsSharedSpace());
+    newReport.setAssignedPersonRole(upsertRequest.getAssignedPersonRole());
+    newReport.setAssignedPersonTitle(upsertRequest.getAssignedPersonTitle());
+    newReport.setTrainsAndMentorsApprentices(upsertRequest.getTrainsAndMentorsApprentices());
+
+    newReport.store();
     newReport.refresh();
 
     return new ReportWithLibraryInProgress(
