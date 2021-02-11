@@ -19,6 +19,7 @@ jobs:
         # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: placeholder_db_password
+          POSTGRES_DB: backend-scaffold
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -40,5 +41,4 @@ jobs:
 
 
       - run: cp common/src/main/resources/properties/server.properties.example common/src/main/resources/properties/server.properties
-      - run: psql -c 'create database "backend-scaffold";' -U postgres
       - run: mvn clean install
