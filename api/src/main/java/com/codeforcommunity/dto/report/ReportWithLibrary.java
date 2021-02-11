@@ -3,6 +3,7 @@ package com.codeforcommunity.dto.report;
 import com.codeforcommunity.enums.ApprenticeTitle;
 import com.codeforcommunity.enums.ApprenticeshipProgram;
 import com.codeforcommunity.enums.TimeRole;
+import java.sql.Timestamp;
 
 public class ReportWithLibrary extends ReportGeneric {
 
@@ -22,6 +23,8 @@ public class ReportWithLibrary extends ReportGeneric {
 
   public ReportWithLibrary(
       Integer id,
+      Timestamp createdAt,
+      Timestamp updatedAt,
       Integer schoolId,
       Integer userId,
       Integer numberOfChildren,
@@ -40,7 +43,15 @@ public class ReportWithLibrary extends ReportGeneric {
       Boolean hasSufficientTraining,
       String teacherSupport,
       String parentSupport) {
-    super(id, schoolId, userId, numberOfChildren, numberOfBooks, mostRecentShipmentYear);
+    super(
+        id,
+        createdAt,
+        updatedAt,
+        schoolId,
+        userId,
+        numberOfChildren,
+        numberOfBooks,
+        mostRecentShipmentYear);
     this.isSharedSpace = isSharedSpace;
     this.hasInvitingSpace = hasInvitingSpace;
     this.assignedPersonRole = assignedPersonRole;
@@ -56,11 +67,11 @@ public class ReportWithLibrary extends ReportGeneric {
     this.parentSupport = parentSupport;
   }
 
-  public Boolean getSharedSpace() {
+  public Boolean getIsSharedSpace() {
     return isSharedSpace;
   }
 
-  public void setSharedSpace(Boolean sharedSpace) {
+  public void setIsSharedSpace(Boolean sharedSpace) {
     isSharedSpace = sharedSpace;
   }
 

@@ -1,8 +1,13 @@
 package com.codeforcommunity.dto.report;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 public class ReportGeneric {
 
   private Integer id;
+  private Timestamp createdAt;
+  private Timestamp updatedAt;
   private Integer schoolId;
   private Integer userId;
   private Integer numberOfChildren;
@@ -11,12 +16,16 @@ public class ReportGeneric {
 
   public ReportGeneric(
       Integer id,
+      Timestamp createdAt,
+      Timestamp updatedAt,
       Integer schoolId,
       Integer userId,
       Integer numberOfChildren,
       Integer numberOfBooks,
       Integer mostRecentShipmentYear) {
     this.id = id;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
     this.schoolId = schoolId;
     this.userId = userId;
     this.numberOfChildren = numberOfChildren;
@@ -30,6 +39,22 @@ public class ReportGeneric {
 
   public void setId(Integer id) {
     this.id = id;
+  }
+
+  public String getCreatedAt() {
+    return new Date(createdAt.getTime()).toString();
+  }
+
+  public void setCreatedAt(Timestamp createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public String getUpdatedAt() {
+    return new Date(updatedAt.getTime()).toString();
+  }
+
+  public void setUpdatedAt(Timestamp updatedAt) {
+    this.updatedAt = updatedAt;
   }
 
   public Integer getSchoolId() {
