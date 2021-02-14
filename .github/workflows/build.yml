@@ -44,7 +44,7 @@ jobs:
 
       - run: cp common/src/main/resources/properties/server.properties.example common/src/main/resources/properties/server.properties
 
-      - run: PGPASSWORD=placeholder_db_password psql -d postgresql://localhost:5432/backend-scaffold -f "CREATE DATABASE 'backend-scaffold';"
+      - run: PGPASSWORD=placeholder_db_password psql -d postgresql://localhost:5432/backend-scaffold -f "CREATE DATABASE 'backend-scaffold';" -U postgres
 
       - name: build and test
         run: mvn clean install
