@@ -48,10 +48,3 @@ jobs:
 
       - name: build and test
         run: mvn clean install
-        env:
-          # use postgres for the host here because we have specified a contaienr for the job.
-          # If we were running the job on the VM this would be localhost
-          PG_HOST: postgres
-          PG_USER: postgres
-          PG_DATABASE: backend-scaffold
-          PG_PASSWORD: placeholder_db_password
