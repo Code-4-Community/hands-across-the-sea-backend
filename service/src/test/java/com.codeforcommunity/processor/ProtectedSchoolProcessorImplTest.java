@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.codeforcommunity.JooqMock;
+import com.codeforcommunity.JooqMock.OperationType;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
@@ -124,8 +125,8 @@ public class ProtectedSchoolProcessorImplTest {
     record.setCountry(country);
     record.setLibraryStatus(status);
 
-    myJooqMock.addEmptyReturn("SELECT"); // Check if school exists
-    myJooqMock.addReturn("INSERT", record); // Insert school
+    myJooqMock.addEmptyReturn(OperationType.SELECT); // Check if school exists
+    myJooqMock.addReturn(OperationType.INSERT, record); // Insert school
 
     School res = schoolProcessor.createSchool(user, request);
     assertEquals(record.getName(), res.getName());

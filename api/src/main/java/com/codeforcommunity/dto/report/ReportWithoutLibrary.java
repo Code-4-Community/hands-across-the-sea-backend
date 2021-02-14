@@ -1,15 +1,20 @@
 package com.codeforcommunity.dto.report;
 
+import com.codeforcommunity.enums.ReadyTimeline;
+import java.sql.Timestamp;
+
 public class ReportWithoutLibrary extends ReportGeneric {
 
   private Boolean wantsLibrary;
   private Boolean hasSpace;
   private String currentStatus;
   private String reason;
-  private String timeline;
+  private ReadyTimeline timeline;
 
   public ReportWithoutLibrary(
       Integer id,
+      Timestamp createdAt,
+      Timestamp updatedAt,
       Integer schoolId,
       Integer userId,
       Integer numberOfChildren,
@@ -19,8 +24,16 @@ public class ReportWithoutLibrary extends ReportGeneric {
       Boolean hasSpace,
       String currentStatus,
       String reason,
-      String timeline) {
-    super(id, schoolId, userId, numberOfChildren, numberOfBooks, mostRecentShipmentYear);
+      ReadyTimeline timeline) {
+    super(
+        id,
+        createdAt,
+        updatedAt,
+        schoolId,
+        userId,
+        numberOfChildren,
+        numberOfBooks,
+        mostRecentShipmentYear);
     this.wantsLibrary = wantsLibrary;
     this.hasSpace = hasSpace;
     this.currentStatus = currentStatus;
@@ -28,11 +41,11 @@ public class ReportWithoutLibrary extends ReportGeneric {
     this.timeline = timeline;
   }
 
-  public boolean getWantsLibrary() {
+  public Boolean getWantsLibrary() {
     return this.wantsLibrary;
   }
 
-  public boolean getHasSpace() {
+  public Boolean getHasSpace() {
     return this.hasSpace;
   }
 
@@ -44,7 +57,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
     return this.reason;
   }
 
-  public String getTimeline() {
+  public ReadyTimeline getTimeline() {
     return this.timeline;
   }
 }

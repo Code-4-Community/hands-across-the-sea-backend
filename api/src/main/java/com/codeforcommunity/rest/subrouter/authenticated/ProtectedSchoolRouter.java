@@ -5,6 +5,7 @@ import static com.codeforcommunity.rest.ApiRouter.end;
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.report.ReportGeneric;
+import com.codeforcommunity.dto.report.ReportGenericListResponse;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.dto.report.ReportWithLibraryInProgress;
 import com.codeforcommunity.dto.report.ReportWithoutLibrary;
@@ -61,7 +62,7 @@ public class ProtectedSchoolRouter implements IRouter {
     registerCreateReportWithoutLibrary(router);
     registerCreateReportInProgressLibrary(router);
     //    registerGetLatestReport(router);
-    //    registerGetPaginatedReports(router);
+    registerGetPaginatedReports(router);
 
     return router;
   }
@@ -127,7 +128,7 @@ public class ProtectedSchoolRouter implements IRouter {
   }
 
   private void registerCreateReportWithLibrary(Router router) {
-    Route createReport = router.post("/:school_id/reports");
+    Route createReport = router.post("/:school_id/reports/with-library");
     createReport.handler(this::handleCreateReportWithLibrary);
   }
 
@@ -144,6 +145,11 @@ public class ProtectedSchoolRouter implements IRouter {
   private void registerCreateReportInProgressLibrary(Router router) {
     Route createReport = router.post("/:school_id/reports/in-progress");
     createReport.handler(this::handleCreateReportInProgressLibrary);
+  }
+
+  private void registerGetPaginatedReports(Router router) {
+    Route getReports = router.get("/:school_id/reports");
+    getReports.handler(this::handleGetPaginatedReport);
   }
 
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
@@ -227,8 +233,8 @@ public class ProtectedSchoolRouter implements IRouter {
         RestFunctions.getJsonBodyAsClass(ctx, UpsertSchoolContactRequest.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int contactId = RestFunctions.getPathParamAsInt(ctx, "contact_id");
-    SchoolContact response = processor.updateSchoolContact(userData, schoolId, contactId, request);
-    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
+    processor.updateSchoolContact(userData, schoolId, contactId, request);
+    end(ctx.response(), 200);
   }
 
   private void handleDeleteSchoolContactRoute(RoutingContext ctx) {
@@ -272,5 +278,13 @@ public class ProtectedSchoolRouter implements IRouter {
     ReportWithLibraryInProgress report =
         processor.createReportWithLibraryInProgress(userData, schoolID, request);
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
+  }
+
+  private void handleGetPaginatedReport(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    int page = RestFunctions.getRequestParameterAsInt(ctx.request(), "p");
+    ReportGenericListResponse reports = processor.getPaginatedReports(userData, schoolId, page);
+    end(ctx.response(), 200, JsonObject.mapFrom(reports).toString());
   }
 }

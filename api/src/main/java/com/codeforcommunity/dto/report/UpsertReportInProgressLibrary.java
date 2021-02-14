@@ -1,12 +1,16 @@
 package com.codeforcommunity.dto.report;
 
+import com.codeforcommunity.enums.ApprenticeTitle;
+import com.codeforcommunity.enums.ApprenticeshipProgram;
+import com.codeforcommunity.enums.TimeRole;
+
 public class UpsertReportInProgressLibrary extends UpsertReportGeneric {
 
   private Boolean isSharedSpace;
   private Boolean hasInvitingSpace;
-  private String assignedPersonRole;
-  private String assignedPersonTitle;
-  private String apprenticeshipProgram;
+  private TimeRole assignedPersonRole;
+  private ApprenticeTitle assignedPersonTitle;
+  private ApprenticeshipProgram apprenticeshipProgram;
   private Boolean trainsAndMentorsApprentices;
   private Boolean hasCheckInTimetables;
   private Boolean hasBookCheckoutSystem;
@@ -16,44 +20,11 @@ public class UpsertReportInProgressLibrary extends UpsertReportGeneric {
   private String teacherSupport;
   private String parentSupport;
 
-  public UpsertReportInProgressLibrary(
-      Integer numberOfChildren,
-      Integer numberOfBooks,
-      Integer mostRecentShipmentYear,
-      Boolean isSharedSpace,
-      Boolean hasInvitingSpace,
-      String assignedPersonRole,
-      String assignedPersonTitle,
-      String apprenticeshipProgram,
-      Boolean trainsAndMentorsApprentices,
-      Boolean hasCheckInTimetables,
-      Boolean hasBookCheckoutSystem,
-      Integer numberOfStudentLibrarians,
-      String reasonNoStudentLibrarians,
-      Boolean hasSufficientTraining,
-      String teacherSupport,
-      String parentSupport) {
-    super(numberOfChildren, numberOfBooks, mostRecentShipmentYear);
-    this.isSharedSpace = isSharedSpace;
-    this.hasInvitingSpace = hasInvitingSpace;
-    this.assignedPersonRole = assignedPersonRole;
-    this.assignedPersonTitle = assignedPersonTitle;
-    this.apprenticeshipProgram = apprenticeshipProgram;
-    this.trainsAndMentorsApprentices = trainsAndMentorsApprentices;
-    this.hasCheckInTimetables = hasCheckInTimetables;
-    this.hasBookCheckoutSystem = hasBookCheckoutSystem;
-    this.numberOfStudentLibrarians = numberOfStudentLibrarians;
-    this.reasonNoStudentLibrarians = reasonNoStudentLibrarians;
-    this.hasSufficientTraining = hasSufficientTraining;
-    this.teacherSupport = teacherSupport;
-    this.parentSupport = parentSupport;
-  }
-
-  public Boolean getSharedSpace() {
+  public Boolean getIsSharedSpace() {
     return isSharedSpace;
   }
 
-  public void setSharedSpace(Boolean sharedSpace) {
+  public void setIsSharedSpace(Boolean sharedSpace) {
     isSharedSpace = sharedSpace;
   }
 
@@ -65,27 +36,27 @@ public class UpsertReportInProgressLibrary extends UpsertReportGeneric {
     this.hasInvitingSpace = hasInvitingSpace;
   }
 
-  public String getAssignedPersonRole() {
+  public TimeRole getAssignedPersonRole() {
     return assignedPersonRole;
   }
 
-  public void setAssignedPersonRole(String assignedPersonRole) {
+  public void setAssignedPersonRole(TimeRole assignedPersonRole) {
     this.assignedPersonRole = assignedPersonRole;
   }
 
-  public String getAssignedPersonTitle() {
+  public ApprenticeTitle getAssignedPersonTitle() {
     return assignedPersonTitle;
   }
 
-  public void setAssignedPersonTitle(String assignedPersonTitle) {
+  public void setAssignedPersonTitle(ApprenticeTitle assignedPersonTitle) {
     this.assignedPersonTitle = assignedPersonTitle;
   }
 
-  public String getApprenticeshipProgram() {
+  public ApprenticeshipProgram getApprenticeshipProgram() {
     return apprenticeshipProgram;
   }
 
-  public void setApprenticeshipProgram(String apprenticeshipProgram) {
+  public void setApprenticeshipProgram(ApprenticeshipProgram apprenticeshipProgram) {
     this.apprenticeshipProgram = apprenticeshipProgram;
   }
 

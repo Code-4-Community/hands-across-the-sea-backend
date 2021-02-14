@@ -2,6 +2,7 @@ package com.codeforcommunity.api.authenticated;
 
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.report.ReportGeneric;
+import com.codeforcommunity.dto.report.ReportGenericListResponse;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.dto.report.ReportWithLibraryInProgress;
 import com.codeforcommunity.dto.report.ReportWithoutLibrary;
@@ -28,7 +29,7 @@ public interface IProtectedSchoolProcessor {
   SchoolContact createSchoolContact(
       JWTData userData, int schoolId, UpsertSchoolContactRequest upsertSchoolContactRequest);
 
-  SchoolContact updateSchoolContact(
+  void updateSchoolContact(
       JWTData userData,
       int schoolId,
       int contactId,
@@ -56,4 +57,6 @@ public interface IProtectedSchoolProcessor {
 
   ReportWithLibraryInProgress createReportWithLibraryInProgress(
       JWTData userData, int schoolId, UpsertReportInProgressLibrary upsertRequest);
+
+  ReportGenericListResponse getPaginatedReports(JWTData userData, int schoolId, int page);
 }

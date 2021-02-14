@@ -1,29 +1,14 @@
 package com.codeforcommunity.dto.report;
 
+import com.codeforcommunity.enums.ReadyTimeline;
+
 public class UpsertReportWithoutLibrary extends UpsertReportGeneric {
 
   private String reasonWhyNot;
   private Boolean wantsLibrary;
   private Boolean hasSpace;
   private String currentStatus;
-  private String readyTimeline;
-
-  public UpsertReportWithoutLibrary(
-      Integer numberOfChildren,
-      Integer numberOfBooks,
-      Integer mostRecentShipmentYear,
-      String reasonWhyNot,
-      Boolean wantsLibrary,
-      Boolean hasSpace,
-      String currentStatus,
-      String readyTimeline) {
-    super(numberOfChildren, numberOfBooks, mostRecentShipmentYear);
-    this.reasonWhyNot = reasonWhyNot;
-    this.wantsLibrary = wantsLibrary;
-    this.hasSpace = hasSpace;
-    this.currentStatus = currentStatus;
-    this.readyTimeline = readyTimeline;
-  }
+  private ReadyTimeline readyTimeline;
 
   public String getReasonWhyNot() {
     return reasonWhyNot;
@@ -57,11 +42,11 @@ public class UpsertReportWithoutLibrary extends UpsertReportGeneric {
     this.currentStatus = currentStatus;
   }
 
-  public String getReadyTimeline() {
+  public ReadyTimeline getReadyTimeline() {
     return readyTimeline;
   }
 
-  public void setReadyTimeline(String readyTimeline) {
+  public void setReadyTimeline(ReadyTimeline readyTimeline) {
     this.readyTimeline = readyTimeline;
   }
 }
