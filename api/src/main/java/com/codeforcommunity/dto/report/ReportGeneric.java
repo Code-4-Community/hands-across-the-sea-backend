@@ -14,6 +14,8 @@ public class ReportGeneric {
   private Integer numberOfBooks;
   private Integer mostRecentShipmentYear;
 
+  protected ReportGeneric() {}
+
   public ReportGeneric(
       Integer id,
       Timestamp createdAt,

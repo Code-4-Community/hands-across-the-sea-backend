@@ -1,6 +1,23 @@
 package com.codeforcommunity.rest;
 
-import com.codeforcommunity.exceptions.*;
+import com.codeforcommunity.exceptions.CreateUserException;
+import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
+import com.codeforcommunity.exceptions.ExpiredSecretKeyException;
+import com.codeforcommunity.exceptions.HandledException;
+import com.codeforcommunity.exceptions.InvalidSecretKeyException;
+import com.codeforcommunity.exceptions.MalformedParameterException;
+import com.codeforcommunity.exceptions.MissingHeaderException;
+import com.codeforcommunity.exceptions.MissingParameterException;
+import com.codeforcommunity.exceptions.NoReportFoundException;
+import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
+import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
+import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
+import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
+import com.codeforcommunity.exceptions.TokenInvalidException;
+import com.codeforcommunity.exceptions.UnknownCountryException;
+import com.codeforcommunity.exceptions.UsedSecretKeyException;
+import com.codeforcommunity.exceptions.UserDoesNotExistException;
+import com.codeforcommunity.exceptions.UsernameAlreadyInUseException;
 import com.codeforcommunity.logger.SLogger;
 import io.vertx.ext.web.RoutingContext;
 
