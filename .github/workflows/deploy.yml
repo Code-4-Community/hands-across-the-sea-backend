@@ -10,7 +10,7 @@ jobs:
     steps:
 
       - name: Checkout source code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Copy example properties
         run: cp common/src/main/resources/properties/server.properties.example common/src/main/resources/properties/server.properties
@@ -30,8 +30,8 @@ jobs:
           SLACK_ENABLED:  ${{ secrets.SLACK_ENABLED }}
         run: python3 ./deploy.py
 
-      - name: Build the damn thing
-        run: mvn clean spotless:check install
+      - name: Build the thing :)
+        run: mvn -B clean verify
 
       - name: Generate deployment package
         run: zip build.zip Dockerfile service/target/service-1.0-SNAPSHOT-jar-with-dependencies.jar
