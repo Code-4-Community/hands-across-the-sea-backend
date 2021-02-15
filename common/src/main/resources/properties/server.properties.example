@@ -62,3 +62,4 @@ jwt_secret_key = placeholder_jwt_secret
 slack_product_name = Hands Across the Sea
 slack_webhook_url = placeholder_slack_url
 slack_enabled = false
+slack_product_name = backend-scaffold

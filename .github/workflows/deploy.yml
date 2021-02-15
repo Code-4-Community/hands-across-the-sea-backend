@@ -1,0 +1,47 @@
+name: deploy
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Copy example properties
+        run: cp common/src/main/resources/properties/server.properties.example common/src/main/resources/properties/server.properties
+
+      - name: Install requests
+        run: python3 -m pip install requests
+
+      - name: Run Python deploy script
+        env:
+          AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DB_DOMAIN:  ${{ secrets.DB_DOMAIN }}
+          DB_USERNAME:  ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD:  ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET_KEY:  ${{ secrets.JWT_SECRET_KEY }}
+          SLACK_WEBHOOK_URL:  ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_ENABLED:  ${{ secrets.SLACK_ENABLED }}
+        run: python3 ./deploy.py
+
+      - name: Build the thing :)
+        run: mvn -B clean verify
+
+      - name: Generate deployment package
+        run: zip build.zip Dockerfile service/target/service-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v14
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: c4c-internal
+          environment_name: c4c-backend-scaffold
+          version_label: "c4c-backend-scaffold-${{ github.sha }}"
+          region: us-east-2
+          deployment_package: build.zip
