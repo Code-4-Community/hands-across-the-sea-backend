@@ -19,7 +19,7 @@ jobs:
         # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: placeholder_db_password
-          POSTGRES_DB: backend-scaffold
+          POSTGRES_DB: hands-across-the-sea
         ports:
           - 5432:5432
         # Set health checks to wait until postgres has started
