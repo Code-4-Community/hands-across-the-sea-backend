@@ -31,7 +31,7 @@ import org.jooq.tools.jdbc.MockResult;
  * A class to mock database interactions.
  *
  * @author Conner Nilsen
- * @version 1.1
+ * @version 1.1.1
  */
 public class JooqMock implements MockDataProvider {
   private static final Logger log = LogManager.getLogger(JooqMock.class);
@@ -59,7 +59,7 @@ public class JooqMock implements MockDataProvider {
 
     /** Constructor for 'UNKNOWN' and 'DROP/CREATE' operations. */
     Operations() {
-      this.j8ConstructorRefactor(() -> null);
+      this.j8ConstructorThisWorkaround(() -> null);
     }
 
     /**
@@ -69,7 +69,7 @@ public class JooqMock implements MockDataProvider {
      * @param record The record to be returned during the first call of this operation.
      */
     Operations(Record record) {
-      this.j8ConstructorRefactor(() -> createResult(record));
+      this.j8ConstructorThisWorkaround(() -> createResult(record));
     }
 
     /**
@@ -79,7 +79,7 @@ public class JooqMock implements MockDataProvider {
      * @param records The record to be returned during the first call of this operation.
      */
     Operations(List<? extends Record> records) {
-      this.j8ConstructorRefactor(() -> createResult(records));
+      this.j8ConstructorThisWorkaround(() -> createResult(records));
     }
 
     /**
@@ -89,10 +89,10 @@ public class JooqMock implements MockDataProvider {
      * @param recordFunction The first record Supplier to be called for this operation.
      */
     Operations(Supplier<Result<? extends Record>> recordFunction) {
-      this.j8ConstructorRefactor(recordFunction);
+      this.j8ConstructorThisWorkaround(recordFunction);
     }
 
-    private void j8ConstructorRefactor(Supplier<Result<? extends Record>> recordFunction) {
+    private void j8ConstructorThisWorkaround(Supplier<Result<? extends Record>> recordFunction) {
       recordReturns = new ArrayList<>();
       recordReturns.add(recordFunction);
       handlerSqlCalls = new ArrayList<>();
