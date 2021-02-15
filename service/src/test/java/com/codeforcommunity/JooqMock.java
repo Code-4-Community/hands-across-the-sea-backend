@@ -31,7 +31,7 @@ import org.jooq.tools.jdbc.MockResult;
  * A class to mock database interactions.
  *
  * @author Conner Nilsen
- * @version 1.1
+ * @version 1.1.1
  */
 public class JooqMock implements MockDataProvider {
   private static final Logger log = LogManager.getLogger(JooqMock.class);
@@ -47,19 +47,19 @@ public class JooqMock implements MockDataProvider {
   /** A class to hold all operation handler functions and call information. */
   private class Operations {
     // List of Supplier functions to call in order, acts as a queue for record Supplier functions
-    private final List<Supplier<Result<? extends Record>>> recordReturns;
+    private List<Supplier<Result<? extends Record>>> recordReturns;
     // Current location in the recordReturns list
     private int location = 0;
     // Count of times this operation has been called
     private int callCount = 0;
     // SQL used for each call linked to each Record returned (by position in list)
-    private final List<List<String>> handlerSqlCalls;
+    private List<List<String>> handlerSqlCalls;
     // Bindings used for each call linked to each Record returned
-    private final List<List<Object[]>> handlerSqlBindings;
+    private List<List<Object[]>> handlerSqlBindings;
 
     /** Constructor for 'UNKNOWN' and 'DROP/CREATE' operations. */
     Operations() {
-      this(() -> null);
+      this.j8ConstructorThisWorkaround(() -> null);
     }
 
     /**
@@ -69,7 +69,7 @@ public class JooqMock implements MockDataProvider {
      * @param record The record to be returned during the first call of this operation.
      */
     Operations(Record record) {
-      this(() -> createResult(record));
+      this.j8ConstructorThisWorkaround(() -> createResult(record));
     }
 
     /**
@@ -79,7 +79,7 @@ public class JooqMock implements MockDataProvider {
      * @param records The record to be returned during the first call of this operation.
      */
     Operations(List<? extends Record> records) {
-      this(() -> createResult(records));
+      this.j8ConstructorThisWorkaround(() -> createResult(records));
     }
 
     /**
@@ -89,6 +89,10 @@ public class JooqMock implements MockDataProvider {
      * @param recordFunction The first record Supplier to be called for this operation.
      */
     Operations(Supplier<Result<? extends Record>> recordFunction) {
+      this.j8ConstructorThisWorkaround(recordFunction);
+    }
+
+    private void j8ConstructorThisWorkaround(Supplier<Result<? extends Record>> recordFunction) {
       recordReturns = new ArrayList<>();
       recordReturns.add(recordFunction);
       handlerSqlCalls = new ArrayList<>();
@@ -546,9 +550,10 @@ public class JooqMock implements MockDataProvider {
    * is mapped to.
    *
    * @return Map of each Operation to each SQL binding used
-   * @deprecated in favor of {@link JooqMock#getSqlOperationBindings()} or {@link
-   *     JooqMock#getRawSqlBindings()}
+   * @deprecated in favor of {@link JooqMock#getSqlOperationBindings()}, {@link
+   *     JooqMock#getSqlBindings(OperationType)}, or {@link JooqMock#getRawSqlBindings()}
    */
+  @Deprecated
   public Map<String, List<Object[]>> getSqlBindings() {
     Map<String, List<Object[]>> result = new HashMap<>();
     recordReturns.forEach(
@@ -560,6 +565,20 @@ public class JooqMock implements MockDataProvider {
           result.put(k.toString(), opResult);
         });
     return result;
+  }
+
+  /**
+   * Combines everything in the List<List<Object[]>> into one list to be what each Operation's name
+   * is mapped to.
+   *
+   * @return Map of each Operation to each SQL binding used
+   */
+  public List<Object[]> getSqlBindings(OperationType operationType) {
+    List<Object[]> res = new ArrayList<>();
+    for (List<Object[]> list : recordReturns.get(operationType).getSqlBindings()) {
+      res.addAll(list);
+    }
+    return res;
   }
 
   /**
