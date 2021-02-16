@@ -479,6 +479,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public ReportGeneric getMostRecentReport(JWTData userData, int schoolId) {
     SchoolsRecord school = this.queryForSchool(schoolId);
+    ReportGeneric temp = null;
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -486,7 +487,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     LibraryStatus libraryStatus = school.getLibraryStatus();
 
     if (libraryStatus == LibraryStatus.EXISTS) {
-      ReportWithLibrary temp =
+      temp =
           db.select(
                   SCHOOL_REPORTS_WITH_LIBRARIES.ID,
                   SCHOOL_REPORTS_WITH_LIBRARIES.CREATED_AT,
@@ -513,13 +514,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
               .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
               .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
               .fetchOneInto(ReportWithLibrary.class);
-      if (temp == null) {
-        logger.error("Report was not found in table");
-        throw new NoReportFoundException(schoolId);
-      }
     }
     if (libraryStatus == LibraryStatus.DOES_NOT_EXIST) {
-      ReportWithoutLibrary temp =
+      temp =
           db.select(
                   SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID,
                   SCHOOL_REPORTS_WITHOUT_LIBRARIES.CREATED_AT,
@@ -538,13 +535,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
               .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
               .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
               .fetchOneInto(ReportWithoutLibrary.class);
-      if (temp == null) {
-        logger.error("Report was not found in table");
-        throw new NoReportFoundException(schoolId);
-      }
     }
     if (libraryStatus == LibraryStatus.IN_PROGRESS) {
-      ReportWithLibraryInProgress temp =
+      temp =
           db.select(
                   SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ID,
                   SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.CREATED_AT,
@@ -564,12 +557,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
               .where(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.DELETED_AT.isNull())
               .and(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.SCHOOL_ID.eq(schoolId))
               .fetchOneInto(ReportWithLibraryInProgress.class);
-      if (temp == null) {
-        logger.error("Report was not found in table");
-        throw new NoReportFoundException(schoolId);
-      }
     }
-    throw new NoReportFoundException(schoolId);
+    if (temp == null) {
+      logger.error("Report was not found in table");
+      throw new NoReportFoundException(schoolId);
+    } else return temp;
   }
 
   @Override

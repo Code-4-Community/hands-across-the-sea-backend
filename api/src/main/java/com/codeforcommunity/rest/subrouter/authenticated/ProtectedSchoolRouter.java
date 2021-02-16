@@ -57,8 +57,6 @@ public class ProtectedSchoolRouter implements IRouter {
     // Register all school report routes
     registerCreateReportWithLibrary(router);
     registerGetMostRecentReport(router);
-    //    registerCreateReportWithoutLibrary(router);
-    //    registerCreateReportInProgressLibrary(router);
     registerCreateReportWithoutLibrary(router);
     registerCreateReportInProgressLibrary(router);
     //    registerGetLatestReport(router);
