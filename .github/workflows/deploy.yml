@@ -41,7 +41,7 @@ jobs:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: c4c-internal
-          environment_name: c4c-backend-scaffold
-          version_label: "c4c-backend-scaffold-${{ github.sha }}"
+          environment_name: c4c-hats-internal-backend
+          version_label: "c4c-hats-internal-backend-${{ github.sha }}"
           region: us-east-2
           deployment_package: build.zip
