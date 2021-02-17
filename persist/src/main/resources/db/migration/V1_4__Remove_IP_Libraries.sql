@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS school_reports_in_progress_libraries;

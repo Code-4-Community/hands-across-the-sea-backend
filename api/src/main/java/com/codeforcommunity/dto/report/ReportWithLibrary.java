@@ -2,6 +2,7 @@ package com.codeforcommunity.dto.report;
 
 import com.codeforcommunity.enums.ApprenticeTitle;
 import com.codeforcommunity.enums.ApprenticeshipProgram;
+import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.TimeRole;
 import java.sql.Timestamp;
 
@@ -51,7 +52,8 @@ public class ReportWithLibrary extends ReportGeneric {
         userId,
         numberOfChildren,
         numberOfBooks,
-        mostRecentShipmentYear);
+        mostRecentShipmentYear,
+        LibraryStatus.EXISTS);
     this.isSharedSpace = isSharedSpace;
     this.hasInvitingSpace = hasInvitingSpace;
     this.assignedPersonRole = assignedPersonRole;

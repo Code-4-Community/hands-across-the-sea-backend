@@ -1,5 +1,6 @@
 package com.codeforcommunity.dto.report;
 
+import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.ReadyTimeline;
 import java.sql.Timestamp;
 
@@ -33,7 +34,8 @@ public class ReportWithoutLibrary extends ReportGeneric {
         userId,
         numberOfChildren,
         numberOfBooks,
-        mostRecentShipmentYear);
+        mostRecentShipmentYear,
+        LibraryStatus.DOES_NOT_EXIST);
     this.wantsLibrary = wantsLibrary;
     this.hasSpace = hasSpace;
     this.currentStatus = currentStatus;
