@@ -21,6 +21,8 @@ public class ReportWithLibrary extends ReportGeneric {
   private String teacherSupport;
   private String parentSupport;
 
+  private ReportWithLibrary() {}
+
   public ReportWithLibrary(
       Integer id,
       Timestamp createdAt,
