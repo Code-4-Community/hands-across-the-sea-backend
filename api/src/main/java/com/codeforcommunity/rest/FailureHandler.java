@@ -8,6 +8,7 @@ import com.codeforcommunity.exceptions.InvalidSecretKeyException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
+import com.codeforcommunity.exceptions.NoReportFoundException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
@@ -41,6 +42,11 @@ public class FailureHandler {
     String message =
         String.format("Missing required path parameter: %s", e.getMissingParameterName());
     end(ctx, message, 400);
+  }
+
+  public void handleNoReportFound(RoutingContext ctx, NoReportFoundException e) {
+    String message = String.format("Report not found for school with id %d", e.getSchoolId());
+    end(ctx, message, 404);
   }
 
   public void handleAdminOnlyRoute(RoutingContext ctx) {

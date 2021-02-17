@@ -17,6 +17,8 @@ public class ReportGeneric {
   private Integer mostRecentShipmentYear;
   private LibraryStatus libraryStatus;
 
+  protected ReportGeneric() {}
+
   public ReportGeneric(
       Integer id,
       Timestamp createdAt,

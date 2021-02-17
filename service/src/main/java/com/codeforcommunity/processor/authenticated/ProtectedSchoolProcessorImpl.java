@@ -28,10 +28,12 @@ import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
+import com.codeforcommunity.exceptions.NoReportFoundException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
+import com.codeforcommunity.logger.SLogger;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ import org.jooq.generated.tables.records.SchoolsRecord;
 
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
+  private final SLogger logger = new SLogger(ProtectedSchoolProcessorImpl.class);
   private final DSLContext db;
 
   public ProtectedSchoolProcessorImpl(DSLContext db) {
@@ -471,6 +474,94 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getHasSufficientTraining(),
         newReport.getTeacherSupport(),
         newReport.getParentSupport());
+  }
+
+  @Override
+  public ReportGeneric getMostRecentReport(JWTData userData, int schoolId) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    ReportGeneric temp = null;
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+
+    LibraryStatus libraryStatus = school.getLibraryStatus();
+
+    if (libraryStatus == LibraryStatus.EXISTS) {
+      temp =
+          db.select(
+                  SCHOOL_REPORTS_WITH_LIBRARIES.ID,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.CREATED_AT,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.UPDATED_AT,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_CHILDREN,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_BOOKS,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.IS_SHARED_SPACE,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.HAS_INVITING_SPACE,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.ASSIGNED_PERSON_ROLE,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.ASSIGNED_PERSON_TITLE,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.APPRENTICESHIP_PROGRAM,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.TRAINS_AND_MENTORS_APPRENTICES,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.HAS_CHECK_IN_TIMETABLES,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.HAS_BOOK_CHECKOUT_SYSTEM,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_STUDENT_LIBRARIANS,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.REASON_NO_STUDENT_LIBRARIANS,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.HAS_SUFFICIENT_TRAINING,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.TEACHER_SUPPORT,
+                  SCHOOL_REPORTS_WITH_LIBRARIES.PARENT_SUPPORT)
+              .from(SCHOOL_REPORTS_WITH_LIBRARIES)
+              .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+              .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
+              .fetchOneInto(ReportWithLibrary.class);
+    }
+    if (libraryStatus == LibraryStatus.DOES_NOT_EXIST) {
+      temp =
+          db.select(
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.CREATED_AT,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.UPDATED_AT,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.USER_ID,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.NUMBER_OF_CHILDREN,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.NUMBER_OF_BOOKS,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.WANTS_LIBRARY,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.HAS_SPACE,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.CURRENT_STATUS,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.REASON_WHY_NOT,
+                  SCHOOL_REPORTS_WITHOUT_LIBRARIES.READY_TIMELINE)
+              .from(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+              .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+              .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
+              .fetchOneInto(ReportWithoutLibrary.class);
+    }
+    if (libraryStatus == LibraryStatus.IN_PROGRESS) {
+      temp =
+          db.select(
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ID,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.CREATED_AT,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.UPDATED_AT,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.SCHOOL_ID,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.USER_ID,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.NUMBER_OF_CHILDREN,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.NUMBER_OF_BOOKS,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.IS_SHARED_SPACE,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.HAS_INVITING_SPACE,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ASSIGNED_PERSON_ROLE,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.ASSIGNED_PERSON_TITLE,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.APPRENTICESHIP_PROGRAM,
+                  SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.TRAINS_AND_MENTORS_APPRENTICES)
+              .from(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES)
+              .where(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.DELETED_AT.isNull())
+              .and(SCHOOL_REPORTS_IN_PROGRESS_LIBRARIES.SCHOOL_ID.eq(schoolId))
+              .fetchOneInto(ReportWithLibraryInProgress.class);
+    }
+    if (temp == null) {
+      logger.error("Report was not found in table");
+      throw new NoReportFoundException(schoolId);
+    } else return temp;
   }
 
   @Override
