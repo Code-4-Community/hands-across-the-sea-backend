@@ -10,7 +10,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
   private Boolean hasSpace;
   private String currentStatus;
   private String reason;
-  private ReadyTimeline timeline;
+  private ReadyTimeline readyTimeline;
 
   public ReportWithoutLibrary(
       Integer id,
@@ -25,7 +25,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
       Boolean hasSpace,
       String currentStatus,
       String reason,
-      ReadyTimeline timeline) {
+      ReadyTimeline readyTimeline) {
     super(
         id,
         createdAt,
@@ -40,7 +40,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
     this.hasSpace = hasSpace;
     this.currentStatus = currentStatus;
     this.reason = reason;
-    this.timeline = timeline;
+    this.readyTimeline = readyTimeline;
   }
 
   public Boolean getWantsLibrary() {
@@ -59,7 +59,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
     return this.reason;
   }
 
-  public ReadyTimeline getTimeline() {
-    return this.timeline;
+  public ReadyTimeline getReadyTimeline() {
+    return this.readyTimeline;
   }
 }

@@ -3,7 +3,6 @@ package com.codeforcommunity.enums;
 public enum LibraryStatus {
   EXISTS("exists"),
   DOES_NOT_EXIST("does_not_exist"),
-  IN_PROGRESS("in_progress"),
   UNKNOWN("unknown");
 
   private String name;

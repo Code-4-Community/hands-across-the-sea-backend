@@ -1,7 +1,6 @@
 package com.codeforcommunity.dto.report;
 
 import com.codeforcommunity.enums.LibraryStatus;
-
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -16,8 +15,6 @@ public class ReportGeneric {
   private Integer numberOfBooks;
   private Integer mostRecentShipmentYear;
   private LibraryStatus libraryStatus;
-
-  protected ReportGeneric() {}
 
   public ReportGeneric(
       Integer id,

@@ -7,9 +7,7 @@ import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportGenericListResponse;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
-import com.codeforcommunity.dto.report.ReportWithLibraryInProgress;
 import com.codeforcommunity.dto.report.ReportWithoutLibrary;
-import com.codeforcommunity.dto.report.UpsertReportInProgressLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithoutLibrary;
 import com.codeforcommunity.dto.school.School;
@@ -58,8 +56,6 @@ public class ProtectedSchoolRouter implements IRouter {
     registerCreateReportWithLibrary(router);
     registerGetMostRecentReport(router);
     registerCreateReportWithoutLibrary(router);
-    registerCreateReportInProgressLibrary(router);
-    //    registerGetLatestReport(router);
     registerGetPaginatedReports(router);
 
     return router;
@@ -138,11 +134,6 @@ public class ProtectedSchoolRouter implements IRouter {
   private void registerCreateReportWithoutLibrary(Router router) {
     Route createReport = router.post("/:school_id/reports/without-library");
     createReport.handler(this::handleCreateReportWithoutLibrary);
-  }
-
-  private void registerCreateReportInProgressLibrary(Router router) {
-    Route createReport = router.post("/:school_id/reports/in-progress");
-    createReport.handler(this::handleCreateReportInProgressLibrary);
   }
 
   private void registerGetPaginatedReports(Router router) {
@@ -265,16 +256,6 @@ public class ProtectedSchoolRouter implements IRouter {
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithoutLibrary.class);
     int schoolID = RestFunctions.getPathParamAsInt(ctx, "school_id");
     ReportWithoutLibrary report = processor.createReportWithoutLibrary(userData, schoolID, request);
-    end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
-  }
-
-  private void handleCreateReportInProgressLibrary(RoutingContext ctx) {
-    JWTData userData = ctx.get("jwt_data");
-    UpsertReportInProgressLibrary request =
-        RestFunctions.getJsonBodyAsClass(ctx, UpsertReportInProgressLibrary.class);
-    int schoolID = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    ReportWithLibraryInProgress report =
-        processor.createReportWithLibraryInProgress(userData, schoolID, request);
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
   }
 
