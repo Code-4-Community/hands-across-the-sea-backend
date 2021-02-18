@@ -10,10 +10,12 @@ import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.dto.report.ReportWithoutLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithoutLibrary;
+import com.codeforcommunity.dto.school.BookLogListResponse;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
+import com.codeforcommunity.dto.school.UpsertBookLogRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.rest.IRouter;
@@ -57,6 +59,10 @@ public class ProtectedSchoolRouter implements IRouter {
     registerGetMostRecentReport(router);
     registerCreateReportWithoutLibrary(router);
     registerGetPaginatedReports(router);
+
+    // Register all book tracking routes
+    registerCreateBookLog(router);
+    registerGetBookLog(router);
 
     return router;
   }
@@ -139,6 +145,16 @@ public class ProtectedSchoolRouter implements IRouter {
   private void registerGetPaginatedReports(Router router) {
     Route getReports = router.get("/:school_id/reports");
     getReports.handler(this::handleGetPaginatedReport);
+  }
+
+  private void registerCreateBookLog(Router router) {
+    Route createBookLog = router.post("/:school_id/books");
+    createBookLog.handler(this::handleCreateBookLog);
+  }
+
+  private void registerGetBookLog(Router router) {
+    Route getBookFlow = router.get("/:school_id/books");
+    getBookFlow.handler(this::handleGetBookLog);
   }
 
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
@@ -265,5 +281,21 @@ public class ProtectedSchoolRouter implements IRouter {
     int page = RestFunctions.getRequestParameterAsInt(ctx.request(), "p");
     ReportGenericListResponse reports = processor.getPaginatedReports(userData, schoolId, page);
     end(ctx.response(), 200, JsonObject.mapFrom(reports).toString());
+  }
+
+  private void handleCreateBookLog(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    UpsertBookLogRequest request =
+        RestFunctions.getJsonBodyAsClass(ctx, UpsertBookLogRequest.class);
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    processor.createBookLog(userData, schoolId, request);
+    end(ctx.response(), 201);
+  }
+
+  private void handleGetBookLog(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    BookLogListResponse response = processor.getBookLog(userData, schoolId);
+    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 }
