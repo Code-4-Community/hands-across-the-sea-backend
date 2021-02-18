@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.codeforcommunity</groupId>
@@ -23,7 +23,6 @@
     <vertx-version>3.8.5</vertx-version>
     <jooq-version>3.12.4</jooq-version>
     <javamail-version>6.0.3</javamail-version>
-    <junit-version>5.6.0</junit-version>
     <flyway-version>7.1.0</flyway-version>
   </properties>
 
@@ -41,26 +40,14 @@
             <target>1.8</target>
           </configuration>
         </plugin>
-
-        <!-- Used for running the main class -->
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>java</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <mainClass>com.codeforcommunity.ServiceMain</mainClass>
-          </configuration>
-        </plugin>
       </plugins>
     </pluginManagement>
+
     <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+      </plugin>
 
       <!-- Used for coveralls test coverage -->
       <plugin>
@@ -92,7 +79,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <!-- formatter -->
         <groupId>com.diffplug.spotless</groupId>
@@ -105,9 +91,6 @@
             </googleJavaFormat>
             <trimTrailingWhitespace/>
             <removeUnusedImports/>
-<!--            <licenseHeader>-->
-<!--              <content>/* (C)$YEAR Code4Community*/</content>-->
-<!--            </licenseHeader>-->
           </java>
         </configuration>
         <executions>
@@ -120,6 +103,25 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <executable>maven</executable>
+          <environmentVariables>
+            <LANG>en_US</LANG>
+          </environmentVariables>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -230,15 +232,8 @@
       <!-- Junit -->
       <dependency>
         <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit-version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>${junit-version}</version>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.6.2</version>
         <scope>test</scope>
       </dependency>
 

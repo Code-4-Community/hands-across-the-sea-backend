@@ -56,7 +56,7 @@ public interface IAuthProcessor {
   /**
    * Allows clients to submit a secret key in order to verify their email.
    *
-   * @param secretKey string of user's verificaiton token.
+   * @param secretKey string of user's verification token.
    */
   void verifyEmail(String secretKey);
 }
