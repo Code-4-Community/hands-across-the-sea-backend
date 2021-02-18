@@ -4,6 +4,7 @@ import static com.codeforcommunity.rest.ApiRouter.end;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportGenericListResponse;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.dto.report.ReportWithLibraryInProgress;
@@ -55,6 +56,7 @@ public class ProtectedSchoolRouter implements IRouter {
 
     // Register all school report routes
     registerCreateReportWithLibrary(router);
+    registerGetMostRecentReport(router);
     registerCreateReportWithoutLibrary(router);
     registerCreateReportInProgressLibrary(router);
     //    registerGetLatestReport(router);
@@ -126,6 +128,11 @@ public class ProtectedSchoolRouter implements IRouter {
   private void registerCreateReportWithLibrary(Router router) {
     Route createReport = router.post("/:school_id/reports/with-library");
     createReport.handler(this::handleCreateReportWithLibrary);
+  }
+
+  private void registerGetMostRecentReport(Router router) {
+    Route getMostRecentReport = router.get("/:school_id/report");
+    getMostRecentReport.handler(this::handleGetMostRecentReport);
   }
 
   private void registerCreateReportWithoutLibrary(Router router) {
@@ -243,6 +250,13 @@ public class ProtectedSchoolRouter implements IRouter {
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     ReportWithLibrary report = processor.createReportWithLibrary(userData, schoolId, request);
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
+  }
+
+  private void handleGetMostRecentReport(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    ReportGeneric report = processor.getMostRecentReport(userData, schoolId);
+    end(ctx.response(), 200, JsonObject.mapFrom(report).toString());
   }
 
   private void handleCreateReportWithoutLibrary(RoutingContext ctx) {
