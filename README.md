@@ -1,6 +1,7 @@
 # Hands Across the Sea Backend
 
 [![Build Status](https://travis-ci.com/Code-4-Community/hands-across-the-sea-backend.svg?branch=master)](https://travis-ci.com/Code-4-Community/hands-across-the-sea-backend)
+[![Coverage Status](https://coveralls.io/repos/github/Code-4-Community/hands-across-the-sea-backend/badge.svg?branch=master)](https://coveralls.io/github/Code-4-Community/hands-across-the-sea-backend?branch=master)
 
 This project is the Java API server for Code4Community's partnership Hands Across the Sea. It is meant to demonstrate API routing and database connection techniques that should be utilized in all C4C Java back ends.
 
