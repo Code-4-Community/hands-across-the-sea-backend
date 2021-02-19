@@ -35,13 +35,11 @@ import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
 import com.codeforcommunity.logger.SLogger;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.BookLogsRecord;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
@@ -61,8 +59,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public SchoolListResponse getAllSchools(JWTData userData) {
     List<SchoolSummary> schools =
-        db.select(SCHOOLS.ID, SCHOOLS.NAME, SCHOOLS.COUNTRY)
-            .from(SCHOOLS)
+        db.selectFrom(SCHOOLS)
             .where(SCHOOLS.HIDDEN.isFalse())
             .and(SCHOOLS.DELETED_AT.isNull())
             .fetchInto(SchoolSummary.class);
@@ -73,18 +70,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public School getSchool(JWTData userData, int schoolId) {
     School school =
-        db.select(
-            SCHOOLS.ID,
-            SCHOOLS.NAME,
-            SCHOOLS.ADDRESS,
-            SCHOOLS.EMAIL,
-            SCHOOLS.PHONE,
-            SCHOOLS.NOTES,
-            SCHOOLS.AREA,
-            SCHOOLS.COUNTRY,
-            SCHOOLS.HIDDEN,
-            SCHOOLS.LIBRARY_STATUS)
-            .from(SCHOOLS)
+        db.selectFrom(SCHOOLS)
             .where(SCHOOLS.DELETED_AT.isNull())
             .and(SCHOOLS.ID.eq(schoolId))
             .fetchOneInto(School.class);
@@ -188,16 +174,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
     List<SchoolContact> schoolContacts =
-        db.select(
-            SCHOOL_CONTACTS.ID,
-            SCHOOL_CONTACTS.SCHOOL_ID,
-            SCHOOL_CONTACTS.FIRST_NAME,
-            SCHOOL_CONTACTS.LAST_NAME,
-            SCHOOL_CONTACTS.EMAIL,
-            SCHOOL_CONTACTS.ADDRESS,
-            SCHOOL_CONTACTS.PHONE,
-            SCHOOL_CONTACTS.TYPE)
-            .from(SCHOOL_CONTACTS)
+        db.selectFrom(SCHOOL_CONTACTS)
             .where(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
             .and(SCHOOL_CONTACTS.DELETED_AT.isNull())
             .fetchInto(SchoolContact.class);
@@ -213,16 +190,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
     SchoolContact schoolContact =
-        db.select(
-            SCHOOL_CONTACTS.ID,
-            SCHOOL_CONTACTS.SCHOOL_ID,
-            SCHOOL_CONTACTS.FIRST_NAME,
-            SCHOOL_CONTACTS.LAST_NAME,
-            SCHOOL_CONTACTS.EMAIL,
-            SCHOOL_CONTACTS.ADDRESS,
-            SCHOOL_CONTACTS.PHONE,
-            SCHOOL_CONTACTS.TYPE)
-            .from(SCHOOL_CONTACTS)
+        db.selectFrom(SCHOOL_CONTACTS)
             .where(SCHOOL_CONTACTS.ID.eq(contactId))
             .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
             .and(SCHOOL_CONTACTS.DELETED_AT.isNull())
@@ -491,51 +459,19 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     if (libraryStatus == LibraryStatus.EXISTS) {
       report =
-          db.select(
-              SCHOOL_REPORTS_WITH_LIBRARIES.ID,
-              SCHOOL_REPORTS_WITH_LIBRARIES.CREATED_AT,
-              SCHOOL_REPORTS_WITH_LIBRARIES.UPDATED_AT,
-              SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID,
-              SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID,
-              SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_CHILDREN,
-              SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_BOOKS,
-              SCHOOL_REPORTS_WITH_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
-              SCHOOL_REPORTS_WITH_LIBRARIES.IS_SHARED_SPACE,
-              SCHOOL_REPORTS_WITH_LIBRARIES.HAS_INVITING_SPACE,
-              SCHOOL_REPORTS_WITH_LIBRARIES.ASSIGNED_PERSON_ROLE,
-              SCHOOL_REPORTS_WITH_LIBRARIES.ASSIGNED_PERSON_TITLE,
-              SCHOOL_REPORTS_WITH_LIBRARIES.APPRENTICESHIP_PROGRAM,
-              SCHOOL_REPORTS_WITH_LIBRARIES.TRAINS_AND_MENTORS_APPRENTICES,
-              SCHOOL_REPORTS_WITH_LIBRARIES.HAS_CHECK_IN_TIMETABLES,
-              SCHOOL_REPORTS_WITH_LIBRARIES.HAS_BOOK_CHECKOUT_SYSTEM,
-              SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_STUDENT_LIBRARIANS,
-              SCHOOL_REPORTS_WITH_LIBRARIES.REASON_NO_STUDENT_LIBRARIANS,
-              SCHOOL_REPORTS_WITH_LIBRARIES.HAS_SUFFICIENT_TRAINING,
-              SCHOOL_REPORTS_WITH_LIBRARIES.TEACHER_SUPPORT,
-              SCHOOL_REPORTS_WITH_LIBRARIES.PARENT_SUPPORT)
-              .from(SCHOOL_REPORTS_WITH_LIBRARIES)
+          db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
               .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
               .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
+              .orderBy(SCHOOL_REPORTS_WITH_LIBRARIES.ID.desc())
+              .limit(1)
               .fetchOneInto(ReportWithLibrary.class);
     } else if (libraryStatus == LibraryStatus.DOES_NOT_EXIST) {
       report =
-          db.select(
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.CREATED_AT,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.UPDATED_AT,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.USER_ID,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.NUMBER_OF_CHILDREN,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.NUMBER_OF_BOOKS,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.WANTS_LIBRARY,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.HAS_SPACE,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.CURRENT_STATUS,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.REASON_WHY_NOT,
-              SCHOOL_REPORTS_WITHOUT_LIBRARIES.READY_TIMELINE)
-              .from(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+          db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
               .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
               .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
+              .orderBy(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.desc())
+              .limit(1)
               .fetchOneInto(ReportWithoutLibrary.class);
     }
 
@@ -601,49 +537,13 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
     List<ReportWithLibrary> withLibraryReports =
-        db.select(
-            SCHOOL_REPORTS_WITH_LIBRARIES.ID,
-            SCHOOL_REPORTS_WITH_LIBRARIES.CREATED_AT,
-            SCHOOL_REPORTS_WITH_LIBRARIES.UPDATED_AT,
-            SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID,
-            SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID,
-            SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_CHILDREN,
-            SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_BOOKS,
-            SCHOOL_REPORTS_WITH_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
-            SCHOOL_REPORTS_WITH_LIBRARIES.IS_SHARED_SPACE,
-            SCHOOL_REPORTS_WITH_LIBRARIES.HAS_INVITING_SPACE,
-            SCHOOL_REPORTS_WITH_LIBRARIES.ASSIGNED_PERSON_ROLE,
-            SCHOOL_REPORTS_WITH_LIBRARIES.ASSIGNED_PERSON_TITLE,
-            SCHOOL_REPORTS_WITH_LIBRARIES.APPRENTICESHIP_PROGRAM,
-            SCHOOL_REPORTS_WITH_LIBRARIES.TRAINS_AND_MENTORS_APPRENTICES,
-            SCHOOL_REPORTS_WITH_LIBRARIES.HAS_CHECK_IN_TIMETABLES,
-            SCHOOL_REPORTS_WITH_LIBRARIES.HAS_BOOK_CHECKOUT_SYSTEM,
-            SCHOOL_REPORTS_WITH_LIBRARIES.NUMBER_OF_STUDENT_LIBRARIANS,
-            SCHOOL_REPORTS_WITH_LIBRARIES.REASON_NO_STUDENT_LIBRARIANS,
-            SCHOOL_REPORTS_WITH_LIBRARIES.HAS_SUFFICIENT_TRAINING,
-            SCHOOL_REPORTS_WITH_LIBRARIES.TEACHER_SUPPORT,
-            SCHOOL_REPORTS_WITH_LIBRARIES.PARENT_SUPPORT)
-            .from(SCHOOL_REPORTS_WITH_LIBRARIES)
+        db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
             .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
             .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
             .fetchInto(ReportWithLibrary.class);
 
     List<ReportWithoutLibrary> noLibraryReports =
-        db.select(
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.CREATED_AT,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.UPDATED_AT,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.USER_ID,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.NUMBER_OF_CHILDREN,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.NUMBER_OF_BOOKS,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.MOST_RECENT_SHIPMENT_YEAR,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.WANTS_LIBRARY,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.HAS_SPACE,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.CURRENT_STATUS,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.REASON_WHY_NOT,
-            SCHOOL_REPORTS_WITHOUT_LIBRARIES.READY_TIMELINE)
-            .from(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+        db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
             .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
             .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
             .fetchInto(ReportWithoutLibrary.class);
@@ -692,10 +592,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    List<BookLog> logs =
-        db.select(BOOK_LOGS.COUNT, BOOK_LOGS.DATE, BOOK_LOGS.NOTES)
-            .from(BOOK_LOGS)
-            .fetchInto(BookLog.class);
+    List<BookLog> logs = db.selectFrom(BOOK_LOGS).fetchInto(BookLog.class);
 
     return (logs != null)
         ? new BookLogListResponse(logs)
@@ -710,16 +607,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   private List<SchoolContact> queryForSchoolContacts(int schoolId) {
-    return db.select(
-        SCHOOL_CONTACTS.ID,
-        SCHOOL_CONTACTS.SCHOOL_ID,
-        SCHOOL_CONTACTS.FIRST_NAME,
-        SCHOOL_CONTACTS.LAST_NAME,
-        SCHOOL_CONTACTS.EMAIL,
-        SCHOOL_CONTACTS.ADDRESS,
-        SCHOOL_CONTACTS.PHONE,
-        SCHOOL_CONTACTS.TYPE)
-        .from(SCHOOL_CONTACTS)
+    return db.selectFrom(SCHOOL_CONTACTS)
         .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
         .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
         .fetchInto(SchoolContact.class);

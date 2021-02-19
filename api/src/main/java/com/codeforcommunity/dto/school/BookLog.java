@@ -1,12 +1,15 @@
 package com.codeforcommunity.dto.school;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 public class BookLog {
 
   private Integer count;
   private Timestamp date;
   private String notes;
+
+  public BookLog() {}
 
   public BookLog(Integer count, Timestamp date, String notes) {
     this.count = count;
@@ -22,8 +25,8 @@ public class BookLog {
     this.count = count;
   }
 
-  public Timestamp getDate() {
-    return date;
+  public String getDate() {
+    return new Date(date.getTime()).toString();
   }
 
   public void setDate(Timestamp date) {

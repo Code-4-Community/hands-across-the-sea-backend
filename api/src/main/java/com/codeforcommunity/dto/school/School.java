@@ -19,6 +19,8 @@ public class School {
   private LibraryStatus libraryStatus;
   private List<SchoolContact> contacts;
 
+  public School() {}
+
   public School(
       Integer id,
       String name,

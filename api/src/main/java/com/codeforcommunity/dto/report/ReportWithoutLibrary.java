@@ -12,6 +12,10 @@ public class ReportWithoutLibrary extends ReportGeneric {
   private String reason;
   private ReadyTimeline readyTimeline;
 
+  public ReportWithoutLibrary() {
+    super(LibraryStatus.DOES_NOT_EXIST);
+  }
+
   public ReportWithoutLibrary(
       Integer id,
       Timestamp createdAt,

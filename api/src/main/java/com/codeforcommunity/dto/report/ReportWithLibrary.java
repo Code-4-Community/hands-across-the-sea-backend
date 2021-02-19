@@ -22,6 +22,10 @@ public class ReportWithLibrary extends ReportGeneric {
   private String teacherSupport;
   private String parentSupport;
 
+  public ReportWithLibrary() {
+    super(LibraryStatus.EXISTS);
+  }
+
   public ReportWithLibrary(
       Integer id,
       Timestamp createdAt,

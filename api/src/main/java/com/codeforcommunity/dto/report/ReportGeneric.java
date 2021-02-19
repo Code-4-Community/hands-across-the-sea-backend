@@ -16,6 +16,10 @@ public class ReportGeneric {
   private Integer mostRecentShipmentYear;
   private LibraryStatus libraryStatus;
 
+  public ReportGeneric(LibraryStatus libraryStatus) {
+    this.libraryStatus = libraryStatus;
+  }
+
   public ReportGeneric(
       Integer id,
       Timestamp createdAt,
