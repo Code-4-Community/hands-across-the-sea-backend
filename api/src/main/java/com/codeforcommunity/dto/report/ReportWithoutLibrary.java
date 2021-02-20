@@ -1,5 +1,6 @@
 package com.codeforcommunity.dto.report;
 
+import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.ReadyTimeline;
 import java.sql.Timestamp;
 
@@ -9,7 +10,11 @@ public class ReportWithoutLibrary extends ReportGeneric {
   private Boolean hasSpace;
   private String currentStatus;
   private String reason;
-  private ReadyTimeline timeline;
+  private ReadyTimeline readyTimeline;
+
+  public ReportWithoutLibrary() {
+    super(LibraryStatus.DOES_NOT_EXIST);
+  }
 
   public ReportWithoutLibrary(
       Integer id,
@@ -24,7 +29,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
       Boolean hasSpace,
       String currentStatus,
       String reason,
-      ReadyTimeline timeline) {
+      ReadyTimeline readyTimeline) {
     super(
         id,
         createdAt,
@@ -33,12 +38,13 @@ public class ReportWithoutLibrary extends ReportGeneric {
         userId,
         numberOfChildren,
         numberOfBooks,
-        mostRecentShipmentYear);
+        mostRecentShipmentYear,
+        LibraryStatus.DOES_NOT_EXIST);
     this.wantsLibrary = wantsLibrary;
     this.hasSpace = hasSpace;
     this.currentStatus = currentStatus;
     this.reason = reason;
-    this.timeline = timeline;
+    this.readyTimeline = readyTimeline;
   }
 
   public Boolean getWantsLibrary() {
@@ -57,7 +63,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
     return this.reason;
   }
 
-  public ReadyTimeline getTimeline() {
-    return this.timeline;
+  public ReadyTimeline getReadyTimeline() {
+    return this.readyTimeline;
   }
 }

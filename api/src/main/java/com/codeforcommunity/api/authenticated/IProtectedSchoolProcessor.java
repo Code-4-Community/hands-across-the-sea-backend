@@ -4,15 +4,15 @@ import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportGenericListResponse;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
-import com.codeforcommunity.dto.report.ReportWithLibraryInProgress;
 import com.codeforcommunity.dto.report.ReportWithoutLibrary;
-import com.codeforcommunity.dto.report.UpsertReportInProgressLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithoutLibrary;
+import com.codeforcommunity.dto.school.BookLogListResponse;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
+import com.codeforcommunity.dto.school.UpsertBookLogRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 
@@ -55,8 +55,9 @@ public interface IProtectedSchoolProcessor {
   ReportWithoutLibrary createReportWithoutLibrary(
       JWTData userData, int schoolId, UpsertReportWithoutLibrary upsertRequest);
 
-  ReportWithLibraryInProgress createReportWithLibraryInProgress(
-      JWTData userData, int schoolId, UpsertReportInProgressLibrary upsertRequest);
-
   ReportGenericListResponse getPaginatedReports(JWTData userData, int schoolId, int page);
+
+  void createBookLog(JWTData userData, int schoolId, UpsertBookLogRequest request);
+
+  BookLogListResponse getBookLog(JWTData userData, int schoolId);
 }

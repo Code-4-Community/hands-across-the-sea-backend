@@ -13,6 +13,8 @@ public class SchoolContact {
   private String phone;
   private ContactType type;
 
+  public SchoolContact() {}
+
   public SchoolContact(
       Integer id,
       Integer schoolId,

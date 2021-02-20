@@ -1,5 +1,6 @@
 package com.codeforcommunity.dto.report;
 
+import com.codeforcommunity.enums.LibraryStatus;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -13,8 +14,11 @@ public class ReportGeneric {
   private Integer numberOfChildren;
   private Integer numberOfBooks;
   private Integer mostRecentShipmentYear;
+  private LibraryStatus libraryStatus;
 
-  protected ReportGeneric() {}
+  public ReportGeneric(LibraryStatus libraryStatus) {
+    this.libraryStatus = libraryStatus;
+  }
 
   public ReportGeneric(
       Integer id,
@@ -24,7 +28,8 @@ public class ReportGeneric {
       Integer userId,
       Integer numberOfChildren,
       Integer numberOfBooks,
-      Integer mostRecentShipmentYear) {
+      Integer mostRecentShipmentYear,
+      LibraryStatus libraryStatus) {
     this.id = id;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
@@ -33,6 +38,7 @@ public class ReportGeneric {
     this.numberOfChildren = numberOfChildren;
     this.numberOfBooks = numberOfBooks;
     this.mostRecentShipmentYear = mostRecentShipmentYear;
+    this.libraryStatus = libraryStatus;
   }
 
   public Integer getId() {
@@ -97,5 +103,13 @@ public class ReportGeneric {
 
   public void setMostRecentShipmentYear(Integer mostRecentShipmentYear) {
     this.mostRecentShipmentYear = mostRecentShipmentYear;
+  }
+
+  public LibraryStatus getLibraryStatus() {
+    return libraryStatus;
+  }
+
+  public void setLibraryStatus(LibraryStatus libraryStatus) {
+    this.libraryStatus = libraryStatus;
   }
 }

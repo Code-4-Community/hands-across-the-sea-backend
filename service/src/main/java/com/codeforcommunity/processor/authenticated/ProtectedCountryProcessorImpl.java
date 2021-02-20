@@ -21,8 +21,7 @@ public class ProtectedCountryProcessorImpl implements IProtectedCountryProcessor
   @Override
   public SchoolListResponse getSchools(JWTData userData, Country country) {
     List<SchoolSummary> schools =
-        db.select(SCHOOLS.ID, SCHOOLS.NAME, SCHOOLS.COUNTRY)
-            .from(SCHOOLS)
+        db.selectFrom(SCHOOLS)
             .where(SCHOOLS.HIDDEN.isFalse())
             .and(SCHOOLS.DELETED_AT.isNull())
             .and(SCHOOLS.COUNTRY.eq(country))

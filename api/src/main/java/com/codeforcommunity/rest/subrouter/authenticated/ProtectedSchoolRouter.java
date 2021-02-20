@@ -7,15 +7,15 @@ import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportGenericListResponse;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
-import com.codeforcommunity.dto.report.ReportWithLibraryInProgress;
 import com.codeforcommunity.dto.report.ReportWithoutLibrary;
-import com.codeforcommunity.dto.report.UpsertReportInProgressLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithoutLibrary;
+import com.codeforcommunity.dto.school.BookLogListResponse;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
+import com.codeforcommunity.dto.school.UpsertBookLogRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.rest.IRouter;
@@ -56,11 +56,13 @@ public class ProtectedSchoolRouter implements IRouter {
 
     // Register all school report routes
     registerCreateReportWithLibrary(router);
-    registerGetMostRecentReport(router);
     registerCreateReportWithoutLibrary(router);
-    registerCreateReportInProgressLibrary(router);
-    //    registerGetLatestReport(router);
+    registerGetMostRecentReport(router);
     registerGetPaginatedReports(router);
+
+    // Register all book tracking routes
+    registerCreateBookLog(router);
+    registerGetBookLog(router);
 
     return router;
   }
@@ -140,14 +142,19 @@ public class ProtectedSchoolRouter implements IRouter {
     createReport.handler(this::handleCreateReportWithoutLibrary);
   }
 
-  private void registerCreateReportInProgressLibrary(Router router) {
-    Route createReport = router.post("/:school_id/reports/in-progress");
-    createReport.handler(this::handleCreateReportInProgressLibrary);
-  }
-
   private void registerGetPaginatedReports(Router router) {
     Route getReports = router.get("/:school_id/reports");
     getReports.handler(this::handleGetPaginatedReport);
+  }
+
+  private void registerCreateBookLog(Router router) {
+    Route createBookLog = router.post("/:school_id/books");
+    createBookLog.handler(this::handleCreateBookLog);
+  }
+
+  private void registerGetBookLog(Router router) {
+    Route getBookFlow = router.get("/:school_id/books");
+    getBookFlow.handler(this::handleGetBookLog);
   }
 
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
@@ -268,21 +275,27 @@ public class ProtectedSchoolRouter implements IRouter {
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
   }
 
-  private void handleCreateReportInProgressLibrary(RoutingContext ctx) {
-    JWTData userData = ctx.get("jwt_data");
-    UpsertReportInProgressLibrary request =
-        RestFunctions.getJsonBodyAsClass(ctx, UpsertReportInProgressLibrary.class);
-    int schoolID = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    ReportWithLibraryInProgress report =
-        processor.createReportWithLibraryInProgress(userData, schoolID, request);
-    end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
-  }
-
   private void handleGetPaginatedReport(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int page = RestFunctions.getRequestParameterAsInt(ctx.request(), "p");
     ReportGenericListResponse reports = processor.getPaginatedReports(userData, schoolId, page);
     end(ctx.response(), 200, JsonObject.mapFrom(reports).toString());
+  }
+
+  private void handleCreateBookLog(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    UpsertBookLogRequest request =
+        RestFunctions.getJsonBodyAsClass(ctx, UpsertBookLogRequest.class);
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    processor.createBookLog(userData, schoolId, request);
+    end(ctx.response(), 201);
+  }
+
+  private void handleGetBookLog(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    BookLogListResponse response = processor.getBookLog(userData, schoolId);
+    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 }

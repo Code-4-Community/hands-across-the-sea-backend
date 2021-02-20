@@ -8,6 +8,8 @@ public class SchoolSummary {
   private String name;
   private Country country;
 
+  public SchoolSummary() {}
+
   public SchoolSummary(Integer id, String name, Country country) {
     this.id = id;
     this.name = name;
