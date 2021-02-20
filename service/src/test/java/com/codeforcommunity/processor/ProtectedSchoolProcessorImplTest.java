@@ -18,6 +18,7 @@ import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.processor.authenticated.ProtectedSchoolProcessorImpl;
 import java.util.Random;
 import org.jooq.generated.tables.records.SchoolsRecord;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ProtectedSchoolProcessorImplTest {
@@ -25,6 +26,7 @@ public class ProtectedSchoolProcessorImplTest {
   private JooqMock myJooqMock;
   private ProtectedSchoolProcessorImpl schoolProcessor;
 
+  @BeforeEach
   private void setup() {
     this.myJooqMock = new JooqMock();
     this.schoolProcessor = new ProtectedSchoolProcessorImpl(myJooqMock.getContext());
@@ -33,7 +35,6 @@ public class ProtectedSchoolProcessorImplTest {
   /** Test attempting to create a school as a standard user. */
   @Test
   public void testCreateSchoolNonAdmin() {
-    this.setup();
     Random rand = new Random();
 
     String name = generateRandomString(6, 24);
@@ -78,7 +79,6 @@ public class ProtectedSchoolProcessorImplTest {
   /** Test attempting to create a school as a standard user. */
   @Test
   public void testCreateSchoolAdmin() {
-    this.setup();
     Random rand = new Random();
 
     String name = generateRandomString(6, 24);
