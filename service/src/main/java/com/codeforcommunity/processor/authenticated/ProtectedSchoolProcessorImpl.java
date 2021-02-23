@@ -28,6 +28,7 @@ import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
+import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.NoReportFoundException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
@@ -578,6 +579,33 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     String notes = request.getNotes();
 
     BookLogsRecord log = db.newRecord(BOOK_LOGS);
+    log.setSchoolId(schoolId);
+    log.setCount(count);
+    log.setDate(date);
+    log.setNotes(notes);
+    log.store();
+  }
+
+  @Override
+  public void adminUpdateBookLog(
+      JWTData userData, int schoolId, int bookId, UpsertBookLogRequest request) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+
+    BookLogsRecord log = db.selectFrom(BOOK_LOGS).where(BOOK_LOGS.ID.eq(bookId)).fetchOne();
+
+    if (log == null) {
+      throw new BookLogDoesNotExistException(bookId);
+    }
+
+    Integer count = request.getCount();
+    Timestamp date = request.getDate();
+    String notes = request.getNotes();
     log.setSchoolId(schoolId);
     log.setCount(count);
     log.setDate(date);

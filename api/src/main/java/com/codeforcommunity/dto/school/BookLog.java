@@ -8,10 +8,12 @@ public class BookLog {
   private Integer count;
   private Timestamp date;
   private String notes;
+  private Integer id;
 
   public BookLog() {}
 
-  public BookLog(Integer count, Timestamp date, String notes) {
+  public BookLog(Integer id, Integer count, Timestamp date, String notes) {
+    this.id = id;
     this.count = count;
     this.date = date;
     this.notes = notes;
