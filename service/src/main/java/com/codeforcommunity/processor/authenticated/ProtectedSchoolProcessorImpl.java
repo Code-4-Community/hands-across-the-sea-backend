@@ -448,8 +448,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public ReportWithLibrary adminCreateReportWithLibrary(
-      JWTData userData, int schoolId, UpsertReportWithLibrary req) {
+  public void adminUpdateReportWithLibrary(
+      JWTData userData, int schoolId, int reportId, UpsertReportWithLibrary req) {
 
     if (!userData.isAdmin()) {
       throw new AdminOnlyRouteException();
@@ -459,12 +459,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    // Update this school to have a new library status
-    school.setLibraryStatus(LibraryStatus.EXISTS);
-    school.store();
-
     // Save a record to the school_reports_with_libraries table
-    SchoolReportsWithLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITH_LIBRARIES);
+    SchoolReportsWithLibrariesRecord newReport = db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+        .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId)).fetchOne();
+
+    if (newReport == null) {
+      throw new NoReportFoundException(schoolId);
+    }
+
     newReport.setUserId(userData.getUserId());
     newReport.setSchoolId(schoolId);
     newReport.setNumberOfChildren(req.getNumberOfChildren());
@@ -487,28 +489,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.store();
     newReport.refresh();
 
-    return new ReportWithLibrary(
-        newReport.getId(),
-        newReport.getCreatedAt(),
-        newReport.getUpdatedAt(),
-        newReport.getSchoolId(),
-        userData.getUserId(),
-        newReport.getNumberOfChildren(),
-        newReport.getNumberOfBooks(),
-        newReport.getMostRecentShipmentYear(),
-        newReport.getIsSharedSpace(),
-        newReport.getHasInvitingSpace(),
-        newReport.getAssignedPersonRole(),
-        newReport.getAssignedPersonTitle(),
-        newReport.getApprenticeshipProgram(),
-        newReport.getTrainsAndMentorsApprentices(),
-        newReport.getHasCheckInTimetables(),
-        newReport.getHasBookCheckoutSystem(),
-        newReport.getNumberOfStudentLibrarians(),
-        newReport.getReasonNoStudentLibrarians(),
-        newReport.getHasSufficientTraining(),
-        newReport.getTeacherSupport(),
-        newReport.getParentSupport());
   }
 
   @Override
@@ -590,8 +570,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public ReportWithoutLibrary adminCreateReportWithoutLibrary(
-      JWTData userData, int schoolId, UpsertReportWithoutLibrary req) {
+  public void adminUpdateReportWithoutLibrary(
+      JWTData userData, int schoolId, int reportId, UpsertReportWithoutLibrary req) {
 
     if (!userData.isAdmin()) {
       throw new AdminOnlyRouteException();
@@ -602,10 +582,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
-    school.store();
+    // Save a record to the school_reports_with_libraries table
+    SchoolReportsWithoutLibrariesRecord newReport = db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+        .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId)).fetchOne();
 
-    SchoolReportsWithoutLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITHOUT_LIBRARIES);
+    if (newReport == null) {
+      throw new NoReportFoundException(schoolId);
+    }
+
     newReport.setSchoolId(schoolId);
     newReport.setUserId(userData.getUserId());
     newReport.setNumberOfChildren(req.getNumberOfChildren());
@@ -619,21 +603,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     newReport.store();
     newReport.refresh();
-
-    return new ReportWithoutLibrary(
-        newReport.getId(),
-        newReport.getCreatedAt(),
-        newReport.getUpdatedAt(),
-        newReport.getSchoolId(),
-        newReport.getUserId(),
-        newReport.getNumberOfChildren(),
-        newReport.getNumberOfBooks(),
-        newReport.getMostRecentShipmentYear(),
-        newReport.getWantsLibrary(),
-        newReport.getHasSpace(),
-        newReport.getCurrentStatus(),
-        newReport.getReasonWhyNot(),
-        newReport.getReadyTimeline());
   }
 
   @Override

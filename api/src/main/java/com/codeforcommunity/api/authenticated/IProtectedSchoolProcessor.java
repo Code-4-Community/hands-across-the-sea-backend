@@ -55,11 +55,11 @@ public interface IProtectedSchoolProcessor {
   ReportWithoutLibrary createReportWithoutLibrary(
       JWTData userData, int schoolId, UpsertReportWithoutLibrary upsertRequest);
 
-  ReportWithLibrary adminCreateReportWithLibrary(
-      JWTData userData, int schoolId, UpsertReportWithLibrary upsertRequest);
+  void adminUpdateReportWithLibrary(
+      JWTData userData, int schoolId, int reportId, UpsertReportWithLibrary upsertRequest);
 
-  ReportWithoutLibrary adminCreateReportWithoutLibrary(
-      JWTData userData, int schoolId, UpsertReportWithoutLibrary upsertRequest);
+  void adminUpdateReportWithoutLibrary(
+      JWTData userData, int schoolId, int reportId, UpsertReportWithoutLibrary upsertRequest);
 
   ReportGenericListResponse getPaginatedReports(JWTData userData, int schoolId, int page);
 
