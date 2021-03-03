@@ -47,7 +47,8 @@ public class ReportWithLibrary extends ReportGeneric {
       String reasonNoStudentLibrarians,
       Boolean hasSufficientTraining,
       String teacherSupport,
-      String parentSupport) {
+      String parentSupport,
+      String visitReason) {
     super(
         id,
         createdAt,
@@ -57,7 +58,8 @@ public class ReportWithLibrary extends ReportGeneric {
         numberOfChildren,
         numberOfBooks,
         mostRecentShipmentYear,
-        LibraryStatus.EXISTS);
+        LibraryStatus.EXISTS,
+        visitReason);
     this.isSharedSpace = isSharedSpace;
     this.hasInvitingSpace = hasInvitingSpace;
     this.assignedPersonRole = assignedPersonRole;

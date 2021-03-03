@@ -419,6 +419,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setHasSufficientTraining(req.getHasSufficientTraining());
     newReport.setTeacherSupport(req.getTeacherSupport());
     newReport.setParentSupport(req.getParentSupport());
+    newReport.setVisitReason(req.getVisitReason());
 
     newReport.store();
     newReport.refresh();
@@ -444,7 +445,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getReasonNoStudentLibrarians(),
         newReport.getHasSufficientTraining(),
         newReport.getTeacherSupport(),
-        newReport.getParentSupport());
+        newReport.getParentSupport(),
+        newReport.getVisitReason());
   }
 
   @Override
@@ -505,6 +507,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setReasonWhyNot(req.getReasonWhyNot());
     newReport.setWantsLibrary(req.getWantsLibrary());
     newReport.setReadyTimeline(req.getReadyTimeline());
+    newReport.setVisitReason(req.getVisitReason());
 
     newReport.store();
     newReport.refresh();
@@ -522,7 +525,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getHasSpace(),
         newReport.getCurrentStatus(),
         newReport.getReasonWhyNot(),
-        newReport.getReadyTimeline());
+        newReport.getReadyTimeline(),
+        newReport.getVisitReason());
   }
 
   @Override

@@ -10,6 +10,7 @@ public class UpsertReportGeneric extends ApiDto {
   private Integer numberOfChildren;
   private Integer numberOfBooks;
   private Integer mostRecentShipmentYear;
+  private String visitReason;
 
   public Integer getNumberOfChildren() {
     return numberOfChildren;
@@ -35,6 +36,14 @@ public class UpsertReportGeneric extends ApiDto {
     this.mostRecentShipmentYear = mostRecentShipmentYear;
   }
 
+  public String getVisitReason() {
+    return visitReason;
+  }
+
+  public void setVisitReason(String visitReason) {
+    this.visitReason = visitReason;
+  }
+
   @Override
   public List<String> validateFields(String fieldPrefix) throws HandledException {
     List<String> fields = new ArrayList<String>();
@@ -46,6 +55,9 @@ public class UpsertReportGeneric extends ApiDto {
     }
     if (mostRecentShipmentYear == null) {
       fields.add("mostRecentShipmentYear");
+    }
+    if (visitReason == null) {
+      fields.add("visitReason");
     }
     return fields;
   }
