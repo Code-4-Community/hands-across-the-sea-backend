@@ -154,7 +154,7 @@ public class ProtectedSchoolRouter implements IRouter {
   }
 
   private void registerAdminUpdateBookLog(Router router) {
-    Route createBookLog = router.put("/admin/:school_id/books/:book_id");
+    Route createBookLog = router.put("/:school_id/books/:book_id");
     createBookLog.handler(this::handleAdminUpdateBookLog);
   }
 
