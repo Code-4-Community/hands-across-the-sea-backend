@@ -611,6 +611,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     log.setDate(date);
     log.setNotes(notes);
     log.store();
+    log.refresh();
   }
 
   @Override
