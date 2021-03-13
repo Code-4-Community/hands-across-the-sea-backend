@@ -448,12 +448,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public void adminUpdateReportWithLibrary(
+  public void updateReportWithLibrary(
       JWTData userData, int schoolId, int reportId, UpsertReportWithLibrary req) {
-
-    if (!userData.isAdmin()) {
-      throw new AdminOnlyRouteException();
-    }
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
@@ -462,6 +458,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithLibrariesRecord newReport = db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
         .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId)).fetchOne();
+
+
+    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
+      throw new AdminOnlyRouteException();
+    }
 
     if (newReport == null) {
       throw new NoReportFoundException(schoolId);
@@ -570,12 +571,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public void adminUpdateReportWithoutLibrary(
+  public void updateReportWithoutLibrary(
       JWTData userData, int schoolId, int reportId, UpsertReportWithoutLibrary req) {
-
-    if (!userData.isAdmin()) {
-      throw new AdminOnlyRouteException();
-    }
 
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
@@ -585,6 +582,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithoutLibrariesRecord newReport = db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
         .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId)).fetchOne();
+
+    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
+      throw new AdminOnlyRouteException();
+    }
 
     if (newReport == null) {
       throw new NoReportFoundException(schoolId);

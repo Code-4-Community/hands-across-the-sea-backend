@@ -57,8 +57,8 @@ public class ProtectedSchoolRouter implements IRouter {
     // Register all school report routes
     registerCreateReportWithLibrary(router);
     registerCreateReportWithoutLibrary(router);
-    registerAdminUpdateReportWithLibrary(router);
-    registerAdminUpdateReportWithoutLibrary(router);
+    registerUpdateReportWithLibrary(router);
+    registerUpdateReportWithoutLibrary(router);
     registerGetMostRecentReport(router);
     registerGetPaginatedReports(router);
 
@@ -134,9 +134,9 @@ public class ProtectedSchoolRouter implements IRouter {
     createReport.handler(this::handleCreateReportWithLibrary);
   }
 
-  private void registerAdminUpdateReportWithLibrary(Router router) {
-    Route createReport = router.put("/admin/:school_id/reports/with-library/:report_id");
-    createReport.handler(this::handleAdminUpdateReportWithLibrary);
+  private void registerUpdateReportWithLibrary(Router router) {
+    Route createReport = router.put("/:school_id/reports/with-library/:report_id");
+    createReport.handler(this::handleUpdateReportWithLibrary);
   }
 
   private void registerGetMostRecentReport(Router router) {
@@ -149,9 +149,9 @@ public class ProtectedSchoolRouter implements IRouter {
     createReport.handler(this::handleCreateReportWithoutLibrary);
   }
 
-  private void registerAdminUpdateReportWithoutLibrary(Router router) {
-    Route createReport = router.put("/admin/:school_id/reports/without-library/:report_id");
-    createReport.handler(this::handleAdminUpdateReportWithoutLibrary);
+  private void registerUpdateReportWithoutLibrary(Router router) {
+    Route createReport = router.put("/:school_id/reports/without-library/:report_id");
+    createReport.handler(this::handleUpdateReportWithoutLibrary);
   }
 
   private void registerGetPaginatedReports(Router router) {
@@ -271,13 +271,13 @@ public class ProtectedSchoolRouter implements IRouter {
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
   }
 
-  private void handleAdminUpdateReportWithLibrary(RoutingContext ctx) {
+  private void handleUpdateReportWithLibrary(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     UpsertReportWithLibrary request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithLibrary.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
-    processor.adminUpdateReportWithLibrary(userData, schoolId, reportId, request);
+    processor.updateReportWithLibrary(userData, schoolId, reportId, request);
     end(ctx.response(), 201);
   }
 
@@ -294,11 +294,11 @@ public class ProtectedSchoolRouter implements IRouter {
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithoutLibrary.class);
     int schoolID = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
-    processor.adminUpdateReportWithoutLibrary(userData, schoolID, reportId, request);
+    processor.updateReportWithoutLibrary(userData, schoolID, reportId, request);
     end(ctx.response(), 201);
   }
 
-  private void handleAdminUpdateReportWithoutLibrary(RoutingContext ctx) {
+  private void handleUpdateReportWithoutLibrary(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     UpsertReportWithoutLibrary request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithoutLibrary.class);
