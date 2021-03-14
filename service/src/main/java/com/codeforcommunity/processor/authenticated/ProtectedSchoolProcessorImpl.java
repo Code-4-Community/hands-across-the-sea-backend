@@ -488,7 +488,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setParentSupport(req.getParentSupport());
 
     newReport.store();
-    newReport.refresh();
 
   }
 
@@ -603,7 +602,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setReadyTimeline(req.getReadyTimeline());
 
     newReport.store();
-    newReport.refresh();
   }
 
   @Override

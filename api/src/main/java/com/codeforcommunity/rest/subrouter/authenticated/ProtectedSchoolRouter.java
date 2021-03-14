@@ -278,7 +278,7 @@ public class ProtectedSchoolRouter implements IRouter {
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
     processor.updateReportWithLibrary(userData, schoolId, reportId, request);
-    end(ctx.response(), 201);
+    end(ctx.response(), 200);
   }
 
   private void handleGetMostRecentReport(RoutingContext ctx) {
@@ -293,9 +293,8 @@ public class ProtectedSchoolRouter implements IRouter {
     UpsertReportWithoutLibrary request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithoutLibrary.class);
     int schoolID = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
-    processor.updateReportWithoutLibrary(userData, schoolID, reportId, request);
-    end(ctx.response(), 201);
+    ReportWithoutLibrary report = processor.createReportWithoutLibrary(userData, schoolID, request);
+    end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
   }
 
   private void handleUpdateReportWithoutLibrary(RoutingContext ctx) {
@@ -303,8 +302,9 @@ public class ProtectedSchoolRouter implements IRouter {
     UpsertReportWithoutLibrary request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithoutLibrary.class);
     int schoolID = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    ReportWithoutLibrary report = processor.createReportWithoutLibrary(userData, schoolID, request);
-    end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
+    int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
+    processor.updateReportWithoutLibrary(userData, schoolID, reportId, request);
+    end(ctx.response(), 200);
   }
 
   private void handleGetPaginatedReport(RoutingContext ctx) {
