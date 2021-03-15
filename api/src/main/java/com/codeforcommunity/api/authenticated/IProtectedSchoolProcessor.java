@@ -66,4 +66,6 @@ public interface IProtectedSchoolProcessor {
   void createBookLog(JWTData userData, int schoolId, UpsertBookLogRequest request);
 
   BookLogListResponse getBookLog(JWTData userData, int schoolId);
+
+  String getReportAsCsv(JWTData userData, int schoolID);
 }

@@ -458,9 +458,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
     // Save a record to the school_reports_with_libraries table
-    SchoolReportsWithLibrariesRecord newReport = db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-        .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId)).fetchOne();
-
+    SchoolReportsWithLibrariesRecord newReport =
+        db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId))
+            .fetchOne();
 
     if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
       throw new AdminOnlyRouteException();
@@ -488,9 +489,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setHasSufficientTraining(req.getHasSufficientTraining());
     newReport.setTeacherSupport(req.getTeacherSupport());
     newReport.setParentSupport(req.getParentSupport());
+    newReport.setVisitReason(req.getVisitReason());
 
     newReport.store();
-
   }
 
   @Override
@@ -583,8 +584,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
     // Save a record to the school_reports_with_libraries table
-    SchoolReportsWithoutLibrariesRecord newReport = db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-        .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId)).fetchOne();
+    SchoolReportsWithoutLibrariesRecord newReport =
+        db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId))
+            .fetchOne();
 
     if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
       throw new AdminOnlyRouteException();
@@ -604,6 +607,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setReasonWhyNot(req.getReasonWhyNot());
     newReport.setWantsLibrary(req.getWantsLibrary());
     newReport.setReadyTimeline(req.getReadyTimeline());
+    newReport.setVisitReason(req.getVisitReason());
 
     newReport.store();
   }
@@ -680,6 +684,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     return (logs != null)
         ? new BookLogListResponse(logs)
         : new BookLogListResponse(new ArrayList<>());
+  }
+
+  @Override
+  public String getReportAsCsv(JWTData userData, int schoolID) {
+    return null;
   }
 
   private SchoolsRecord queryForSchool(int schoolId) {
