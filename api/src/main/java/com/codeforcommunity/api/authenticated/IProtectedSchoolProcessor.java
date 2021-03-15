@@ -61,5 +61,5 @@ public interface IProtectedSchoolProcessor {
 
   BookLogListResponse getBookLog(JWTData userData, int schoolId);
 
-  void adminUpdateBookLog(JWTData userData, int schoolId, int bookId, UpsertBookLogRequest request);
+  void updateBookLog(JWTData userData, int schoolId, int bookId, UpsertBookLogRequest request);
 }

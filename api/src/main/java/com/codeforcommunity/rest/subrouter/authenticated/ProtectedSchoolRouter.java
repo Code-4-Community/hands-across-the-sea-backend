@@ -63,7 +63,7 @@ public class ProtectedSchoolRouter implements IRouter {
     // Register all book tracking routes
     registerCreateBookLog(router);
     registerGetBookLog(router);
-    registerAdminUpdateBookLog(router);
+    registerUpdateBookLog(router);
 
     return router;
   }
@@ -153,9 +153,9 @@ public class ProtectedSchoolRouter implements IRouter {
     createBookLog.handler(this::handleCreateBookLog);
   }
 
-  private void registerAdminUpdateBookLog(Router router) {
+  private void registerUpdateBookLog(Router router) {
     Route createBookLog = router.put("/:school_id/books/:book_id");
-    createBookLog.handler(this::handleAdminUpdateBookLog);
+    createBookLog.handler(this::handleUpdateBookLog);
   }
 
   private void registerGetBookLog(Router router) {
@@ -305,13 +305,13 @@ public class ProtectedSchoolRouter implements IRouter {
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
-  private void handleAdminUpdateBookLog(RoutingContext ctx) {
+  private void handleUpdateBookLog(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     UpsertBookLogRequest request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertBookLogRequest.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int bookId = RestFunctions.getPathParamAsInt(ctx, "book_id");
-    processor.adminUpdateBookLog(userData, schoolId, bookId, request);
-    end(ctx.response(), 201);
+    processor.updateBookLog(userData, schoolId, bookId, request);
+    end(ctx.response(), 200);
   }
 }
