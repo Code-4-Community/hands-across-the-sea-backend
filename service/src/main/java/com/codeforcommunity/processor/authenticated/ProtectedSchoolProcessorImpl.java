@@ -686,11 +686,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         : new BookLogListResponse(new ArrayList<>());
   }
 
-  @Override
-  public String getReportAsCsv(JWTData userData, int schoolID) {
-    return null;
-  }
-
   private SchoolsRecord queryForSchool(int schoolId) {
     return db.selectFrom(SCHOOLS)
         .where(SCHOOLS.ID.eq(schoolId))
