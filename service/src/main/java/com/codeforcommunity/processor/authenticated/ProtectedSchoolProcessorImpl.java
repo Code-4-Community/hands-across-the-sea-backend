@@ -450,6 +450,50 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
+  public void updateReportWithLibrary(
+      JWTData userData, int schoolId, int reportId, UpsertReportWithLibrary req) {
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+
+    // Save a record to the school_reports_with_libraries table
+    SchoolReportsWithLibrariesRecord newReport = db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+        .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId)).fetchOne();
+
+
+    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
+      throw new AdminOnlyRouteException();
+    }
+
+    if (newReport == null) {
+      throw new NoReportFoundException(schoolId);
+    }
+
+    newReport.setUserId(userData.getUserId());
+    newReport.setSchoolId(schoolId);
+    newReport.setNumberOfChildren(req.getNumberOfChildren());
+    newReport.setNumberOfBooks(req.getNumberOfBooks());
+    newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
+    newReport.setIsSharedSpace(req.getIsSharedSpace());
+    newReport.setHasInvitingSpace(req.getHasInvitingSpace());
+    newReport.setAssignedPersonRole(req.getAssignedPersonRole());
+    newReport.setAssignedPersonTitle(req.getAssignedPersonTitle());
+    newReport.setApprenticeshipProgram(req.getApprenticeshipProgram());
+    newReport.setTrainsAndMentorsApprentices(req.getTrainsAndMentorsApprentices());
+    newReport.setHasCheckInTimetables(req.getHasCheckInTimetables());
+    newReport.setHasBookCheckoutSystem(req.getHasBookCheckoutSystem());
+    newReport.setNumberOfStudentLibrarians(req.getNumberOfStudentLibrarians());
+    newReport.setReasonNoStudentLibrarians(req.getReasonNoStudentLibrarians());
+    newReport.setHasSufficientTraining(req.getHasSufficientTraining());
+    newReport.setTeacherSupport(req.getTeacherSupport());
+    newReport.setParentSupport(req.getParentSupport());
+
+    newReport.store();
+
+  }
+
+  @Override
   public ReportGeneric getMostRecentReport(JWTData userData, int schoolId) {
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
@@ -527,6 +571,41 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getReasonWhyNot(),
         newReport.getReadyTimeline(),
         newReport.getVisitReason());
+  }
+
+  @Override
+  public void updateReportWithoutLibrary(
+      JWTData userData, int schoolId, int reportId, UpsertReportWithoutLibrary req) {
+
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+
+    // Save a record to the school_reports_with_libraries table
+    SchoolReportsWithoutLibrariesRecord newReport = db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+        .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId)).fetchOne();
+
+    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
+      throw new AdminOnlyRouteException();
+    }
+
+    if (newReport == null) {
+      throw new NoReportFoundException(schoolId);
+    }
+
+    newReport.setSchoolId(schoolId);
+    newReport.setUserId(userData.getUserId());
+    newReport.setNumberOfChildren(req.getNumberOfChildren());
+    newReport.setNumberOfBooks(req.getNumberOfBooks());
+    newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
+    newReport.setHasSpace(req.getHasSpace());
+    newReport.setCurrentStatus(req.getCurrentStatus());
+    newReport.setReasonWhyNot(req.getReasonWhyNot());
+    newReport.setWantsLibrary(req.getWantsLibrary());
+    newReport.setReadyTimeline(req.getReadyTimeline());
+
+    newReport.store();
   }
 
   @Override
