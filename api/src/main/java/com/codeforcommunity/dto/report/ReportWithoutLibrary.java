@@ -29,7 +29,8 @@ public class ReportWithoutLibrary extends ReportGeneric {
       Boolean hasSpace,
       String currentStatus,
       String reason,
-      ReadyTimeline readyTimeline) {
+      ReadyTimeline readyTimeline,
+      String visitReason) {
     super(
         id,
         createdAt,
@@ -39,7 +40,8 @@ public class ReportWithoutLibrary extends ReportGeneric {
         numberOfChildren,
         numberOfBooks,
         mostRecentShipmentYear,
-        LibraryStatus.DOES_NOT_EXIST);
+        LibraryStatus.DOES_NOT_EXIST,
+        visitReason);
     this.wantsLibrary = wantsLibrary;
     this.hasSpace = hasSpace;
     this.currentStatus = currentStatus;

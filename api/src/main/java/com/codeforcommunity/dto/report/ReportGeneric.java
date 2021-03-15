@@ -15,6 +15,7 @@ public class ReportGeneric {
   private Integer numberOfBooks;
   private Integer mostRecentShipmentYear;
   private LibraryStatus libraryStatus;
+  private String visitReason;
 
   public ReportGeneric(LibraryStatus libraryStatus) {
     this.libraryStatus = libraryStatus;
@@ -29,7 +30,8 @@ public class ReportGeneric {
       Integer numberOfChildren,
       Integer numberOfBooks,
       Integer mostRecentShipmentYear,
-      LibraryStatus libraryStatus) {
+      LibraryStatus libraryStatus,
+      String visitReason) {
     this.id = id;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
@@ -39,6 +41,7 @@ public class ReportGeneric {
     this.numberOfBooks = numberOfBooks;
     this.mostRecentShipmentYear = mostRecentShipmentYear;
     this.libraryStatus = libraryStatus;
+    this.visitReason = visitReason;
   }
 
   public Integer getId() {
@@ -111,5 +114,13 @@ public class ReportGeneric {
 
   public void setLibraryStatus(LibraryStatus libraryStatus) {
     this.libraryStatus = libraryStatus;
+  }
+
+  public String getVisitReason() {
+    return visitReason;
+  }
+
+  public void setVisitReason(String visitReason) {
+    this.visitReason = visitReason;
   }
 }
