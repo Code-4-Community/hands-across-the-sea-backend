@@ -587,7 +587,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public void adminUpdateBookLog(
+  public void updateBookLog(
       JWTData userData, int schoolId, int bookId, UpsertBookLogRequest request) {
     if (!userData.isAdmin()) {
       throw new AdminOnlyRouteException();
@@ -611,7 +611,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     log.setDate(date);
     log.setNotes(notes);
     log.store();
-    log.refresh();
   }
 
   @Override
