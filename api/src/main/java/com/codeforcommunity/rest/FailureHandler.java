@@ -1,5 +1,6 @@
 package com.codeforcommunity.rest;
 
+import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
 import com.codeforcommunity.exceptions.CreateUserException;
 import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
 import com.codeforcommunity.exceptions.ExpiredSecretKeyException;
@@ -192,6 +193,11 @@ public class FailureHandler {
 
   public void handleSchoolDoesNotExist(RoutingContext ctx, SchoolDoesNotExistException e) {
     String message = String.format("No school found with given id: %d", e.getSchoolId());
+    end(ctx, message, 400);
+  }
+
+  public void handleBookLogDoesNotExist(RoutingContext ctx, BookLogDoesNotExistException e) {
+    String message = String.format("No book log found with given id: %d", e.getBookId());
     end(ctx, message, 400);
   }
 
