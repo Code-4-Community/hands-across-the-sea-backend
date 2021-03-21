@@ -714,6 +714,27 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         : new BookLogListResponse(new ArrayList<>());
   }
 
+  @Override
+  public String getReportAsCsv(JWTData userData, int reportId, boolean hasLibrary) {
+    ReportGeneric report;
+    if (hasLibrary) {
+      report =
+          db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+              .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId))
+              .fetchOneInto(ReportWithLibrary.class);
+    } else {
+      report =
+          db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+              .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId))
+              .fetchOneInto(ReportWithoutLibrary.class);
+    }
+    StringBuilder builder = new StringBuilder();
+    builder.append(report.toHeaderCSV());
+    builder.append(report.toRowCSV());
+
+    return builder.toString();
+  }
+
   private SchoolsRecord queryForSchool(int schoolId) {
     return db.selectFrom(SCHOOLS)
         .where(SCHOOLS.ID.eq(schoolId))

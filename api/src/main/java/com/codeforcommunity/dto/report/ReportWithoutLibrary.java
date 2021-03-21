@@ -68,4 +68,58 @@ public class ReportWithoutLibrary extends ReportGeneric {
   public ReadyTimeline getReadyTimeline() {
     return this.readyTimeline;
   }
+
+  public String toHeaderCSV() {
+    return "Report ID,"
+        + "Created At,"
+        + "Updated At,"
+        + "School ID,"
+        + "User ID,"
+        + "Number of Children,"
+        + "Number of Books,"
+        + "Most Recent Shipment Year,"
+        + "Library Status,"
+        + "Wants Library,"
+        + "Has Space,"
+        + "Current Status,"
+        + "Reason,"
+        + "Ready Timeline\n";
+  }
+
+  public String toRowCSV() {
+    return this.getId().toString()
+        + ","
+        + (this.getCreatedAt() == null ? "" : this.getCreatedAt().toString())
+        + ","
+        + (this.getUpdatedAt() == null ? "" : this.getUpdatedAt().toString())
+        + ","
+        + (this.getSchoolId().toString() == null ? "" : this.getSchoolId().toString())
+        + ","
+        + (this.getUserId().toString() == null ? "" : this.getUserId().toString())
+        + ","
+        + (this.getNumberOfChildren().toString() == null
+            ? ""
+            : this.getNumberOfChildren().toString())
+        + ","
+        + (this.getNumberOfBooks().toString() == null ? "" : this.getNumberOfBooks().toString())
+        + ","
+        + (this.getMostRecentShipmentYear().toString() == null
+            ? ""
+            : this.getMostRecentShipmentYear().toString())
+        + ","
+        + (this.getLibraryStatus().toString() == null ? "" : this.getLibraryStatus().toString())
+        + ","
+        + (this.getVisitReason() == null ? "" : this.getVisitReason())
+        + ","
+        + (this.wantsLibrary.toString() == null ? "" : this.wantsLibrary.toString())
+        + ","
+        + (this.hasSpace.toString() == null ? "" : this.hasSpace.toString())
+        + ","
+        + (this.currentStatus == null ? "" : this.currentStatus)
+        + ","
+        + (this.reason == null ? "" : this.reason)
+        + ","
+        + (this.readyTimeline.toString() == null ? "" : this.readyTimeline.toString())
+        + "\n";
+  }
 }

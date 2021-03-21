@@ -123,4 +123,41 @@ public class ReportGeneric {
   public void setVisitReason(String visitReason) {
     this.visitReason = visitReason;
   }
+
+  public String toHeaderCSV() {
+    return "Report ID,"
+        + "Created At"
+        + "Updated At"
+        + "School ID"
+        + "User ID"
+        + "Number of Children"
+        + "Number of Books"
+        + "Most Recent Shipment Year"
+        + "Library Status\n";
+  }
+
+  public String toRowCSV() {
+    return this.id.toString()
+        + ","
+        + (this.createdAt == null ? "" : this.createdAt.toString())
+        + ","
+        + (this.updatedAt == null ? "" : this.updatedAt.toString())
+        + ","
+        + (this.schoolId.toString() == null ? "" : this.schoolId.toString())
+        + ","
+        + (this.userId.toString() == null ? "" : this.userId.toString())
+        + ","
+        + (this.numberOfChildren.toString() == null ? "" : this.numberOfChildren.toString())
+        + ","
+        + (this.numberOfBooks.toString() == null ? "" : this.numberOfBooks.toString())
+        + ","
+        + (this.mostRecentShipmentYear.toString() == null
+            ? ""
+            : this.mostRecentShipmentYear.toString())
+        + ","
+        + (this.libraryStatus.toString() == null ? "" : this.libraryStatus.toString())
+        + ","
+        + (this.visitReason == null ? "" : this.visitReason)
+        + "\n";
+  }
 }

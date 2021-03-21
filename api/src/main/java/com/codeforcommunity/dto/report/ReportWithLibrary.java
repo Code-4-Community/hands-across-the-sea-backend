@@ -178,4 +178,90 @@ public class ReportWithLibrary extends ReportGeneric {
   public void setParentSupport(String parentSupport) {
     this.parentSupport = parentSupport;
   }
+
+  public String toHeaderCSV() {
+    return "Report ID,"
+        + "Created At,"
+        + "Updated At,"
+        + "School ID,"
+        + "User ID,"
+        + "Number of Children,"
+        + "Number of Books,"
+        + "Most Recent Shipment Year,"
+        + "Library Status,"
+        + "Is Shared Space,"
+        + "Has Inviting Space,"
+        + "Assigned Person Role,"
+        + "Assigned Person Title,"
+        + "Apprenticeship Program,"
+        + "Trains Mentors and Apprentices,"
+        + "Has Checkin Timetables,"
+        + "Has Book Checkout System,"
+        + "Number of Student Librarians,"
+        + "Has Sufficient Training,"
+        + "Teacher Support,"
+        + "Parent Support\n";
+  }
+
+  public String toRowCSV() {
+    return this.getId().toString()
+        + ","
+        + (this.getCreatedAt() == null ? "" : this.getCreatedAt().toString())
+        + ","
+        + (this.getUpdatedAt() == null ? "" : this.getUpdatedAt().toString())
+        + ","
+        + (this.getSchoolId().toString() == null ? "" : this.getSchoolId().toString())
+        + ","
+        + (this.getUserId().toString() == null ? "" : this.getUserId().toString())
+        + ","
+        + (this.getNumberOfChildren().toString() == null
+            ? ""
+            : this.getNumberOfChildren().toString())
+        + ","
+        + (this.getNumberOfBooks().toString() == null ? "" : this.getNumberOfBooks().toString())
+        + ","
+        + (this.getMostRecentShipmentYear().toString() == null
+            ? ""
+            : this.getMostRecentShipmentYear().toString())
+        + ","
+        + (this.getLibraryStatus().toString() == null ? "" : this.getLibraryStatus())
+        + ","
+        + ","
+        + (this.getVisitReason() == null ? "" : this.getVisitReason())
+        + ","
+        + (this.isSharedSpace.toString() == null ? "" : this.isSharedSpace.toString())
+        + ","
+        + (this.hasInvitingSpace.toString() == null ? "" : this.hasInvitingSpace.toString())
+        + ","
+        + (this.assignedPersonRole.toString() == null ? "" : this.assignedPersonRole.toString())
+        + ","
+        + (this.assignedPersonTitle.toString() == null ? "" : this.assignedPersonTitle.toString())
+        + ","
+        + (this.apprenticeshipProgram.toString() == null
+            ? ""
+            : this.apprenticeshipProgram.toString())
+        + ","
+        + (this.trainsAndMentorsApprentices.toString() == null
+            ? ""
+            : this.trainsAndMentorsApprentices.toString())
+        + ","
+        + (this.hasCheckInTimetables.toString() == null ? "" : this.hasCheckInTimetables.toString())
+        + ","
+        + (this.hasBookCheckoutSystem.toString() == null
+            ? ""
+            : this.hasBookCheckoutSystem.toString())
+        + ","
+        + (this.numberOfStudentLibrarians.toString() == null
+            ? ""
+            : this.numberOfStudentLibrarians.toString())
+        + ","
+        + (this.hasSufficientTraining.toString() == null
+            ? ""
+            : this.hasSufficientTraining.toString())
+        + ","
+        + (this.teacherSupport == null ? "" : this.teacherSupport)
+        + ","
+        + (this.parentSupport == null ? "" : this.parentSupport)
+        + "\n";
+  }
 }

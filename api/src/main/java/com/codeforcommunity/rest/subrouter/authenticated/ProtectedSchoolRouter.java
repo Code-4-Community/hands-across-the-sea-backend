@@ -61,6 +61,8 @@ public class ProtectedSchoolRouter implements IRouter {
     registerUpdateReportWithoutLibrary(router);
     registerGetMostRecentReport(router);
     registerGetPaginatedReports(router);
+    registerGetWithLibraryReportAsCsv(router);
+    registerGetWithoutLibraryReportAsCsv(router);
 
     // Register all book tracking routes
     registerCreateBookLog(router);
@@ -173,6 +175,16 @@ public class ProtectedSchoolRouter implements IRouter {
   private void registerGetBookLog(Router router) {
     Route getBookFlow = router.get("/:school_id/books");
     getBookFlow.handler(this::handleGetBookLog);
+  }
+
+  private void registerGetWithoutLibraryReportAsCsv(Router router) {
+    Route getReportAsCsv = router.get("/reports/without-library/:report_id");
+    getReportAsCsv.handler(this::handleGetWithoutLibraryReportAsCsv);
+  }
+
+  private void registerGetWithLibraryReportAsCsv(Router router) {
+    Route getReportAsCsv = router.get("/reports/with-library/:report_id");
+    getReportAsCsv.handler(this::handleGetWithLibraryReportAsCsv);
   }
 
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
@@ -345,5 +357,19 @@ public class ProtectedSchoolRouter implements IRouter {
     int bookId = RestFunctions.getPathParamAsInt(ctx, "book_id");
     processor.updateBookLog(userData, schoolId, bookId, request);
     end(ctx.response(), 200);
+  }
+
+  private void handleGetWithoutLibraryReportAsCsv(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
+    String response = processor.getReportAsCsv(userData, reportId, false);
+    end(ctx.response(), 200, response, "text/csv");
+  }
+
+  private void handleGetWithLibraryReportAsCsv(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
+    String response = processor.getReportAsCsv(userData, reportId, true);
+    end(ctx.response(), 200, response, "text/csv");
   }
 }
