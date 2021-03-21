@@ -4,8 +4,10 @@ import static com.codeforcommunity.rest.ApiRouter.end;
 
 import com.codeforcommunity.api.authenticated.IProtectedUserProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
+import com.codeforcommunity.dto.user.UserDataRequest;
 import com.codeforcommunity.dto.user.UserDataResponse;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
@@ -31,8 +33,14 @@ public class ProtectedUserRouter implements IRouter {
     registerChangePassword(router);
     registerGetUserData(router);
     registerChangeEmail(router);
+    registerUpdateUserData(router);
 
     return router;
+  }
+
+  private void registerUpdateUserData(Router router) {
+    Route updateUserRoute = router.put("/:user_id");
+    updateUserRoute.handler(this::handleUpdateUserData);
   }
 
   private void registerDeleteUser(Router router) {
@@ -53,6 +61,15 @@ public class ProtectedUserRouter implements IRouter {
   private void registerChangeEmail(Router router) {
     Route changePasswordRoute = router.post("/change_email");
     changePasswordRoute.handler(this::handleChangeEmailRoute);
+  }
+
+  private void handleUpdateUserData(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int userId = RestFunctions.getPathParamAsInt(ctx, "user_id");
+    UserDataRequest request =
+        RestFunctions.getJsonBodyAsClass(ctx, UserDataRequest.class);
+    processor.updateUserData(userData, userId, request);
+    end(ctx.response(), 200);
   }
 
   private void handleDeleteUserRoute(RoutingContext ctx) {
