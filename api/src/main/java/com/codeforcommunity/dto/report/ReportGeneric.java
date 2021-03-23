@@ -151,9 +151,7 @@ public class ReportGeneric {
         + ","
         + (this.numberOfBooks == null ? "" : this.numberOfBooks.toString())
         + ","
-        + (this.mostRecentShipmentYear == null
-            ? ""
-            : this.mostRecentShipmentYear.toString())
+        + (this.mostRecentShipmentYear == null ? "" : this.mostRecentShipmentYear.toString())
         + ","
         + (this.libraryStatus == null ? "" : this.libraryStatus.toString())
         + ","

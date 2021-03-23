@@ -215,9 +215,7 @@ public class ReportWithLibrary extends ReportGeneric {
         + ","
         + (this.getUserId() == null ? "" : this.getUserId().toString())
         + ","
-        + (this.getNumberOfChildren() == null
-            ? ""
-            : this.getNumberOfChildren().toString())
+        + (this.getNumberOfChildren() == null ? "" : this.getNumberOfChildren().toString())
         + ","
         + (this.getNumberOfBooks() == null ? "" : this.getNumberOfBooks().toString())
         + ","
@@ -237,9 +235,7 @@ public class ReportWithLibrary extends ReportGeneric {
         + ","
         + (this.assignedPersonTitle == null ? "" : this.assignedPersonTitle.toString())
         + ","
-        + (this.apprenticeshipProgram == null
-            ? ""
-            : this.apprenticeshipProgram.toString())
+        + (this.apprenticeshipProgram == null ? "" : this.apprenticeshipProgram.toString())
         + ","
         + (this.trainsAndMentorsApprentices == null
             ? ""
@@ -247,17 +243,11 @@ public class ReportWithLibrary extends ReportGeneric {
         + ","
         + (this.hasCheckInTimetables == null ? "" : this.hasCheckInTimetables.toString())
         + ","
-        + (this.hasBookCheckoutSystem == null
-            ? ""
-            : this.hasBookCheckoutSystem.toString())
+        + (this.hasBookCheckoutSystem == null ? "" : this.hasBookCheckoutSystem.toString())
         + ","
-        + (this.numberOfStudentLibrarians == null
-            ? ""
-            : this.numberOfStudentLibrarians.toString())
+        + (this.numberOfStudentLibrarians == null ? "" : this.numberOfStudentLibrarians.toString())
         + ","
-        + (this.hasSufficientTraining == null
-            ? ""
-            : this.hasSufficientTraining.toString())
+        + (this.hasSufficientTraining == null ? "" : this.hasSufficientTraining.toString())
         + ","
         + (this.teacherSupport == null ? "" : this.teacherSupport)
         + ","

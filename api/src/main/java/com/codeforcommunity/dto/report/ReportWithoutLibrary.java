@@ -98,9 +98,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
         + ","
         + (this.getUserId() == null ? "" : this.getUserId().toString())
         + ","
-        + (this.getNumberOfChildren() == null
-            ? ""
-            : this.getNumberOfChildren().toString())
+        + (this.getNumberOfChildren() == null ? "" : this.getNumberOfChildren().toString())
         + ","
         + (this.getNumberOfBooks() == null ? "" : this.getNumberOfBooks().toString())
         + ","
