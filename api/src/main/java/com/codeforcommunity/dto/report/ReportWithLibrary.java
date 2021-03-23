@@ -189,6 +189,7 @@ public class ReportWithLibrary extends ReportGeneric {
         + "Number of Books,"
         + "Most Recent Shipment Year,"
         + "Library Status,"
+        + "Visit Reason,"
         + "Is Shared Space,"
         + "Has Inviting Space,"
         + "Assigned Person Role,"
@@ -225,7 +226,6 @@ public class ReportWithLibrary extends ReportGeneric {
             : this.getMostRecentShipmentYear().toString())
         + ","
         + (this.getLibraryStatus().toString() == null ? "" : this.getLibraryStatus())
-        + ","
         + ","
         + (this.getVisitReason() == null ? "" : this.getVisitReason())
         + ","

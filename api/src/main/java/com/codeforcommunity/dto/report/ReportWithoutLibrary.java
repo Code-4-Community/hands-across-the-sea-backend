@@ -79,6 +79,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
         + "Number of Books,"
         + "Most Recent Shipment Year,"
         + "Library Status,"
+        + "Visit Reason"
         + "Wants Library,"
         + "Has Space,"
         + "Current Status,"

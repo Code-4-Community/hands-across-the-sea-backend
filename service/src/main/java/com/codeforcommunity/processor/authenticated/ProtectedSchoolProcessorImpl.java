@@ -30,6 +30,7 @@ import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
+import com.codeforcommunity.exceptions.NoReportByIdFoundException;
 import com.codeforcommunity.exceptions.NoReportFoundException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
@@ -727,6 +728,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
           db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
               .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId))
               .fetchOneInto(ReportWithoutLibrary.class);
+    }
+    if (report == null) {
+      throw new NoReportByIdFoundException(reportId);
     }
     StringBuilder builder = new StringBuilder();
     builder.append(report.toHeaderCSV());
