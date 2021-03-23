@@ -94,33 +94,33 @@ public class ReportWithoutLibrary extends ReportGeneric {
         + ","
         + (this.getUpdatedAt() == null ? "" : this.getUpdatedAt().toString())
         + ","
-        + (this.getSchoolId().toString() == null ? "" : this.getSchoolId().toString())
+        + (this.getSchoolId() == null ? "" : this.getSchoolId().toString())
         + ","
-        + (this.getUserId().toString() == null ? "" : this.getUserId().toString())
+        + (this.getUserId() == null ? "" : this.getUserId().toString())
         + ","
-        + (this.getNumberOfChildren().toString() == null
+        + (this.getNumberOfChildren() == null
             ? ""
             : this.getNumberOfChildren().toString())
         + ","
-        + (this.getNumberOfBooks().toString() == null ? "" : this.getNumberOfBooks().toString())
+        + (this.getNumberOfBooks() == null ? "" : this.getNumberOfBooks().toString())
         + ","
-        + (this.getMostRecentShipmentYear().toString() == null
+        + (this.getMostRecentShipmentYear() == null
             ? ""
             : this.getMostRecentShipmentYear().toString())
         + ","
-        + (this.getLibraryStatus().toString() == null ? "" : this.getLibraryStatus().toString())
+        + (this.getLibraryStatus() == null ? "" : this.getLibraryStatus().toString())
         + ","
         + (this.getVisitReason() == null ? "" : this.getVisitReason())
         + ","
-        + (this.wantsLibrary.toString() == null ? "" : this.wantsLibrary.toString())
+        + (this.wantsLibrary == null ? "" : this.wantsLibrary.toString())
         + ","
-        + (this.hasSpace.toString() == null ? "" : this.hasSpace.toString())
+        + (this.hasSpace == null ? "" : this.hasSpace.toString())
         + ","
         + (this.currentStatus == null ? "" : this.currentStatus)
         + ","
         + (this.reason == null ? "" : this.reason)
         + ","
-        + (this.readyTimeline.toString() == null ? "" : this.readyTimeline.toString())
+        + (this.readyTimeline == null ? "" : this.readyTimeline.toString())
         + "\n";
   }
 }

@@ -211,51 +211,51 @@ public class ReportWithLibrary extends ReportGeneric {
         + ","
         + (this.getUpdatedAt() == null ? "" : this.getUpdatedAt().toString())
         + ","
-        + (this.getSchoolId().toString() == null ? "" : this.getSchoolId().toString())
+        + (this.getSchoolId() == null ? "" : this.getSchoolId().toString())
         + ","
-        + (this.getUserId().toString() == null ? "" : this.getUserId().toString())
+        + (this.getUserId() == null ? "" : this.getUserId().toString())
         + ","
-        + (this.getNumberOfChildren().toString() == null
+        + (this.getNumberOfChildren() == null
             ? ""
             : this.getNumberOfChildren().toString())
         + ","
-        + (this.getNumberOfBooks().toString() == null ? "" : this.getNumberOfBooks().toString())
+        + (this.getNumberOfBooks() == null ? "" : this.getNumberOfBooks().toString())
         + ","
-        + (this.getMostRecentShipmentYear().toString() == null
+        + (this.getMostRecentShipmentYear() == null
             ? ""
             : this.getMostRecentShipmentYear().toString())
         + ","
-        + (this.getLibraryStatus().toString() == null ? "" : this.getLibraryStatus())
+        + (this.getLibraryStatus() == null ? "" : this.getLibraryStatus())
         + ","
         + (this.getVisitReason() == null ? "" : this.getVisitReason())
         + ","
-        + (this.isSharedSpace.toString() == null ? "" : this.isSharedSpace.toString())
+        + (this.isSharedSpace == null ? "" : this.isSharedSpace.toString())
         + ","
-        + (this.hasInvitingSpace.toString() == null ? "" : this.hasInvitingSpace.toString())
+        + (this.hasInvitingSpace == null ? "" : this.hasInvitingSpace.toString())
         + ","
-        + (this.assignedPersonRole.toString() == null ? "" : this.assignedPersonRole.toString())
+        + (this.assignedPersonRole == null ? "" : this.assignedPersonRole.toString())
         + ","
-        + (this.assignedPersonTitle.toString() == null ? "" : this.assignedPersonTitle.toString())
+        + (this.assignedPersonTitle == null ? "" : this.assignedPersonTitle.toString())
         + ","
-        + (this.apprenticeshipProgram.toString() == null
+        + (this.apprenticeshipProgram == null
             ? ""
             : this.apprenticeshipProgram.toString())
         + ","
-        + (this.trainsAndMentorsApprentices.toString() == null
+        + (this.trainsAndMentorsApprentices == null
             ? ""
             : this.trainsAndMentorsApprentices.toString())
         + ","
-        + (this.hasCheckInTimetables.toString() == null ? "" : this.hasCheckInTimetables.toString())
+        + (this.hasCheckInTimetables == null ? "" : this.hasCheckInTimetables.toString())
         + ","
-        + (this.hasBookCheckoutSystem.toString() == null
+        + (this.hasBookCheckoutSystem == null
             ? ""
             : this.hasBookCheckoutSystem.toString())
         + ","
-        + (this.numberOfStudentLibrarians.toString() == null
+        + (this.numberOfStudentLibrarians == null
             ? ""
             : this.numberOfStudentLibrarians.toString())
         + ","
-        + (this.hasSufficientTraining.toString() == null
+        + (this.hasSufficientTraining == null
             ? ""
             : this.hasSufficientTraining.toString())
         + ","

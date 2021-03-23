@@ -143,19 +143,19 @@ public class ReportGeneric {
         + ","
         + (this.updatedAt == null ? "" : this.updatedAt.toString())
         + ","
-        + (this.schoolId.toString() == null ? "" : this.schoolId.toString())
+        + (this.schoolId == null ? "" : this.schoolId.toString())
         + ","
-        + (this.userId.toString() == null ? "" : this.userId.toString())
+        + (this.userId == null ? "" : this.userId.toString())
         + ","
-        + (this.numberOfChildren.toString() == null ? "" : this.numberOfChildren.toString())
+        + (this.numberOfChildren == null ? "" : this.numberOfChildren.toString())
         + ","
-        + (this.numberOfBooks.toString() == null ? "" : this.numberOfBooks.toString())
+        + (this.numberOfBooks == null ? "" : this.numberOfBooks.toString())
         + ","
-        + (this.mostRecentShipmentYear.toString() == null
+        + (this.mostRecentShipmentYear == null
             ? ""
             : this.mostRecentShipmentYear.toString())
         + ","
-        + (this.libraryStatus.toString() == null ? "" : this.libraryStatus.toString())
+        + (this.libraryStatus == null ? "" : this.libraryStatus.toString())
         + ","
         + (this.visitReason == null ? "" : this.visitReason)
         + "\n";
