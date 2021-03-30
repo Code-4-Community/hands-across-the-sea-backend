@@ -10,6 +10,7 @@ import com.codeforcommunity.dto.user.GetAllUsersFromCountryRequest;
 import com.codeforcommunity.dto.user.UserDataResponse;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
+import com.sun.javafx.scene.control.ReadOnlyUnbackedObservableList;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
@@ -33,6 +34,8 @@ public class ProtectedUserRouter implements IRouter {
     registerChangePassword(router);
     registerGetUserData(router);
     registerChangeEmail(router);
+    registerGetAllUsersFromASpecificCountry(router);
+    registerGetAllUsers(router);
 
     return router;
   }
@@ -60,6 +63,19 @@ public class ProtectedUserRouter implements IRouter {
   private void registerGetAllUsersFromASpecificCountry(Router router) {
     Route getAllUsersFromCountryRoute = router.get("/country");
     getAllUsersFromCountryRoute.handler(this::handleGetAllUsersFromASpecificCountry);
+  }
+
+  private void registerGetAllUsers(Router router) {
+    Route getAllUsersRoute = router.get("/");
+    getAllUsersRoute.handler(this::handleGetAllUsers);
+  }
+
+  private void handleGetAllUsers(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+
+    List<UserDataResponse> response = processor.getAllUsers(userData);
+
+    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
   private void handleGetAllUsersFromASpecificCountry(RoutingContext ctx) {

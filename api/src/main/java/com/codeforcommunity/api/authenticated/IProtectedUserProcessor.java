@@ -26,4 +26,6 @@ public interface IProtectedUserProcessor {
   void changeEmail(JWTData userData, ChangeEmailRequest changeEmailRequest);
 
   List<UserDataResponse> getAllUsersFromCountry(JWTData userData, GetAllUsersFromCountryRequest request);
+
+  List<UserDataResponse> getAllUsers(JWTData userData);
 }

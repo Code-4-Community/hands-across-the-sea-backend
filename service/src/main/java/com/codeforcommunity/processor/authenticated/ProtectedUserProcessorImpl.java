@@ -128,4 +128,25 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     }
     return response;
   }
+
+  @Override
+  public List<UserDataResponse> getAllUsers(JWTData userData) {
+
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+
+    List<UsersRecord> users = db.selectFrom(USERS).where(USERS.DELETED_AT.isNull()).fetch();
+    List<UserDataResponse> response = new ArrayList<>();
+
+    for (UsersRecord user: users) {
+      response.add(new UserDataResponse(
+          user.getFirstName(),
+          user.getLastName(),
+          user.getEmail(),
+          user.getCountry(),
+          user.getPrivilegeLevel()));
+    }
+    return response;
+  }
 }
