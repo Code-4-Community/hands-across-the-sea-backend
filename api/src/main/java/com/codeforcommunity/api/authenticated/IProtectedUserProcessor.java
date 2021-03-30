@@ -3,7 +3,10 @@ package com.codeforcommunity.api.authenticated;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
+import com.codeforcommunity.dto.user.GetAllUsersFromCountryRequest;
 import com.codeforcommunity.dto.user.UserDataResponse;
+import com.codeforcommunity.enums.Country;
+import java.util.List;
 
 public interface IProtectedUserProcessor {
 
@@ -21,4 +24,6 @@ public interface IProtectedUserProcessor {
 
   /** Change the user's email to the provided one */
   void changeEmail(JWTData userData, ChangeEmailRequest changeEmailRequest);
+
+  List<UserDataResponse> getAllUsersFromCountry(JWTData userData, GetAllUsersFromCountryRequest request);
 }

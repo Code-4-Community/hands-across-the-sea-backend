@@ -6,6 +6,7 @@ import com.codeforcommunity.api.authenticated.IProtectedUserProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
+import com.codeforcommunity.dto.user.GetAllUsersFromCountryRequest;
 import com.codeforcommunity.dto.user.UserDataResponse;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
@@ -14,6 +15,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import java.util.List;
 
 public class ProtectedUserRouter implements IRouter {
 
@@ -53,6 +55,21 @@ public class ProtectedUserRouter implements IRouter {
   private void registerChangeEmail(Router router) {
     Route changePasswordRoute = router.post("/change_email");
     changePasswordRoute.handler(this::handleChangeEmailRoute);
+  }
+
+  private void registerGetAllUsersFromASpecificCountry(Router router) {
+    Route getAllUsersFromCountryRoute = router.get("/country");
+    getAllUsersFromCountryRoute.handler(this::handleGetAllUsersFromASpecificCountry);
+  }
+
+  private void handleGetAllUsersFromASpecificCountry(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+
+    GetAllUsersFromCountryRequest request = RestFunctions.getJsonBodyAsClass(ctx, GetAllUsersFromCountryRequest.class);
+
+    List<UserDataResponse> response = processor.getAllUsersFromCountry(userData, request);
+
+    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
   private void handleDeleteUserRoute(RoutingContext ctx) {
