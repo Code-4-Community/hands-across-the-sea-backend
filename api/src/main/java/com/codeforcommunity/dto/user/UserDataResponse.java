@@ -19,6 +19,13 @@ public class UserDataResponse {
     this.privilegeLevel = privilegeLevel;
   }
 
+  public UserDataResponse(String firstName, String lastName, String email, Country country) {
+    this.email = email;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.country = country;
+  }
+
   public String getEmail() {
     return email;
   }
