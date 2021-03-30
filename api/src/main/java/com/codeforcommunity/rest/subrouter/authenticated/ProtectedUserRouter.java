@@ -8,6 +8,7 @@ import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
 import com.codeforcommunity.dto.user.GetAllUsersFromCountryRequest;
 import com.codeforcommunity.dto.user.UserDataResponse;
+import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
 import com.sun.javafx.scene.control.ReadOnlyUnbackedObservableList;
@@ -61,7 +62,7 @@ public class ProtectedUserRouter implements IRouter {
   }
 
   private void registerGetAllUsersFromASpecificCountry(Router router) {
-    Route getAllUsersFromCountryRoute = router.get("/country");
+    Route getAllUsersFromCountryRoute = router.get("/country/:country_name");
     getAllUsersFromCountryRoute.handler(this::handleGetAllUsersFromASpecificCountry);
   }
 
@@ -81,8 +82,9 @@ public class ProtectedUserRouter implements IRouter {
   private void handleGetAllUsersFromASpecificCountry(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
 
-    GetAllUsersFromCountryRequest request = RestFunctions.getJsonBodyAsClass(ctx, GetAllUsersFromCountryRequest.class);
-
+    String countryName =  RestFunctions.getRequestParameterAsString(ctx.request(), "country_name");
+    Country country = RestFunctions.getCountryFromString(countryName);
+    GetAllUsersFromCountryRequest request = new GetAllUsersFromCountryRequest(country);
     List<UserDataResponse> response = processor.getAllUsersFromCountry(userData, request);
 
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
