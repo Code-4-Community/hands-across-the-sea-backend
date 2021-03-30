@@ -11,6 +11,7 @@ import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
 import com.codeforcommunity.dto.user.UserDataRequest;
 import com.codeforcommunity.dto.user.UserDataResponse;
+import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.exceptions.WrongPasswordException;
@@ -107,9 +108,14 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
 
   @Override
   public void updateUserData(JWTData userData, int userId, UserDataRequest request) {
+
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+
     UsersRecord user = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
     if (user == null) {
-      throw new UserDoesNotExistException(userData.getUserId());
+      throw new UserDoesNotExistException(userId);
     }
     user.setCountry(request.getCountry());
     user.setPrivilegeLevel(request.getPrivilegeLevel());
