@@ -5,6 +5,8 @@ import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
 import com.codeforcommunity.dto.user.UserDataRequest;
 import com.codeforcommunity.dto.user.UserDataResponse;
+import com.codeforcommunity.enums.Country;
+import java.util.List;
 
 public interface IProtectedUserProcessor {
 
@@ -24,4 +26,6 @@ public interface IProtectedUserProcessor {
   void changeEmail(JWTData userData, ChangeEmailRequest changeEmailRequest);
 
   void updateUserData(JWTData userData, int userId, UserDataRequest request);
+
+  List<UserDataResponse> getAllUsers(JWTData userData, Country country);
 }
