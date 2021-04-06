@@ -10,7 +10,7 @@ public class UserListResponse {
 
   public UserListResponse(List<UserDataResponse> users) {
     if (users == null) {
-      throw new IllegalArgumentException("Given `null` list of book logs");
+      throw new IllegalArgumentException("Given `null` list of users");
     }
 
     this.users = users;
