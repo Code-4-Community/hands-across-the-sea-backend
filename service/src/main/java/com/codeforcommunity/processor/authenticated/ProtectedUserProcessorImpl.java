@@ -11,6 +11,7 @@ import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
 import com.codeforcommunity.dto.user.UserDataRequest;
 import com.codeforcommunity.dto.user.UserDataResponse;
+import com.codeforcommunity.dto.user.UserListResponse;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
@@ -126,7 +127,7 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
   }
 
   @Override
-  public List<UserDataResponse> getAllUsers(JWTData userData, Country country) {
+  public UserListResponse getAllUsers(JWTData userData, Country country) {
 
     if (!userData.isAdmin()) {
       throw new AdminOnlyRouteException();
@@ -149,6 +150,7 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
           user.getCountry(),
           user.getPrivilegeLevel()));
     }
-    return response;
+
+    return new UserListResponse(response);
   }
 }

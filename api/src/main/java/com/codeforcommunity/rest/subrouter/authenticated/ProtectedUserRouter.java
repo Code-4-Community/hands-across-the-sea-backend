@@ -9,6 +9,7 @@ import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
 import com.codeforcommunity.dto.user.UserDataRequest;
 import com.codeforcommunity.dto.user.UserDataResponse;
+import com.codeforcommunity.dto.user.UserListResponse;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
@@ -75,7 +76,7 @@ public class ProtectedUserRouter implements IRouter {
   private void handleGetAllUsers(RoutingContext ctx) {
     JWTData jwtData = ctx.get("jwt_data");
     Optional<Country> country = RestFunctions.getOptionalQueryParam(ctx, "country", RestFunctions::getCountryFromString);
-    List<UserDataResponse> users = processor.getAllUsers(jwtData, country.get());
+    UserListResponse users = processor.getAllUsers(jwtData, country.get());
     end(ctx.response(), 200, JsonObject.mapFrom(users).toString());
   }
 
