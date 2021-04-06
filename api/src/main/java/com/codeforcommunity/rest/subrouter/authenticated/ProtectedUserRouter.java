@@ -18,7 +18,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import java.util.List;
 import java.util.Optional;
 
 public class ProtectedUserRouter implements IRouter {
@@ -69,7 +68,7 @@ public class ProtectedUserRouter implements IRouter {
   }
 
   private void registerGetAllUsers(Router router) {
-    Route getAllUsersRoute = router.get("/country");
+    Route getAllUsersRoute = router.get("/");
     getAllUsersRoute.handler(this::handleGetAllUsers);
   }
 
