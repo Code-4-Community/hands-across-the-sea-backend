@@ -68,7 +68,7 @@ public class ProtectedUserRouter implements IRouter {
   }
 
   private void registerGetAllUsers(Router router) {
-    Route getAllUsersRoute = router.get("/country/:country_name");
+    Route getAllUsersRoute = router.get("/country");
     getAllUsersRoute.handler(this::handleGetAllUsers);
   }
 
@@ -76,7 +76,7 @@ public class ProtectedUserRouter implements IRouter {
     JWTData jwtData = ctx.get("jwt_data");
     Optional<Country> country = RestFunctions.getOptionalQueryParam(ctx, "country", RestFunctions::getCountryFromString);
     List<UserDataResponse> users = processor.getAllUsers(jwtData, country.get());
-    end(ctx.response(), 200);
+    end(ctx.response(), 200, JsonObject.mapFrom(users).toString());
   }
 
   private void handleUpdateUserData(RoutingContext ctx) {
