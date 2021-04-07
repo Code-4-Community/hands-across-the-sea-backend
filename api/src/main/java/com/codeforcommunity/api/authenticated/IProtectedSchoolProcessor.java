@@ -7,6 +7,7 @@ import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.dto.report.ReportWithoutLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithoutLibrary;
+import com.codeforcommunity.dto.school.BookLog;
 import com.codeforcommunity.dto.school.BookLogListResponse;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
@@ -63,7 +64,7 @@ public interface IProtectedSchoolProcessor {
 
   ReportGenericListResponse getPaginatedReports(JWTData userData, int schoolId, int page);
 
-  void createBookLog(JWTData userData, int schoolId, UpsertBookLogRequest request);
+  BookLog createBookLog(JWTData userData, int schoolId, UpsertBookLogRequest request);
 
   BookLogListResponse getBookLog(JWTData userData, int schoolId);
 

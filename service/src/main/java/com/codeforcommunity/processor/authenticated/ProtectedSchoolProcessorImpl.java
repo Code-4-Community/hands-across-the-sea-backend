@@ -651,7 +651,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public void createBookLog(JWTData userData, int schoolId, UpsertBookLogRequest request) {
+  public BookLog createBookLog(JWTData userData, int schoolId, UpsertBookLogRequest request) {
     if (!userData.isAdmin()) {
       throw new AdminOnlyRouteException();
     }
@@ -671,6 +671,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     log.setDate(date);
     log.setNotes(notes);
     log.store();
+
+    return new BookLog(log.getId(), log.getCount(), log.getDate(), log.getNotes());
   }
 
   @Override

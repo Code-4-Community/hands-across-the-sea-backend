@@ -10,6 +10,7 @@ import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.dto.report.ReportWithoutLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithoutLibrary;
+import com.codeforcommunity.dto.school.BookLog;
 import com.codeforcommunity.dto.school.BookLogListResponse;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
@@ -326,8 +327,8 @@ public class ProtectedSchoolRouter implements IRouter {
     UpsertBookLogRequest request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertBookLogRequest.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    processor.createBookLog(userData, schoolId, request);
-    end(ctx.response(), 201);
+    BookLog log = processor.createBookLog(userData, schoolId, request);
+    end(ctx.response(), 200, JsonObject.mapFrom(log).toString());
   }
 
   private void handleGetBookLog(RoutingContext ctx) {
