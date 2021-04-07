@@ -74,8 +74,16 @@ public class ProtectedUserRouter implements IRouter {
 
   private void handleGetAllUsers(RoutingContext ctx) {
     JWTData jwtData = ctx.get("jwt_data");
-    Optional<Country> country = RestFunctions.getOptionalQueryParam(ctx, "country", RestFunctions::getCountryFromString);
-    UserListResponse users = processor.getAllUsers(jwtData, country.get());
+    Optional<String> countryName = RestFunctions.getOptionalQueryParam(ctx, "country", (str -> str));
+
+    UserListResponse users;
+
+    if (!countryName.isPresent()) {
+      users = processor.getAllUsers(jwtData, null);
+    } else {
+      Country country = RestFunctions.getCountryFromString(countryName.get());
+      users = processor.getAllUsers(jwtData, country);
+    }
     end(ctx.response(), 200, JsonObject.mapFrom(users).toString());
   }
 
