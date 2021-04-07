@@ -23,6 +23,8 @@ public class BookLog {
     return count;
   }
 
+  public Integer getId() { return this.id; }
+
   public void setCount(Integer count) {
     this.count = count;
   }
@@ -42,4 +44,6 @@ public class BookLog {
   public void setNotes(String notes) {
     this.notes = notes;
   }
+
+  public void setId(Integer id) { this.id = id; }
 }
