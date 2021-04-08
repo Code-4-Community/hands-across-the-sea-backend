@@ -1,15 +1,8 @@
 package com.codeforcommunity.dto.report;
 
 import com.codeforcommunity.enums.LibraryStatus;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import java.lang.reflect.*;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 public class ReportGeneric {
 
@@ -130,29 +123,5 @@ public class ReportGeneric {
   public void setVisitReason(String visitReason) {
     this.visitReason = visitReason;
   }
-
-
-  //  public String toHeaderCSV() {
-  //    Field[] fields = ReportGeneric.class.getDeclaredFields();
-  //    StringBuilder builder = new StringBuilder();
-  //    for (int i = 0; i < fields.length; i++) {
-  //      builder.append(fields[i].getName());
-  //      builder.append(",");
-  //    }
-  //    return builder.toString();
-  //  }
-  //
-  //  public String toRowCSV() throws InvocationTargetException, IllegalAccessException {
-  //    Method[] methods = ReportGeneric.class.getDeclaredMethods();
-  //    StringBuilder builder = new StringBuilder();
-  //    for (Method method : methods) {
-  //      if (method.getName().startsWith("get")) {
-  //        builder.append(method.getName());
-  //        builder.append(method.invoke(this));
-  //        builder.append(",");
-  //      }
-  //    }
-  //    return builder.toString();
-  //  }
 
 }

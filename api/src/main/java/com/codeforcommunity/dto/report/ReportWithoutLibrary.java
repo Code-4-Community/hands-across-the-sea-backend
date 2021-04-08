@@ -2,7 +2,6 @@ package com.codeforcommunity.dto.report;
 
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.ReadyTimeline;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.sql.Timestamp;
 
 public class ReportWithoutLibrary extends ReportGeneric {
@@ -69,29 +68,5 @@ public class ReportWithoutLibrary extends ReportGeneric {
   public ReadyTimeline getReadyTimeline() {
     return this.readyTimeline;
   }
-
-
-  //  public String toHeaderCSV() {
-  //    Field[] fields = ReportWithoutLibrary.class.getDeclaredFields();
-  //    StringBuilder builder = new StringBuilder();
-  //    for (int i = 0; i < fields.length; i++) {
-  //      builder.append(fields[i].getName());
-  //      builder.append(",");
-  //    }
-  //    return super.toHeaderCSV() + builder + "\n";
-  //  }
-  //
-  //  public String toRowCSV() throws InvocationTargetException, IllegalAccessException {
-  //    Method[] methods = ReportWithoutLibrary.class.getDeclaredMethods();
-  //    StringBuilder builder = new StringBuilder();
-  //    for (Method method : methods) {
-  //      if (method.getName().startsWith("get")) {
-  //        builder.append(method.getName());
-  //        builder.append(method.invoke(this));
-  //        builder.append(",");
-  //      }
-  //    }
-  //    return super.toRowCSV() + builder + "\n";
-  //  }
 
 }
