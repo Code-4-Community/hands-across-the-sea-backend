@@ -362,14 +362,25 @@ public class ProtectedSchoolRouter implements IRouter {
   private void handleGetWithoutLibraryReportAsCsv(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
-    String response = processor.getReportAsCsv(userData, reportId, false);
+    String response;
+    try {
+      response = processor.getReportAsCsv(userData, reportId, false);
+    } catch (Exception e) {
+      response = "";
+      e.printStackTrace();
+    }
     end(ctx.response(), 200, response, "text/csv");
   }
 
   private void handleGetWithLibraryReportAsCsv(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
-    String response = processor.getReportAsCsv(userData, reportId, true);
+    String response;
+    try {
+      response = processor.getReportAsCsv(userData, reportId, true);
+    } catch (Exception e) {
+      response = "caught " + e.toString();
+    }
     end(ctx.response(), 200, response, "text/csv");
   }
 }

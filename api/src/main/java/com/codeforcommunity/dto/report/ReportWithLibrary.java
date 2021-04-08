@@ -4,6 +4,7 @@ import com.codeforcommunity.enums.ApprenticeTitle;
 import com.codeforcommunity.enums.ApprenticeshipProgram;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.TimeRole;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.sql.Timestamp;
 
 public class ReportWithLibrary extends ReportGeneric {
@@ -179,79 +180,27 @@ public class ReportWithLibrary extends ReportGeneric {
     this.parentSupport = parentSupport;
   }
 
-  public String toHeaderCSV() {
-    return "Report ID,"
-        + "Created At,"
-        + "Updated At,"
-        + "School ID,"
-        + "User ID,"
-        + "Number of Children,"
-        + "Number of Books,"
-        + "Most Recent Shipment Year,"
-        + "Library Status,"
-        + "Visit Reason,"
-        + "Is Shared Space,"
-        + "Has Inviting Space,"
-        + "Assigned Person Role,"
-        + "Assigned Person Title,"
-        + "Apprenticeship Program,"
-        + "Trains Mentors and Apprentices,"
-        + "Has Checkin Timetables,"
-        + "Has Book Checkout System,"
-        + "Number of Student Librarians,"
-        + "Has Sufficient Training,"
-        + "Teacher Support,"
-        + "Parent Support\n";
-  }
 
-  public String toRowCSV() {
-    return this.getId().toString()
-        + ","
-        + (this.getCreatedAt() == null ? "" : this.getCreatedAt().toString())
-        + ","
-        + (this.getUpdatedAt() == null ? "" : this.getUpdatedAt().toString())
-        + ","
-        + (this.getSchoolId() == null ? "" : this.getSchoolId().toString())
-        + ","
-        + (this.getUserId() == null ? "" : this.getUserId().toString())
-        + ","
-        + (this.getNumberOfChildren() == null ? "" : this.getNumberOfChildren().toString())
-        + ","
-        + (this.getNumberOfBooks() == null ? "" : this.getNumberOfBooks().toString())
-        + ","
-        + (this.getMostRecentShipmentYear() == null
-            ? ""
-            : this.getMostRecentShipmentYear().toString())
-        + ","
-        + (this.getLibraryStatus() == null ? "" : this.getLibraryStatus())
-        + ","
-        + (this.getVisitReason() == null ? "" : this.getVisitReason())
-        + ","
-        + (this.isSharedSpace == null ? "" : this.isSharedSpace.toString())
-        + ","
-        + (this.hasInvitingSpace == null ? "" : this.hasInvitingSpace.toString())
-        + ","
-        + (this.assignedPersonRole == null ? "" : this.assignedPersonRole.toString())
-        + ","
-        + (this.assignedPersonTitle == null ? "" : this.assignedPersonTitle.toString())
-        + ","
-        + (this.apprenticeshipProgram == null ? "" : this.apprenticeshipProgram.toString())
-        + ","
-        + (this.trainsAndMentorsApprentices == null
-            ? ""
-            : this.trainsAndMentorsApprentices.toString())
-        + ","
-        + (this.hasCheckInTimetables == null ? "" : this.hasCheckInTimetables.toString())
-        + ","
-        + (this.hasBookCheckoutSystem == null ? "" : this.hasBookCheckoutSystem.toString())
-        + ","
-        + (this.numberOfStudentLibrarians == null ? "" : this.numberOfStudentLibrarians.toString())
-        + ","
-        + (this.hasSufficientTraining == null ? "" : this.hasSufficientTraining.toString())
-        + ","
-        + (this.teacherSupport == null ? "" : this.teacherSupport)
-        + ","
-        + (this.parentSupport == null ? "" : this.parentSupport)
-        + "\n";
-  }
+  //  public String toHeaderCSV() {
+  //    Field[] fields = ReportWithLibrary.class.getDeclaredFields();
+  //    StringBuilder builder = new StringBuilder();
+  //    for (int i = 0; i < fields.length; i++) {
+  //      builder.append(fields[i].getName());
+  //      builder.append(",");
+  //    }
+  //    return super.toHeaderCSV() + builder + "\n";
+  //  }
+  //
+  //  public String toRowCSV() throws InvocationTargetException, IllegalAccessException {
+  //    Method[] methods = ReportWithLibrary.class.getDeclaredMethods();
+  //    StringBuilder builder = new StringBuilder();
+  //    for (Method method : methods) {
+  //      if (method.getName().startsWith("get")) {
+  //        builder.append(method.invoke(this));
+  //        builder.append(",");
+  //      }
+  //    }
+  //    return super.toRowCSV() + builder + "\n";
+  //  }
+
 }

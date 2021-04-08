@@ -2,6 +2,7 @@ package com.codeforcommunity.dto.report;
 
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.ReadyTimeline;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.sql.Timestamp;
 
 public class ReportWithoutLibrary extends ReportGeneric {
@@ -69,56 +70,28 @@ public class ReportWithoutLibrary extends ReportGeneric {
     return this.readyTimeline;
   }
 
-  public String toHeaderCSV() {
-    return "Report ID,"
-        + "Created At,"
-        + "Updated At,"
-        + "School ID,"
-        + "User ID,"
-        + "Number of Children,"
-        + "Number of Books,"
-        + "Most Recent Shipment Year,"
-        + "Library Status,"
-        + "Visit Reason"
-        + "Wants Library,"
-        + "Has Space,"
-        + "Current Status,"
-        + "Reason,"
-        + "Ready Timeline\n";
-  }
 
-  public String toRowCSV() {
-    return this.getId().toString()
-        + ","
-        + (this.getCreatedAt() == null ? "" : this.getCreatedAt().toString())
-        + ","
-        + (this.getUpdatedAt() == null ? "" : this.getUpdatedAt().toString())
-        + ","
-        + (this.getSchoolId() == null ? "" : this.getSchoolId().toString())
-        + ","
-        + (this.getUserId() == null ? "" : this.getUserId().toString())
-        + ","
-        + (this.getNumberOfChildren() == null ? "" : this.getNumberOfChildren().toString())
-        + ","
-        + (this.getNumberOfBooks() == null ? "" : this.getNumberOfBooks().toString())
-        + ","
-        + (this.getMostRecentShipmentYear() == null
-            ? ""
-            : this.getMostRecentShipmentYear().toString())
-        + ","
-        + (this.getLibraryStatus() == null ? "" : this.getLibraryStatus().toString())
-        + ","
-        + (this.getVisitReason() == null ? "" : this.getVisitReason())
-        + ","
-        + (this.wantsLibrary == null ? "" : this.wantsLibrary.toString())
-        + ","
-        + (this.hasSpace == null ? "" : this.hasSpace.toString())
-        + ","
-        + (this.currentStatus == null ? "" : this.currentStatus)
-        + ","
-        + (this.reason == null ? "" : this.reason)
-        + ","
-        + (this.readyTimeline == null ? "" : this.readyTimeline.toString())
-        + "\n";
-  }
+  //  public String toHeaderCSV() {
+  //    Field[] fields = ReportWithoutLibrary.class.getDeclaredFields();
+  //    StringBuilder builder = new StringBuilder();
+  //    for (int i = 0; i < fields.length; i++) {
+  //      builder.append(fields[i].getName());
+  //      builder.append(",");
+  //    }
+  //    return super.toHeaderCSV() + builder + "\n";
+  //  }
+  //
+  //  public String toRowCSV() throws InvocationTargetException, IllegalAccessException {
+  //    Method[] methods = ReportWithoutLibrary.class.getDeclaredMethods();
+  //    StringBuilder builder = new StringBuilder();
+  //    for (Method method : methods) {
+  //      if (method.getName().startsWith("get")) {
+  //        builder.append(method.getName());
+  //        builder.append(method.invoke(this));
+  //        builder.append(",");
+  //      }
+  //    }
+  //    return super.toRowCSV() + builder + "\n";
+  //  }
+
 }

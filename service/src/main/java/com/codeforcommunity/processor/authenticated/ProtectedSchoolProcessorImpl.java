@@ -8,6 +8,7 @@ import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.CsvSerializer;
 import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportGenericListResponse;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
@@ -37,6 +38,7 @@ import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
 import com.codeforcommunity.logger.SLogger;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -716,7 +718,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public String getReportAsCsv(JWTData userData, int reportId, boolean hasLibrary) {
+  public String getReportAsCsv(JWTData userData, int reportId, boolean hasLibrary)
+      throws InvocationTargetException, IllegalAccessException {
     ReportGeneric report;
     if (hasLibrary) {
       report =
@@ -733,8 +736,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new NoReportByIdFoundException(reportId);
     }
     StringBuilder builder = new StringBuilder();
-    builder.append(report.toHeaderCSV());
-    builder.append(report.toRowCSV());
+    //    builder.append(report.toHeaderCSV());
+    //    builder.append(report.toRowCSV());
+    builder.append(CsvSerializer.getObjectHeader(report));
+    builder.append(CsvSerializer.toCsv(report));
 
     return builder.toString();
   }
