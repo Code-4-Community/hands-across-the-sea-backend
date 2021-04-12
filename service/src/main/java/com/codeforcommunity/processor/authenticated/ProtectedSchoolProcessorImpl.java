@@ -718,8 +718,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public String getReportAsCsv(JWTData userData, int reportId, boolean hasLibrary)
-      throws InvocationTargetException, IllegalAccessException {
+  public String getReportAsCsv(JWTData userData, int reportId, boolean hasLibrary) {
     ReportGeneric report;
     if (hasLibrary) {
       report =
@@ -736,8 +735,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new NoReportByIdFoundException(reportId);
     }
     StringBuilder builder = new StringBuilder();
-    //    builder.append(report.toHeaderCSV());
-    //    builder.append(report.toRowCSV());
     builder.append(CsvSerializer.getObjectHeader(report));
     builder.append(CsvSerializer.toCsv(report));
 

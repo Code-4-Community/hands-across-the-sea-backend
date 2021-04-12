@@ -14,7 +14,7 @@ public class CsvSerializer {
     public static String getObjectHeader(Object o){
         StringBuilder builder = new StringBuilder();
         boolean first = true;
-        for (CsvSchema.Column col : getSchema(o)) {
+        for (CsvSchema.Column col: getSchema(o)) {
             if (!first) {
                 builder.append(",");
             }
