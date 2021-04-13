@@ -9,13 +9,19 @@ import com.codeforcommunity.auth.Passwords;
 import com.codeforcommunity.dataaccess.AuthDatabaseOperations;
 import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
+import com.codeforcommunity.dto.user.UserDataRequest;
 import com.codeforcommunity.dto.user.UserDataResponse;
+import com.codeforcommunity.dto.user.UserListResponse;
+import com.codeforcommunity.enums.Country;
+import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.exceptions.WrongPasswordException;
 import com.codeforcommunity.requester.Emailer;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.pojos.Users;
 import org.jooq.generated.tables.records.UsersRecord;
@@ -77,7 +83,7 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
       throw new UserDoesNotExistException(userData.getUserId());
     }
 
-    return new UserDataResponse(user.getFirstName(), user.getLastName(), user.getEmail());
+    return new UserDataResponse(user.getFirstName(), user.getLastName(), user.getEmail(), user.getCountry());
   }
 
   @Override
@@ -102,5 +108,49 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
         previousEmail,
         AuthDatabaseOperations.getFullName(user.into(Users.class)),
         changeEmailRequest.getNewEmail());
+  }
+
+  @Override
+  public void updateUserData(JWTData userData, int userId, UserDataRequest request) {
+
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+
+    UsersRecord user = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
+    if (user == null) {
+      throw new UserDoesNotExistException(userId);
+    }
+    user.setCountry(request.getCountry());
+    user.setPrivilegeLevel(request.getPrivilegeLevel());
+    user.store();
+  }
+
+  @Override
+  public UserListResponse getAllUsers(JWTData userData, Country country) {
+
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+
+    List<UserDataResponse> response = new ArrayList<>();
+    List<UsersRecord> users = new ArrayList<>();
+
+    if (country == null) {
+      users = db.selectFrom(USERS).where(USERS.DELETED_AT.isNull()).fetch();
+    } else {
+      users = db.selectFrom(USERS).where(USERS.COUNTRY.eq(country)).and(USERS.DELETED_AT.isNull()).fetch();
+    }
+
+    for (UsersRecord user: users) {
+      response.add(new UserDataResponse(
+          user.getFirstName(),
+          user.getLastName(),
+          user.getEmail(),
+          user.getCountry(),
+          user.getPrivilegeLevel()));
+    }
+
+    return new UserListResponse(response);
   }
 }

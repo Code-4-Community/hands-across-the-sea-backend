@@ -4,9 +4,13 @@ import static com.codeforcommunity.rest.ApiRouter.end;
 
 import com.codeforcommunity.api.authenticated.IProtectedUserProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
+import com.codeforcommunity.dto.user.UserDataRequest;
 import com.codeforcommunity.dto.user.UserDataResponse;
+import com.codeforcommunity.dto.user.UserListResponse;
+import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
 import io.vertx.core.Vertx;
@@ -14,6 +18,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import java.util.Optional;
 
 public class ProtectedUserRouter implements IRouter {
 
@@ -31,8 +36,15 @@ public class ProtectedUserRouter implements IRouter {
     registerChangePassword(router);
     registerGetUserData(router);
     registerChangeEmail(router);
+    registerUpdateUserData(router);
+    registerGetAllUsers(router);
 
     return router;
+  }
+
+  private void registerUpdateUserData(Router router) {
+    Route updateUserRoute = router.put("/:user_id");
+    updateUserRoute.handler(this::handleUpdateUserData);
   }
 
   private void registerDeleteUser(Router router) {
@@ -53,6 +65,35 @@ public class ProtectedUserRouter implements IRouter {
   private void registerChangeEmail(Router router) {
     Route changePasswordRoute = router.post("/change_email");
     changePasswordRoute.handler(this::handleChangeEmailRoute);
+  }
+
+  private void registerGetAllUsers(Router router) {
+    Route getAllUsersRoute = router.get("/");
+    getAllUsersRoute.handler(this::handleGetAllUsers);
+  }
+
+  private void handleGetAllUsers(RoutingContext ctx) {
+    JWTData jwtData = ctx.get("jwt_data");
+    Optional<String> countryName = RestFunctions.getOptionalQueryParam(ctx, "country", (str -> str));
+
+    UserListResponse users;
+
+    if (!countryName.isPresent()) {
+      users = processor.getAllUsers(jwtData, null);
+    } else {
+      Country country = RestFunctions.getCountryFromString(countryName.get());
+      users = processor.getAllUsers(jwtData, country);
+    }
+    end(ctx.response(), 200, JsonObject.mapFrom(users).toString());
+  }
+
+  private void handleUpdateUserData(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int userId = RestFunctions.getPathParamAsInt(ctx, "user_id");
+    UserDataRequest request =
+        RestFunctions.getJsonBodyAsClass(ctx, UserDataRequest.class);
+    processor.updateUserData(userData, userId, request);
+    end(ctx.response(), 200);
   }
 
   private void handleDeleteUserRoute(RoutingContext ctx) {
