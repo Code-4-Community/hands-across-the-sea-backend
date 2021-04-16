@@ -178,5 +178,4 @@ public class ReportWithLibrary extends ReportGeneric {
   public void setParentSupport(String parentSupport) {
     this.parentSupport = parentSupport;
   }
-
 }

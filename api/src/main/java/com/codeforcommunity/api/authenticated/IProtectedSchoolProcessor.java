@@ -15,7 +15,6 @@ import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.UpsertBookLogRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
-import java.lang.reflect.InvocationTargetException;
 
 public interface IProtectedSchoolProcessor {
 
@@ -68,8 +67,7 @@ public interface IProtectedSchoolProcessor {
 
   BookLogListResponse getBookLog(JWTData userData, int schoolId);
 
-  String getReportAsCsv(JWTData userData, int reportId, boolean hasLibrary)
-      throws InvocationTargetException, IllegalAccessException;
+  String getReportAsCsv(JWTData userData, int reportId, boolean hasLibrary);
 
   void updateBookLog(JWTData userData, int schoolId, int bookId, UpsertBookLogRequest request);
 }

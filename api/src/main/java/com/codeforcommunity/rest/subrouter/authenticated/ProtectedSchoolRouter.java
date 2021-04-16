@@ -363,12 +363,7 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
     String response;
-    try {
-      response = processor.getReportAsCsv(userData, reportId, false);
-    } catch (Exception e) {
-      response = "";
-      e.printStackTrace();
-    }
+    response = processor.getReportAsCsv(userData, reportId, false);
     end(ctx.response(), 200, response, "text/csv");
   }
 
@@ -376,11 +371,7 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
     String response;
-    try {
-      response = processor.getReportAsCsv(userData, reportId, true);
-    } catch (Exception e) {
-      response = "caught " + e.toString();
-    }
+    response = processor.getReportAsCsv(userData, reportId, true);
     end(ctx.response(), 200, response, "text/csv");
   }
 }

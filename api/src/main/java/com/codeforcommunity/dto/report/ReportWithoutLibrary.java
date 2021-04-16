@@ -68,5 +68,4 @@ public class ReportWithoutLibrary extends ReportGeneric {
   public ReadyTimeline getReadyTimeline() {
     return this.readyTimeline;
   }
-
 }

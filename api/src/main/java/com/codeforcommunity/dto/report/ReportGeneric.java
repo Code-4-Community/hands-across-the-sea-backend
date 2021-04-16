@@ -123,5 +123,4 @@ public class ReportGeneric {
   public void setVisitReason(String visitReason) {
     this.visitReason = visitReason;
   }
-
 }

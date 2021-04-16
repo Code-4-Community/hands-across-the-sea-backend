@@ -2,6 +2,7 @@ package com.codeforcommunity.rest;
 
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
 import com.codeforcommunity.exceptions.CreateUserException;
+import com.codeforcommunity.exceptions.CsvSerializerException;
 import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
 import com.codeforcommunity.exceptions.ExpiredSecretKeyException;
 import com.codeforcommunity.exceptions.HandledException;
@@ -205,6 +206,12 @@ public class FailureHandler {
   public void handleBookLogDoesNotExist(RoutingContext ctx, BookLogDoesNotExistException e) {
     String message = String.format("No book log found with given id: %d", e.getBookId());
     end(ctx, message, 400);
+  }
+
+  public void handleCsvSerializer(RoutingContext ctx, CsvSerializerException e) {
+    String message =
+        String.format("Report with id: %d was unable to be converted to CSV", e.getReportId());
+    end(ctx, message, 500);
   }
 
   private void handleUncaughtError(RoutingContext ctx, Throwable throwable) {
