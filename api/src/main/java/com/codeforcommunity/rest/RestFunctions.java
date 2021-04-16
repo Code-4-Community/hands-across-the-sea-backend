@@ -11,7 +11,9 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class RestFunctions {
 
@@ -82,5 +84,30 @@ public class RestFunctions {
       e.printStackTrace();
       throw new UnknownCountryException(countryName);
     }
+  }
+  /**
+   * Get's a query parameter that may or may not be there as an optional of the desired type.
+   * Attempts to map the query parameter from a string to an instance of the desired type.
+   *
+   * @param ctx routing context to retrieve query param from.
+   * @param name of query param.
+   * @param mapper a function that maps the query param from string to desired type.
+   * @param <T> the desired type.
+   * @return An optional object of the query param as it's desired type.
+   */
+  public static <T> Optional<T> getOptionalQueryParam(
+      RoutingContext ctx, String name, Function<String, T> mapper) {
+    List<String> params = ctx.queryParam(name);
+    T returnValue;
+    if (!params.isEmpty()) {
+      try {
+        returnValue = mapper.apply(params.get(0));
+      } catch (Throwable t) {
+        throw new MalformedParameterException(name);
+      }
+    } else {
+      returnValue = null;
+    }
+    return Optional.ofNullable(returnValue);
   }
 }
