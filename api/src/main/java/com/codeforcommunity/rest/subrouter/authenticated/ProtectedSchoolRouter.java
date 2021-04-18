@@ -328,7 +328,7 @@ public class ProtectedSchoolRouter implements IRouter {
         RestFunctions.getJsonBodyAsClass(ctx, UpsertBookLogRequest.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     BookLog log = processor.createBookLog(userData, schoolId, request);
-    end(ctx.response(), 200, JsonObject.mapFrom(log).toString());
+    end(ctx.response(), 201, JsonObject.mapFrom(log).toString());
   }
 
   private void handleGetBookLog(RoutingContext ctx) {
@@ -344,7 +344,7 @@ public class ProtectedSchoolRouter implements IRouter {
         RestFunctions.getJsonBodyAsClass(ctx, UpsertBookLogRequest.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int bookId = RestFunctions.getPathParamAsInt(ctx, "book_id");
-    processor.updateBookLog(userData, schoolId, bookId, request);
-    end(ctx.response(), 200);
+    BookLog log = processor.updateBookLog(userData, schoolId, bookId, request);
+    end(ctx.response(), 200, JsonObject.mapFrom(log).toString());
   }
 }
