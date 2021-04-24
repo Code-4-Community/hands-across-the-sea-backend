@@ -4,7 +4,7 @@ import java.util.List;
 
 public class ReportGenericListResponse {
 
-  private int count;
+  private Integer count;
   private List<ReportGeneric> reports;
 
   public ReportGenericListResponse(List<ReportGeneric> reports) {
@@ -24,7 +24,7 @@ public class ReportGenericListResponse {
     this.reports = reports;
   }
 
-  public int getCount() {
+  public Integer getCount() {
     return count;
   }
 
