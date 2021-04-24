@@ -81,8 +81,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    List<SchoolContact> contacts = this.queryForSchoolContacts(schoolId);
-    school.setContacts(contacts);
     return school;
   }
 
