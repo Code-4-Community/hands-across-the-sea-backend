@@ -6,16 +6,16 @@ import java.util.Date;
 
 public class ReportGeneric {
 
-  private Integer id;
-  private Timestamp createdAt;
-  private Timestamp updatedAt;
-  private Integer schoolId;
-  private Integer userId;
-  private Integer numberOfChildren;
-  private Integer numberOfBooks;
-  private Integer mostRecentShipmentYear;
-  private LibraryStatus libraryStatus;
-  private String visitReason;
+  protected Integer id;
+  protected Timestamp createdAt;
+  protected Timestamp updatedAt;
+  protected Integer schoolId;
+  protected Integer userId;
+  protected Integer numberOfChildren;
+  protected Integer numberOfBooks;
+  protected Integer mostRecentShipmentYear;
+  protected LibraryStatus libraryStatus;
+  protected String visitReason;
 
   public ReportGeneric(LibraryStatus libraryStatus) {
     this.libraryStatus = libraryStatus;

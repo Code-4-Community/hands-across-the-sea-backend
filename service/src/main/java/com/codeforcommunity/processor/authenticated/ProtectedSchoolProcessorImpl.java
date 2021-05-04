@@ -8,6 +8,7 @@ import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dto.CsvSerializer;
 import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportGenericListResponse;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
@@ -29,7 +30,9 @@ import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
+import com.codeforcommunity.exceptions.CsvSerializerException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
+import com.codeforcommunity.exceptions.NoReportByIdFoundException;
 import com.codeforcommunity.exceptions.NoReportFoundException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
@@ -716,6 +719,34 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     return (logs != null)
         ? new BookLogListResponse(logs)
         : new BookLogListResponse(new ArrayList<>());
+  }
+
+  @Override
+  public String getReportAsCsv(JWTData userData, int reportId, boolean hasLibrary) {
+    ReportGeneric report;
+    if (hasLibrary) {
+      report =
+          db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+              .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId))
+              .fetchOneInto(ReportWithLibrary.class);
+    } else {
+      report =
+          db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+              .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId))
+              .fetchOneInto(ReportWithoutLibrary.class);
+    }
+    if (report == null) {
+      throw new NoReportByIdFoundException(reportId);
+    }
+    StringBuilder builder = new StringBuilder();
+    try {
+      builder.append(CsvSerializer.getObjectHeader(report));
+      builder.append(CsvSerializer.toCsv(report));
+    } catch (IllegalStateException e) {
+      throw new CsvSerializerException(reportId);
+    }
+
+    return builder.toString();
   }
 
   private SchoolsRecord queryForSchool(int schoolId) {
