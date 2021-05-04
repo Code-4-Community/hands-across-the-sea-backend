@@ -4,7 +4,7 @@ import java.util.List;
 
 public class SchoolContactListResponse {
 
-  private int count;
+  private Integer count;
   private List<SchoolContact> schoolContacts;
 
   public SchoolContactListResponse(List<SchoolContact> schoolContacts) {
@@ -24,7 +24,7 @@ public class SchoolContactListResponse {
     this.schoolContacts = schoolContacts;
   }
 
-  public int getCount() {
+  public Integer getCount() {
     return count;
   }
 
