@@ -4,7 +4,6 @@ import static com.codeforcommunity.rest.ApiRouter.end;
 
 import com.codeforcommunity.api.authenticated.IProtectedUserProcessor;
 import com.codeforcommunity.auth.JWTData;
-import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.dto.user.ChangeEmailRequest;
 import com.codeforcommunity.dto.user.ChangePasswordRequest;
 import com.codeforcommunity.dto.user.UserDataRequest;
@@ -74,7 +73,8 @@ public class ProtectedUserRouter implements IRouter {
 
   private void handleGetAllUsers(RoutingContext ctx) {
     JWTData jwtData = ctx.get("jwt_data");
-    Optional<String> countryName = RestFunctions.getOptionalQueryParam(ctx, "country", (str -> str));
+    Optional<String> countryName =
+        RestFunctions.getOptionalQueryParam(ctx, "country", (str -> str));
 
     UserListResponse users;
 
@@ -90,8 +90,7 @@ public class ProtectedUserRouter implements IRouter {
   private void handleUpdateUserData(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int userId = RestFunctions.getPathParamAsInt(ctx, "user_id");
-    UserDataRequest request =
-        RestFunctions.getJsonBodyAsClass(ctx, UserDataRequest.class);
+    UserDataRequest request = RestFunctions.getJsonBodyAsClass(ctx, UserDataRequest.class);
     processor.updateUserData(userData, userId, request);
     end(ctx.response(), 200);
   }

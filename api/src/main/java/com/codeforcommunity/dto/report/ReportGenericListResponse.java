@@ -7,13 +7,16 @@ public class ReportGenericListResponse {
   private Integer count;
   private List<ReportGeneric> reports;
 
-  public ReportGenericListResponse(List<ReportGeneric> reports) {
+  public ReportGenericListResponse(List<ReportGeneric> reports, Integer count) {
     if (reports == null) {
       throw new IllegalArgumentException("Given `null` list of reports");
     }
+    if (count == null) {
+      throw new IllegalArgumentException("Given `null` coubnt of reports");
+    }
 
     this.reports = reports;
-    this.count = reports.size();
+    this.count = count;
   }
 
   public List<ReportGeneric> getReports() {
