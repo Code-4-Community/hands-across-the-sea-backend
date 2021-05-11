@@ -4,7 +4,6 @@ import com.codeforcommunity.dto.ApiDto;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.PrivilegeLevel;
 import com.codeforcommunity.exceptions.HandledException;
-import com.codeforcommunity.exceptions.InvalidPasswordException;
 import java.util.ArrayList;
 import java.util.List;
 
