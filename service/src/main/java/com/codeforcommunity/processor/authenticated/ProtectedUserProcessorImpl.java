@@ -83,7 +83,12 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
       throw new UserDoesNotExistException(userData.getUserId());
     }
 
-    return new UserDataResponse(user.getFirstName(), user.getLastName(), user.getEmail(), user.getCountry());
+    return new UserDataResponse(
+        user.getFirstName(),
+        user.getLastName(),
+        user.getEmail(),
+        user.getCountry(),
+        user.getPrivilegeLevel());
   }
 
   @Override
@@ -139,16 +144,21 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     if (country == null) {
       users = db.selectFrom(USERS).where(USERS.DELETED_AT.isNull()).fetch();
     } else {
-      users = db.selectFrom(USERS).where(USERS.COUNTRY.eq(country)).and(USERS.DELETED_AT.isNull()).fetch();
+      users =
+          db.selectFrom(USERS)
+              .where(USERS.COUNTRY.eq(country))
+              .and(USERS.DELETED_AT.isNull())
+              .fetch();
     }
 
-    for (UsersRecord user: users) {
-      response.add(new UserDataResponse(
-          user.getFirstName(),
-          user.getLastName(),
-          user.getEmail(),
-          user.getCountry(),
-          user.getPrivilegeLevel()));
+    for (UsersRecord user : users) {
+      response.add(
+          new UserDataResponse(
+              user.getFirstName(),
+              user.getLastName(),
+              user.getEmail(),
+              user.getCountry(),
+              user.getPrivilegeLevel()));
     }
 
     return new UserListResponse(response);
