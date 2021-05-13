@@ -8,6 +8,7 @@ import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dataaccess.SchoolDatabaseOperations;
 import com.codeforcommunity.dto.CsvSerializer;
 import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportGenericListResponse;
@@ -54,9 +55,11 @@ import org.jooq.generated.tables.records.SchoolsRecord;
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   private final SLogger logger = new SLogger(ProtectedSchoolProcessorImpl.class);
+  private final SchoolDatabaseOperations schoolDatabaseOperations;
   private final DSLContext db;
 
   public ProtectedSchoolProcessorImpl(DSLContext db) {
+    this.schoolDatabaseOperations = new SchoolDatabaseOperations(db);
     this.db = db;
   }
 
@@ -84,7 +87,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    List<SchoolContact> contacts = this.queryForSchoolContacts(schoolId);
+    List<SchoolContact> contacts = schoolDatabaseOperations.getSchoolContacts(schoolId);
     school.setContacts(contacts);
     return school;
   }
@@ -151,7 +154,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       school.store();
 
       Integer schoolId = school.getId();
-      List<SchoolContact> contacts = this.queryForSchoolContacts(schoolId);
+      List<SchoolContact> contacts = schoolDatabaseOperations.getSchoolContacts(schoolId);
 
       return new School(
           school.getId(),
@@ -172,7 +175,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public SchoolContactListResponse getAllSchoolContacts(JWTData userData, int schoolId) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -188,7 +191,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public SchoolContact getSchoolContact(JWTData userData, int schoolId, int contactId) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -210,7 +213,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public SchoolContact createSchoolContact(
       JWTData userData, int schoolId, UpsertSchoolContactRequest upsertSchoolContactRequest) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -328,7 +331,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public void updateSchool(
       JWTData userData, int schoolId, UpsertSchoolRequest upsertSchoolRequest) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -361,7 +364,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new AdminOnlyRouteException();
     }
 
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -372,7 +375,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public void hideSchool(JWTData userData, int schoolId) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -382,7 +385,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public void unHideSchool(JWTData userData, int schoolId) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -394,7 +397,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public ReportWithLibrary createReportWithLibrary(
       JWTData userData, int schoolId, UpsertReportWithLibrary req) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -461,7 +464,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public void updateReportWithLibrary(
       JWTData userData, int schoolId, int reportId, UpsertReportWithLibrary req) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -507,30 +510,12 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public ReportGeneric getMostRecentReport(JWTData userData, int schoolId) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
-    if (school == null) {
+    ReportGeneric report;
+
+    try {
+      report = schoolDatabaseOperations.getMostRecentReport(schoolId);
+    } catch (IllegalArgumentException e) {
       throw new SchoolDoesNotExistException(schoolId);
-    }
-
-    ReportGeneric report = null;
-    LibraryStatus libraryStatus = school.getLibraryStatus();
-
-    if (libraryStatus == LibraryStatus.EXISTS) {
-      report =
-          db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-              .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
-              .orderBy(SCHOOL_REPORTS_WITH_LIBRARIES.ID.desc())
-              .limit(1)
-              .fetchOneInto(ReportWithLibrary.class);
-    } else if (libraryStatus == LibraryStatus.DOES_NOT_EXIST) {
-      report =
-          db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-              .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
-              .orderBy(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.desc())
-              .limit(1)
-              .fetchOneInto(ReportWithoutLibrary.class);
     }
 
     if (report == null) {
@@ -544,7 +529,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public ReportWithoutLibrary createReportWithoutLibrary(
       JWTData userData, int schoolId, UpsertReportWithoutLibrary req) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -594,7 +579,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   public void updateReportWithoutLibrary(
       JWTData userData, int schoolId, int reportId, UpsertReportWithoutLibrary req) {
 
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -636,7 +621,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new MalformedParameterException("p");
     }
 
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -686,7 +671,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new AdminOnlyRouteException();
     }
 
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -711,7 +696,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     if (!userData.isAdmin()) {
       throw new AdminOnlyRouteException();
     }
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -736,7 +721,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public BookLogListResponse getBookLog(JWTData userData, int schoolId) {
-    SchoolsRecord school = this.queryForSchool(schoolId);
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
@@ -774,19 +759,5 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
     return builder.toString();
-  }
-
-  private SchoolsRecord queryForSchool(int schoolId) {
-    return db.selectFrom(SCHOOLS)
-        .where(SCHOOLS.ID.eq(schoolId))
-        .and(SCHOOLS.DELETED_AT.isNull())
-        .fetchOne();
-  }
-
-  private List<SchoolContact> queryForSchoolContacts(int schoolId) {
-    return db.selectFrom(SCHOOL_CONTACTS)
-        .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
-        .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
-        .fetchInto(SchoolContact.class);
   }
 }
