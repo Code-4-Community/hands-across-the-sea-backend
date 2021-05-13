@@ -16,20 +16,16 @@ import com.codeforcommunity.exceptions.UsedSecretKeyException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.processor.unauthenticated.AuthProcessorImpl;
 import com.codeforcommunity.propertiesLoader.PropertiesLoader;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
-
 import org.jooq.DSLContext;
 import org.jooq.generated.Tables;
 import org.jooq.generated.tables.pojos.Users;
 import org.jooq.generated.tables.records.UsersRecord;
 import org.jooq.generated.tables.records.VerificationKeysRecord;
 
-/**
- * Encapsulates all the database operations that are required for {@link AuthProcessorImpl}.
- */
+/** Encapsulates all the database operations that are required for {@link AuthProcessorImpl}. */
 public class AuthDatabaseOperations {
 
   private final DSLContext db;
@@ -106,7 +102,7 @@ public class AuthDatabaseOperations {
    * with the given values.
    *
    * @throws EmailAlreadyInUseException if the given username and email are already used in the USER
-   *                                    table.
+   *     table.
    */
   public UsersRecord createNewUser(NewUserRequest newUserRequest) {
     String email = newUserRequest.getEmail();
@@ -133,9 +129,7 @@ public class AuthDatabaseOperations {
     return newUser;
   }
 
-  /**
-   * Given a JWT signature, store it in the BLACKLISTED_REFRESHES table.
-   */
+  /** Given a JWT signature, store it in the BLACKLISTED_REFRESHES table. */
   public void addToBlackList(String signature) {
     Timestamp expirationTimestamp = Timestamp.from(Instant.now().plusMillis(msRefreshExpiration));
 
@@ -149,9 +143,7 @@ public class AuthDatabaseOperations {
         .execute();
   }
 
-  /**
-   * Given a JWT signature return true if it is stored in the BLACKLISTED_REFRESHES table.
-   */
+  /** Given a JWT signature return true if it is stored in the BLACKLISTED_REFRESHES table. */
   public boolean isOnBlackList(String signature) {
     return db.fetchExists(
         Tables.BLACKLISTED_REFRESHES.where(
@@ -162,7 +154,7 @@ public class AuthDatabaseOperations {
    * Validates the secret key for the user it was created for and returns the appropriate user.
    *
    * @throws InvalidSecretKeyException if the given token does not exist.
-   * @throws UsedSecretKeyException    if the given token has already been used.
+   * @throws UsedSecretKeyException if the given token has already been used.
    * @throws ExpiredSecretKeyException if the given token is expired.
    */
   public UsersRecord validateSecretKey(String secretKey, VerificationKeyType type) {
@@ -233,9 +225,7 @@ public class AuthDatabaseOperations {
     return tokenResult.getCreatedAt().after(cutoffDate);
   }
 
-  /**
-   * Given a user pojo, return the user's full name.
-   */
+  /** Given a user pojo, return the user's full name. */
   public static String getFullName(Users user) {
     return String.format("%s %s", user.getFirstName(), user.getLastName());
   }
