@@ -424,7 +424,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setTeacherSupport(req.getTeacherSupport());
     newReport.setParentSupport(req.getParentSupport());
     newReport.setVisitReason(req.getVisitReason());
+    newReport.setActionPlan(req.getActionPlan());
+    newReport.setSuccessStories(req.getSuccessStories());
 
+    // save record and refresh to fetch report ID and timestamps
     newReport.store();
     newReport.refresh();
 
@@ -450,7 +453,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getHasSufficientTraining(),
         newReport.getTeacherSupport(),
         newReport.getParentSupport(),
-        newReport.getVisitReason());
+        newReport.getVisitReason(),
+        newReport.getActionPlan(),
+        newReport.getSuccessStories());
   }
 
   @Override
@@ -494,6 +499,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setTeacherSupport(req.getTeacherSupport());
     newReport.setParentSupport(req.getParentSupport());
     newReport.setVisitReason(req.getVisitReason());
+    newReport.setActionPlan(req.getActionPlan());
+    newReport.setSuccessStories(req.getSuccessStories());
 
     newReport.store();
   }
@@ -557,7 +564,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setWantsLibrary(req.getWantsLibrary());
     newReport.setReadyTimeline(req.getReadyTimeline());
     newReport.setVisitReason(req.getVisitReason());
+    newReport.setActionPlan(req.getActionPlan());
+    newReport.setSuccessStories(req.getSuccessStories());
 
+    // save record and refresh to fetch report ID and timestamps
     newReport.store();
     newReport.refresh();
 
@@ -575,7 +585,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getCurrentStatus(),
         newReport.getReasonWhyNot(),
         newReport.getReadyTimeline(),
-        newReport.getVisitReason());
+        newReport.getVisitReason(),
+        newReport.getActionPlan(),
+        newReport.getSuccessStories());
   }
 
   @Override
@@ -612,6 +624,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setWantsLibrary(req.getWantsLibrary());
     newReport.setReadyTimeline(req.getReadyTimeline());
     newReport.setVisitReason(req.getVisitReason());
+    newReport.setActionPlan(req.getActionPlan());
+    newReport.setSuccessStories(req.getSuccessStories());
 
     newReport.store();
   }
@@ -639,6 +653,18 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
             .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
             .fetchInto(ReportWithoutLibrary.class);
 
+    int countWithLibrary =
+        db.fetchCount(
+            db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+                .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+                .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId)));
+
+    int countWithoutLibrary =
+        db.fetchCount(
+            db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+                .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+                .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)));
+
     List<ReportGeneric> reports = new ArrayList<ReportGeneric>();
     reports.addAll(withLibraryReports);
     reports.addAll(noLibraryReports);
@@ -650,7 +676,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     List<ReportGeneric> paginatedReports =
         (from >= reports.size()) ? new ArrayList<>() : reports.subList(from, to);
 
-    return new ReportGenericListResponse(paginatedReports);
+    return new ReportGenericListResponse(
+        paginatedReports, (countWithLibrary + countWithoutLibrary));
   }
 
   @Override
