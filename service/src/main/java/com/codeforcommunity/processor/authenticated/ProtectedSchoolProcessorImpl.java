@@ -735,6 +735,26 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
+  public void deleteBookLog(JWTData userData, int schoolId, int bookId) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+
+    BookLogsRecord log = db.selectFrom(BOOK_LOGS).where(BOOK_LOGS.ID.eq(bookId)).fetchOne();
+
+    if (log == null) {
+      throw new BookLogDoesNotExistException(bookId);
+    }
+
+    log.setDeletedAt(Timestamp.from(Instant.now()));
+    log.store();
+  }
+
+  @Override
   public BookLogListResponse getBookLog(JWTData userData, int schoolId) {
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
