@@ -84,7 +84,11 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     }
 
     return new UserDataResponse(
-        user.getFirstName(), user.getLastName(), user.getEmail(), user.getCountry());
+        user.getFirstName(),
+        user.getLastName(),
+        user.getEmail(),
+        user.getCountry(),
+        user.getPrivilegeLevel());
   }
 
   @Override
