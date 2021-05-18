@@ -4,7 +4,7 @@ import java.util.List;
 
 public class BookLogListResponse {
 
-  private int count;
+  private Integer count;
   private List<BookLog> bookLogs;
 
   public BookLogListResponse(List<BookLog> bookLogs) {
@@ -16,7 +16,7 @@ public class BookLogListResponse {
     this.count = bookLogs.size();
   }
 
-  public int getCount() {
+  public Integer getCount() {
     return count;
   }
 

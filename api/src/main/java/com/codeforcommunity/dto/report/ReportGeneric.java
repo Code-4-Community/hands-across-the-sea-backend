@@ -6,16 +6,18 @@ import java.util.Date;
 
 public class ReportGeneric {
 
-  private Integer id;
-  private Timestamp createdAt;
-  private Timestamp updatedAt;
-  private Integer schoolId;
-  private Integer userId;
-  private Integer numberOfChildren;
-  private Integer numberOfBooks;
-  private Integer mostRecentShipmentYear;
-  private LibraryStatus libraryStatus;
-  private String visitReason;
+  protected Integer id;
+  protected Timestamp createdAt;
+  protected Timestamp updatedAt;
+  protected Integer schoolId;
+  protected Integer userId;
+  protected Integer numberOfChildren;
+  protected Integer numberOfBooks;
+  protected Integer mostRecentShipmentYear;
+  protected LibraryStatus libraryStatus;
+  protected String visitReason;
+  protected String actionPlan;
+  protected String successStories;
 
   public ReportGeneric(LibraryStatus libraryStatus) {
     this.libraryStatus = libraryStatus;
@@ -31,7 +33,9 @@ public class ReportGeneric {
       Integer numberOfBooks,
       Integer mostRecentShipmentYear,
       LibraryStatus libraryStatus,
-      String visitReason) {
+      String visitReason,
+      String actionPlan,
+      String successStories) {
     this.id = id;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
@@ -42,6 +46,8 @@ public class ReportGeneric {
     this.mostRecentShipmentYear = mostRecentShipmentYear;
     this.libraryStatus = libraryStatus;
     this.visitReason = visitReason;
+    this.actionPlan = actionPlan;
+    this.successStories = successStories;
   }
 
   public Integer getId() {
@@ -122,5 +128,21 @@ public class ReportGeneric {
 
   public void setVisitReason(String visitReason) {
     this.visitReason = visitReason;
+  }
+
+  public String getActionPlan() {
+    return actionPlan;
+  }
+
+  public void setActionPlan(String actionPlan) {
+    this.actionPlan = actionPlan;
+  }
+
+  public String getSuccessStories() {
+    return successStories;
+  }
+
+  public void setSuccessStories(String successStories) {
+    this.successStories = successStories;
   }
 }

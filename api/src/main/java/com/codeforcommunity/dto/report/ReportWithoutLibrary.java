@@ -30,7 +30,9 @@ public class ReportWithoutLibrary extends ReportGeneric {
       String currentStatus,
       String reason,
       ReadyTimeline readyTimeline,
-      String visitReason) {
+      String visitReason,
+      String actionPlan,
+      String successStories) {
     super(
         id,
         createdAt,
@@ -41,7 +43,9 @@ public class ReportWithoutLibrary extends ReportGeneric {
         numberOfBooks,
         mostRecentShipmentYear,
         LibraryStatus.DOES_NOT_EXIST,
-        visitReason);
+        visitReason,
+        actionPlan,
+        successStories);
     this.wantsLibrary = wantsLibrary;
     this.hasSpace = hasSpace;
     this.currentStatus = currentStatus;

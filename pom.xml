@@ -251,6 +251,13 @@
         <version>1.11.893</version>
       </dependency>
 
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-csv</artifactId>
+        <version>2.12.2</version>
+      </dependency>
+
+
       <!-- Flyway for managing database migrations -->
       <dependency>
         <groupId>org.flywaydb</groupId>

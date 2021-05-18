@@ -2,6 +2,7 @@ package com.codeforcommunity.rest;
 
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
 import com.codeforcommunity.exceptions.CreateUserException;
+import com.codeforcommunity.exceptions.CsvSerializerException;
 import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
 import com.codeforcommunity.exceptions.ExpiredSecretKeyException;
 import com.codeforcommunity.exceptions.HandledException;
@@ -9,6 +10,7 @@ import com.codeforcommunity.exceptions.InvalidSecretKeyException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
+import com.codeforcommunity.exceptions.NoReportByIdFoundException;
 import com.codeforcommunity.exceptions.NoReportFoundException;
 import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
@@ -47,6 +49,11 @@ public class FailureHandler {
 
   public void handleNoReportFound(RoutingContext ctx, NoReportFoundException e) {
     String message = String.format("Report not found for school with id %d", e.getSchoolId());
+    end(ctx, message, 404);
+  }
+
+  public void handleNoReportByIdFound(RoutingContext ctx, NoReportByIdFoundException e) {
+    String message = String.format("Report not found for report with id %d", e.getReportId());
     end(ctx, message, 404);
   }
 
@@ -199,6 +206,12 @@ public class FailureHandler {
   public void handleBookLogDoesNotExist(RoutingContext ctx, BookLogDoesNotExistException e) {
     String message = String.format("No book log found with given id: %d", e.getBookId());
     end(ctx, message, 400);
+  }
+
+  public void handleCsvSerializer(RoutingContext ctx, CsvSerializerException e) {
+    String message =
+        String.format("Report with id: %d was unable to be converted to CSV", e.getReportId());
+    end(ctx, message, 500);
   }
 
   private void handleUncaughtError(RoutingContext ctx, Throwable throwable) {

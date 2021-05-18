@@ -1,6 +1,5 @@
 package com.codeforcommunity.dto.user;
 
-
 import java.util.List;
 
 public class UserListResponse {

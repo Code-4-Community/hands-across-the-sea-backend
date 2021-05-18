@@ -11,7 +11,12 @@ public class UserDataResponse {
   private Country country;
   private PrivilegeLevel privilegeLevel;
 
-  public UserDataResponse(String firstName, String lastName, String email, Country country,  PrivilegeLevel privilegeLevel) {
+  public UserDataResponse(
+      String firstName,
+      String lastName,
+      String email,
+      Country country,
+      PrivilegeLevel privilegeLevel) {
     this.email = email;
     this.firstName = firstName;
     this.lastName = lastName;
@@ -38,8 +43,11 @@ public class UserDataResponse {
     return lastName;
   }
 
-  public Country getCountry() { return country; }
+  public Country getCountry() {
+    return country;
+  }
 
-  public PrivilegeLevel getPrivilegeLevel() { return privilegeLevel; }
+  public PrivilegeLevel getPrivilegeLevel() {
+    return privilegeLevel;
+  }
 }
-

@@ -11,6 +11,8 @@ public class UpsertReportGeneric extends ApiDto {
   private Integer numberOfBooks;
   private Integer mostRecentShipmentYear;
   private String visitReason;
+  private String actionPlan;
+  private String successStories;
 
   public Integer getNumberOfChildren() {
     return numberOfChildren;
@@ -42,6 +44,22 @@ public class UpsertReportGeneric extends ApiDto {
 
   public void setVisitReason(String visitReason) {
     this.visitReason = visitReason;
+  }
+
+  public String getActionPlan() {
+    return actionPlan;
+  }
+
+  public void setActionPlan(String actionPlan) {
+    this.actionPlan = actionPlan;
+  }
+
+  public String getSuccessStories() {
+    return successStories;
+  }
+
+  public void setSuccessStories(String successStories) {
+    this.successStories = successStories;
   }
 
   @Override
