@@ -17,7 +17,6 @@ public class School {
   private Country country;
   private Boolean hidden;
   private LibraryStatus libraryStatus;
-  private List<SchoolContact> contacts;
 
   public School() {}
 
@@ -42,7 +41,6 @@ public class School {
     this.country = country;
     this.hidden = hidden;
     this.libraryStatus = libraryStatus;
-    this.contacts = new ArrayList<SchoolContact>();
   }
 
   public School(
@@ -67,7 +65,6 @@ public class School {
     this.country = country;
     this.hidden = hidden;
     this.libraryStatus = libraryStatus;
-    this.contacts = contacts;
   }
 
   public Integer getId() {
@@ -108,14 +105,6 @@ public class School {
 
   public void setHidden(Boolean hidden) {
     this.hidden = hidden;
-  }
-
-  public List<SchoolContact> getContacts() {
-    return contacts;
-  }
-
-  public void setContacts(List<SchoolContact> contacts) {
-    this.contacts = contacts;
   }
 
   public String getEmail() {
