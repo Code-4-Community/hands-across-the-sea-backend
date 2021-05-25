@@ -180,7 +180,7 @@ public class ProtectedSchoolRouter implements IRouter {
   }
 
   private void registerDeleteBookLog(Router router) {
-    Route deleteBookLog = router.delete("/:school_id/:book_id");
+    Route deleteBookLog = router.delete("/:school_id/books/:book_id");
     deleteBookLog.handler(this::handleDeleteBookLog);
   }
 

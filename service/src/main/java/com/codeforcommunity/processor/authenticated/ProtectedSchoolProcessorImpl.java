@@ -716,7 +716,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    BookLogsRecord log = db.selectFrom(BOOK_LOGS).where(BOOK_LOGS.ID.eq(bookId)).fetchOne();
+    BookLogsRecord log =
+        db.selectFrom(BOOK_LOGS)
+            .where(BOOK_LOGS.DELETED_AT.isNull())
+            .and(BOOK_LOGS.ID.eq(bookId))
+            .fetchOne();
 
     if (log == null) {
       throw new BookLogDoesNotExistException(bookId);
