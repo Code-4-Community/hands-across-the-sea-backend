@@ -69,6 +69,7 @@ public class ProtectedSchoolRouter implements IRouter {
     registerCreateBookLog(router);
     registerGetBookLog(router);
     registerUpdateBookLog(router);
+    registerDeleteBookLog(router);
 
     return router;
   }
@@ -176,6 +177,11 @@ public class ProtectedSchoolRouter implements IRouter {
   private void registerGetBookLog(Router router) {
     Route getBookFlow = router.get("/:school_id/books");
     getBookFlow.handler(this::handleGetBookLog);
+  }
+
+  private void registerDeleteBookLog(Router router) {
+    Route deleteBookLog = router.delete("/:school_id/books/:book_id");
+    deleteBookLog.handler(this::handleDeleteBookLog);
   }
 
   private void registerGetWithoutLibraryReportAsCsv(Router router) {
@@ -358,6 +364,14 @@ public class ProtectedSchoolRouter implements IRouter {
     int bookId = RestFunctions.getPathParamAsInt(ctx, "book_id");
     BookLog log = processor.updateBookLog(userData, schoolId, bookId, request);
     end(ctx.response(), 200, JsonObject.mapFrom(log).toString());
+  }
+
+  private void handleDeleteBookLog(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    int bookId = RestFunctions.getPathParamAsInt(ctx, "book_id");
+    processor.deleteBookLog(userData, schoolId, bookId);
+    end(ctx.response(), 200);
   }
 
   private void handleGetWithoutLibraryReportAsCsv(RoutingContext ctx) {

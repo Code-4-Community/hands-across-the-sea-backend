@@ -714,7 +714,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    BookLogsRecord log = db.selectFrom(BOOK_LOGS).where(BOOK_LOGS.ID.eq(bookId)).fetchOne();
+    BookLogsRecord log =
+        db.selectFrom(BOOK_LOGS)
+            .where(BOOK_LOGS.DELETED_AT.isNull())
+            .and(BOOK_LOGS.ID.eq(bookId))
+            .fetchOne();
 
     if (log == null) {
       throw new BookLogDoesNotExistException(bookId);
@@ -730,6 +734,26 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     log.store();
 
     return new BookLog(log.getId(), log.getCount(), log.getDate(), log.getNotes());
+  }
+
+  @Override
+  public void deleteBookLog(JWTData userData, int schoolId, int bookId) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+    SchoolsRecord school = this.queryForSchool(schoolId);
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+
+    BookLogsRecord log = db.selectFrom(BOOK_LOGS).where(BOOK_LOGS.ID.eq(bookId)).fetchOne();
+
+    if (log == null) {
+      throw new BookLogDoesNotExistException(bookId);
+    }
+
+    log.setDeletedAt(Timestamp.from(Instant.now()));
+    log.store();
   }
 
   @Override
