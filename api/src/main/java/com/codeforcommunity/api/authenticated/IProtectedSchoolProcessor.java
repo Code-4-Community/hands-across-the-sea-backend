@@ -71,4 +71,6 @@ public interface IProtectedSchoolProcessor {
   String getReportAsCsv(JWTData userData, int reportId, boolean hasLibrary);
 
   BookLog updateBookLog(JWTData userData, int schoolId, int bookId, UpsertBookLogRequest request);
+
+  void deleteBookLog(JWTData userData, int schoolId, int bookId);
 }

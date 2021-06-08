@@ -1,11 +1,5 @@
 package com.codeforcommunity.processor.authenticated;
 
-import static org.jooq.generated.Tables.BOOK_LOGS;
-import static org.jooq.generated.Tables.SCHOOLS;
-import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
-import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITHOUT_LIBRARIES;
-import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
-
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dataaccess.SchoolDatabaseOperations;
@@ -40,17 +34,24 @@ import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
 import com.codeforcommunity.logger.SLogger;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.BookLogsRecord;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithoutLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolsRecord;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import static org.jooq.generated.Tables.BOOK_LOGS;
+import static org.jooq.generated.Tables.SCHOOLS;
+import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
+import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITHOUT_LIBRARIES;
+import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
 
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
@@ -87,8 +88,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    List<SchoolContact> contacts = schoolDatabaseOperations.getSchoolContacts(schoolId);
-    school.setContacts(contacts);
     return school;
   }
 
@@ -701,7 +700,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    BookLogsRecord log = db.selectFrom(BOOK_LOGS).where(BOOK_LOGS.ID.eq(bookId)).fetchOne();
+    BookLogsRecord log =
+        db.selectFrom(BOOK_LOGS)
+            .where(BOOK_LOGS.DELETED_AT.isNull())
+            .and(BOOK_LOGS.ID.eq(bookId))
+            .fetchOne();
 
     if (log == null) {
       throw new BookLogDoesNotExistException(bookId);
@@ -717,6 +720,26 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     log.store();
 
     return new BookLog(log.getId(), log.getCount(), log.getDate(), log.getNotes());
+  }
+
+  @Override
+  public void deleteBookLog(JWTData userData, int schoolId, int bookId) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+    SchoolsRecord school = schoolDatabaseOperations.getSchool(schoolId);
+    if (school == null) {
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+
+    BookLogsRecord log = db.selectFrom(BOOK_LOGS).where(BOOK_LOGS.ID.eq(bookId)).fetchOne();
+
+    if (log == null) {
+      throw new BookLogDoesNotExistException(bookId);
+    }
+
+    log.setDeletedAt(Timestamp.from(Instant.now()));
+    log.store();
   }
 
   @Override
