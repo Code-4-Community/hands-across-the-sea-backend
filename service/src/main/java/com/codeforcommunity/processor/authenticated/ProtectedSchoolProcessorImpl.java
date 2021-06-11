@@ -27,6 +27,7 @@ import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.enums.Country;
+import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
@@ -424,6 +425,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
+    newReport.setGradesAttended(req.getGradesAttended());
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
@@ -453,7 +455,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getParentSupport(),
         newReport.getVisitReason(),
         newReport.getActionPlan(),
-        newReport.getSuccessStories());
+        newReport.getSuccessStories(),
+        (Grade[]) newReport.getGradesAttended());
   }
 
   @Override
@@ -499,6 +502,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
+    newReport.setGradesAttended(req.getGradesAttended());
 
     newReport.store();
   }
@@ -564,6 +568,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
+    newReport.setGradesAttended(req.getGradesAttended());
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
@@ -585,7 +590,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getReadyTimeline(),
         newReport.getVisitReason(),
         newReport.getActionPlan(),
-        newReport.getSuccessStories());
+        newReport.getSuccessStories(),
+        (Grade[]) newReport.getGradesAttended());
   }
 
   @Override
@@ -624,6 +630,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
+    newReport.setGradesAttended(req.getGradesAttended());
 
     newReport.store();
   }
