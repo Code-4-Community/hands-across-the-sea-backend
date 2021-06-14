@@ -1,6 +1,7 @@
 package com.codeforcommunity.enums;
 
 public enum Grade {
+  KINDERGARTEN("Kindergarten"),
   FIRST_GRADE("First grade"),
   SECOND_GRADE("Second grade"),
   THIRD_GRADE("Third grade"),
@@ -10,7 +11,8 @@ public enum Grade {
   FORM_ONE("Form one"),
   FORM_TWO("Form two"),
   FORM_THREE("Form three"),
-  FORM_FOUR("Form four");
+  FORM_FOUR("Form four"),
+  FORM_FIVE("Form five");
 
   private String name;
 
