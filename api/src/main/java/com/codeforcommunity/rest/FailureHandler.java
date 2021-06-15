@@ -217,7 +217,7 @@ public class FailureHandler {
 
   public void handleInvalidShipmentYear(RoutingContext ctx, InvalidShipmentYearException e) {
     String message =
-        String.format("Invalid shioment year integer. Expected 4 digit integer but received: ", e);
+        String.format("Invalid shipment year. Expected 4 digit integer but received: %d", e.getYear());
     end(ctx, message, 400);
   }
 
