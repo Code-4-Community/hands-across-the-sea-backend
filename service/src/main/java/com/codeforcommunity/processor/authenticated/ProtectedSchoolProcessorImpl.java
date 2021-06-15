@@ -20,6 +20,7 @@ import com.codeforcommunity.dto.school.BookLogListResponse;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
+import com.codeforcommunity.dto.school.SchoolIdListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.dto.school.UpsertBookLogRequest;
@@ -43,7 +44,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.BookLogsRecord;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
@@ -754,6 +757,33 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     log.setDeletedAt(Timestamp.from(Instant.now()));
     log.store();
+  }
+
+  @Override
+  public SchoolIdListResponse getSchoolsFromUserIdReports(JWTData userData) {
+
+    Set<Integer> ids = new HashSet<>();
+    List<ReportWithLibrary> withLibraryReports =
+        db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+            .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId()))
+            .fetchInto(ReportWithLibrary.class);
+
+    List<ReportWithoutLibrary> noLibraryReports =
+        db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(userData.getUserId()))
+            .fetchInto(ReportWithoutLibrary.class);
+
+    for (ReportWithLibrary report: withLibraryReports) {
+      ids.add(report.getSchoolId());
+    }
+
+    for (ReportWithoutLibrary report: noLibraryReports) {
+      ids.add(report.getSchoolId());
+    }
+
+    return new SchoolIdListResponse(ids);
   }
 
   @Override
