@@ -2,7 +2,6 @@ package com.codeforcommunity.dto.school;
 
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
-import java.util.ArrayList;
 import java.util.List;
 
 public class School {

@@ -31,6 +31,7 @@ import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
 import com.codeforcommunity.exceptions.CsvSerializerException;
+import com.codeforcommunity.exceptions.InvalidShipmentYearException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.NoReportByIdFoundException;
 import com.codeforcommunity.exceptions.NoReportFoundException;
@@ -401,6 +402,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.EXISTS);
     school.store();
 
+    if (req.getMostRecentShipmentYear() < 1000 || req.getMostRecentShipmentYear() > 9999) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
+
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITH_LIBRARIES);
     newReport.setUserId(userData.getUserId());
@@ -478,6 +483,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new NoReportFoundException(schoolId);
     }
 
+    if (req.getMostRecentShipmentYear() < 1000 || req.getMostRecentShipmentYear() > 9999) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
+
     newReport.setUserId(userData.getUserId());
     newReport.setSchoolId(schoolId);
     newReport.setNumberOfChildren(req.getNumberOfChildren());
@@ -547,6 +556,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
+    if (req.getMostRecentShipmentYear() < 1000 || req.getMostRecentShipmentYear() > 9999) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
+
     school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
     school.store();
 
@@ -610,6 +623,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     if (newReport == null) {
       throw new NoReportFoundException(schoolId);
     }
+    if (req.getMostRecentShipmentYear() < 1000 || req.getMostRecentShipmentYear() > 9999) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
+
 
     newReport.setSchoolId(schoolId);
     newReport.setUserId(userData.getUserId());
