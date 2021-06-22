@@ -20,7 +20,6 @@ import com.codeforcommunity.dto.school.BookLogListResponse;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
-import com.codeforcommunity.dto.school.SchoolIdListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.dto.school.UpsertBookLogRequest;
@@ -760,9 +759,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public SchoolIdListResponse getSchoolsFromUserIdReports(JWTData userData) {
+  public SchoolListResponse getSchoolsFromUserIdReports(JWTData userData) {
+    Set<Integer> schoolIds = new HashSet<>();
 
-    Set<Integer> ids = new HashSet<>();
     List<ReportWithLibrary> withLibraryReports =
         db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
             .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
@@ -775,15 +774,22 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
             .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(userData.getUserId()))
             .fetchInto(ReportWithoutLibrary.class);
 
-    for (ReportWithLibrary report: withLibraryReports) {
-      ids.add(report.getSchoolId());
+    for (ReportWithLibrary report : withLibraryReports) {
+      schoolIds.add(report.getSchoolId());
     }
 
-    for (ReportWithoutLibrary report: noLibraryReports) {
-      ids.add(report.getSchoolId());
+    for (ReportWithoutLibrary report : noLibraryReports) {
+      schoolIds.add(report.getSchoolId());
     }
 
-    return new SchoolIdListResponse(ids);
+    List<SchoolSummary> schools =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.HIDDEN.isFalse())
+            .and(SCHOOLS.DELETED_AT.isNull())
+            .and(SCHOOLS.ID.in(schoolIds))
+            .fetchInto(SchoolSummary.class);
+
+    return new SchoolListResponse(schools);
   }
 
   @Override

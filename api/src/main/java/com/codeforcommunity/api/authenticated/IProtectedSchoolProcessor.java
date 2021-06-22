@@ -12,12 +12,10 @@ import com.codeforcommunity.dto.school.BookLogListResponse;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
-import com.codeforcommunity.dto.school.SchoolIdListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.UpsertBookLogRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
-import java.util.List;
 
 public interface IProtectedSchoolProcessor {
 
@@ -76,5 +74,5 @@ public interface IProtectedSchoolProcessor {
 
   void deleteBookLog(JWTData userData, int schoolId, int bookId);
 
-  SchoolIdListResponse getSchoolsFromUserIdReports(JWTData userData);
+  SchoolListResponse getSchoolsFromUserIdReports(JWTData userData);
 }

@@ -15,7 +15,6 @@ import com.codeforcommunity.dto.school.BookLogListResponse;
 import com.codeforcommunity.dto.school.School;
 import com.codeforcommunity.dto.school.SchoolContact;
 import com.codeforcommunity.dto.school.SchoolContactListResponse;
-import com.codeforcommunity.dto.school.SchoolIdListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.UpsertBookLogRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
@@ -27,7 +26,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import java.util.List;
 
 public class ProtectedSchoolRouter implements IRouter {
 
@@ -200,12 +198,12 @@ public class ProtectedSchoolRouter implements IRouter {
 
   private void registerGetSchoolsFromUserId(Router router) {
     Route getSchoolsFromUserId = router.get("/reports/users");
-      getSchoolsFromUserId.handler(this::handleGetSchoolsFromUserId);
+    getSchoolsFromUserId.handler(this::handleGetSchoolsFromUserId);
   }
 
   private void handleGetSchoolsFromUserId(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
-    SchoolIdListResponse response = processor.getSchoolsFromUserIdReports(userData);
+    SchoolListResponse response = processor.getSchoolsFromUserIdReports(userData);
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
