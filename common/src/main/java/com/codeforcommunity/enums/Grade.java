@@ -1,18 +1,18 @@
 package com.codeforcommunity.enums;
 
 public enum Grade {
-  KINDERGARTEN("Kindergarten"),
-  FIRST_GRADE("First grade"),
-  SECOND_GRADE("Second grade"),
-  THIRD_GRADE("Third grade"),
-  FOURTH_GRADE("Fourth grade"),
-  FIFTH_GRADE("Fifth grade"),
-  SIXTH_GRADE("Sixth grade"),
-  FORM_ONE("Form one"),
-  FORM_TWO("Form two"),
-  FORM_THREE("Form three"),
-  FORM_FOUR("Form four"),
-  FORM_FIVE("Form five");
+  KINDERGARTEN("kindergarten"),
+  FIRST_GRADE("first_grade"),
+  SECOND_GRADE("second_grade"),
+  THIRD_GRADE("third_grade"),
+  FOURTH_GRADE("fourth_grade"),
+  FIFTH_GRADE("fifth_grade"),
+  SIXTH_GRADE("sixth_grade"),
+  FORM_ONE("form_one"),
+  FORM_TWO("form_two"),
+  FORM_THREE("form_three"),
+  FORM_FOUR("form_four"),
+  FORM_FIVE("form_five");
 
   private String name;
 
@@ -32,5 +32,28 @@ public enum Grade {
     }
     throw new IllegalArgumentException(
         String.format("Given name `%s` doesn't correspond to any `Grade`", name));
+  }
+
+  public static String[] toStringArray(Grade[] gradesAttended) {
+    String[] stringGradesAttended = new String[gradesAttended.length];
+
+    for (int i = 0; i < gradesAttended.length; i++) {
+      stringGradesAttended[i] = gradesAttended[i].toString();
+    }
+
+    return stringGradesAttended;
+  }
+
+  public static Grade[] from(String[] stringGradesAttended) {
+    Grade[] gradesAttended = new Grade[stringGradesAttended.length];
+    for (int i  = 0; i < stringGradesAttended.length; i++) {
+      gradesAttended[i] = Grade.from(stringGradesAttended[i]);
+    }
+    return gradesAttended;
+  }
+
+  @Override
+  public String toString() {
+    return this.name;
   }
 }
