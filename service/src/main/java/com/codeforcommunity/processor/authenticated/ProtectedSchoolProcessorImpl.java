@@ -27,6 +27,7 @@ import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.enums.Country;
+import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
@@ -401,6 +402,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.EXISTS);
     school.store();
 
+    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
+
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITH_LIBRARIES);
     newReport.setUserId(userData.getUserId());
@@ -424,10 +427,13 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
+    newReport.setGradesAttended(stringGradesAttended);
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
     newReport.refresh();
+
+    Grade[] savedGradesAttended = Grade.from(stringGradesAttended);
 
     return new ReportWithLibrary(
         newReport.getId(),
@@ -453,7 +459,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getParentSupport(),
         newReport.getVisitReason(),
         newReport.getActionPlan(),
-        newReport.getSuccessStories());
+        newReport.getSuccessStories(),
+        savedGradesAttended);
   }
 
   @Override
@@ -478,6 +485,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new NoReportFoundException(schoolId);
     }
 
+    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
+
     newReport.setUserId(userData.getUserId());
     newReport.setSchoolId(schoolId);
     newReport.setNumberOfChildren(req.getNumberOfChildren());
@@ -499,7 +508,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-
+    newReport.setGradesAttended(stringGradesAttended);
     newReport.store();
   }
 
@@ -550,6 +559,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
     school.store();
 
+    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
+
     SchoolReportsWithoutLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITHOUT_LIBRARIES);
     newReport.setSchoolId(schoolId);
     newReport.setUserId(userData.getUserId());
@@ -564,10 +575,13 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
+    newReport.setGradesAttended(stringGradesAttended);
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
     newReport.refresh();
+
+    Grade[] savedGradesAttended = Grade.from(stringGradesAttended);
 
     return new ReportWithoutLibrary(
         newReport.getId(),
@@ -585,7 +599,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getReadyTimeline(),
         newReport.getVisitReason(),
         newReport.getActionPlan(),
-        newReport.getSuccessStories());
+        newReport.getSuccessStories(),
+        savedGradesAttended);
   }
 
   @Override
@@ -611,6 +626,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new NoReportFoundException(schoolId);
     }
 
+    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
+
+
     newReport.setSchoolId(schoolId);
     newReport.setUserId(userData.getUserId());
     newReport.setNumberOfChildren(req.getNumberOfChildren());
@@ -624,7 +642,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-
+    newReport.setGradesAttended(stringGradesAttended);
     newReport.store();
   }
 
