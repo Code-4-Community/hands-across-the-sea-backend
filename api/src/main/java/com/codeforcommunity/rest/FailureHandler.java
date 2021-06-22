@@ -48,12 +48,12 @@ public class FailureHandler {
   }
 
   public void handleNoReportFound(RoutingContext ctx, NoReportFoundException e) {
-    String message = String.format("Report not found for school with id %d", e.getSchoolId());
+    String message = String.format("Report not found for school with ID %d", e.getSchoolId());
     end(ctx, message, 404);
   }
 
   public void handleNoReportByIdFound(RoutingContext ctx, NoReportByIdFoundException e) {
-    String message = String.format("Report not found for report with id %d", e.getReportId());
+    String message = String.format("Report not found for report with ID %d", e.getReportId());
     end(ctx, message, 404);
   }
 
@@ -64,7 +64,8 @@ public class FailureHandler {
 
   public void handleEmailAlreadyInUse(RoutingContext ctx, EmailAlreadyInUseException exception) {
     String message =
-        String.format("Error creating new user, given email %s already used", exception.getEmail());
+        String.format(
+            "Error creating new user, given email '%s' already used", exception.getEmail());
 
     end(ctx, message, 409);
   }
@@ -72,7 +73,7 @@ public class FailureHandler {
   public void handleSchoolAlreadyExists(RoutingContext ctx, SchoolAlreadyExistsException e) {
     String message =
         String.format(
-            "School '%s' already exists in '%s'", e.getSchoolName(), e.getSchoolCountry());
+            "School '%s' already exists in country '%s'", e.getSchoolName(), e.getSchoolCountry());
     end(ctx, message, 409);
   }
 
@@ -175,7 +176,7 @@ public class FailureHandler {
   }
 
   public void handleUnknownCountry(RoutingContext ctx, UnknownCountryException exception) {
-    String message = String.format("Unknown country given: %s", exception.getUnknownCountry());
+    String message = String.format("No country found with name %s", exception.getUnknownCountry());
     end(ctx, message, 400);
   }
 
@@ -183,7 +184,7 @@ public class FailureHandler {
       RoutingContext ctx, SchoolContactDoesNotExistException exception) {
     String message =
         String.format(
-            "Unknown contact with id '%d' given for school with id '%d'",
+            "Unknown contact with ID %d given for school with ID %d",
             exception.getContactId(), exception.getSchoolId());
     end(ctx, message, 400);
   }
@@ -194,23 +195,24 @@ public class FailureHandler {
   }
 
   public void handleS3FailedUpload(RoutingContext ctx, String exceptionMessage) {
-    String message = "The given file could not be uploaded to AWS S3: " + exceptionMessage;
+    String message =
+        "The given file could not be uploaded to AWS S3 with error: " + exceptionMessage;
     end(ctx, message, 502);
   }
 
   public void handleSchoolDoesNotExist(RoutingContext ctx, SchoolDoesNotExistException e) {
-    String message = String.format("No school found with given id: %d", e.getSchoolId());
+    String message = String.format("No school found with ID %d", e.getSchoolId());
     end(ctx, message, 400);
   }
 
   public void handleBookLogDoesNotExist(RoutingContext ctx, BookLogDoesNotExistException e) {
-    String message = String.format("No book log found with given id: %d", e.getBookId());
+    String message = String.format("No book log found with ID %d", e.getBookId());
     end(ctx, message, 400);
   }
 
   public void handleCsvSerializer(RoutingContext ctx, CsvSerializerException e) {
     String message =
-        String.format("Report with id: %d was unable to be converted to CSV", e.getReportId());
+        String.format("Report with ID %d was unable to be converted to CSV", e.getReportId());
     end(ctx, message, 500);
   }
 
