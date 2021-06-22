@@ -14,9 +14,13 @@ import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.PrivilegeLevel;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
+import com.codeforcommunity.logger.SLogger;
+import java.util.ArrayList;
+import java.util.List;
 import org.jooq.DSLContext;
 
 public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
+  private final SLogger logger = new SLogger(ProtectedDataProcessorImpl.class);
   private final SchoolDatabaseOperations schoolDatabaseOperations;
   private final DSLContext db;
 
@@ -48,8 +52,11 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
                 .and(USERS.COUNTRY.eq(country))
                 .and(USERS.PRIVILEGE_LEVEL.eq(PrivilegeLevel.ADMIN)));
 
-    Float avgCountBooksPerStudent = null; // TODO
-    Float avgCountStudentLibrariansPerSchool = null; // TODO
+    List<ReportGeneric> schoolReports = this.getCountryReports(country);
+
+    Float avgCountBooksPerStudent = this.getCountryBooksPerStudentAverage(country, schoolReports);
+    Float avgCountStudentLibrariansPerSchool =
+        this.getCountryStudentLibrariansPerSchoolAverage(country, schoolReports);
 
     int countSchoolsWithLibrary =
         db.fetchCount(
@@ -98,5 +105,102 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
     return new MetricsSchoolResponse(
         countBooksPerStudent, countStudents, countStudentLibrarians, netBooksInOut);
+  }
+
+  private List<ReportGeneric> getCountryReports(Country country) {
+    // Get all schools for this country that are not deleted or hidden
+    List<Integer> schoolIds =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.DELETED_AT.isNull())
+            .and(SCHOOLS.HIDDEN.isFalse())
+            .and(SCHOOLS.COUNTRY.eq(country))
+            .fetch(SCHOOLS.ID);
+
+    List<ReportGeneric> reports = new ArrayList<ReportGeneric>();
+
+    for (int schoolId : schoolIds) {
+      // For each school, get the most recent report
+      ReportGeneric report = schoolDatabaseOperations.getMostRecentReport(schoolId);
+
+      if (report == null) {
+        logger.info(
+            String.format(
+                "No report found for school with ID `%d` in country `%s`",
+                schoolId, country.getName()));
+        continue;
+      }
+
+      reports.add(report);
+    }
+
+    return reports;
+  }
+
+  private Float getCountryBooksPerStudentAverage(
+      Country country, List<ReportGeneric> schoolReports) {
+    List<Float> schoolAveragesBooksPerStudent = new ArrayList<Float>();
+
+    for (ReportGeneric report : schoolReports) {
+      // For each report, calculate books per student
+      Integer countBooks = report.getNumberOfBooks();
+      Integer countStudents = report.getNumberOfChildren();
+
+      if (countBooks == null || countStudents == null) {
+        logger.info(
+            String.format(
+                "School report with ID `%d` missing count books or count students",
+                report.getId()));
+        continue;
+      }
+
+      float schoolAvg = ((float) countBooks) / ((float) countStudents);
+      schoolAveragesBooksPerStudent.add(schoolAvg);
+    }
+
+    if (schoolAveragesBooksPerStudent.isEmpty()) {
+      return null;
+    }
+
+    return (float) schoolAveragesBooksPerStudent.stream().mapToDouble(d -> d).average().orElse(0.0);
+  }
+
+  private Float getCountryStudentLibrariansPerSchoolAverage(
+      Country country, List<ReportGeneric> schoolReports) {
+    int totalCountStudentLibrarians = 0;
+    int totalCountSchoolsWithLibraries = 0; // TODO: SHOULD THIS BE ALL SCHOOLS
+
+    for (ReportGeneric report : schoolReports) {
+      // For each report, get count student librarians
+      if (report.getLibraryStatus() != LibraryStatus.EXISTS
+          || !(report instanceof ReportWithLibrary)) {
+        // Skip reports with no libraries
+
+        logger.info(
+            String.format(
+                "Skipping school report with ID `%d` since it has no library", report.getId()));
+        continue;
+      }
+
+      ReportWithLibrary reportWithLibrary = (ReportWithLibrary) report;
+
+      Integer numStudentLibrarians = reportWithLibrary.getNumberOfStudentLibrarians();
+      if (numStudentLibrarians == null) {
+        logger.info(
+            String.format(
+                "Skipping school report with ID `%d` since it has a `null` student librarian count",
+                report.getId()));
+        continue;
+      }
+
+      // Otherwise, increment count of schools and add the number of librarians
+      totalCountStudentLibrarians += numStudentLibrarians;
+      totalCountSchoolsWithLibraries++;
+    }
+
+    if (totalCountSchoolsWithLibraries == 0) {
+      return null;
+    }
+
+    return (float) totalCountStudentLibrarians / (float) totalCountSchoolsWithLibraries;
   }
 }

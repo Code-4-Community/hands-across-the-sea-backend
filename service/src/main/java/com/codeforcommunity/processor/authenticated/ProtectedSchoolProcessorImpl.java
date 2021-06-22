@@ -1,5 +1,11 @@
 package com.codeforcommunity.processor.authenticated;
 
+import static org.jooq.generated.Tables.BOOK_LOGS;
+import static org.jooq.generated.Tables.SCHOOLS;
+import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
+import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITHOUT_LIBRARIES;
+import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
+
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dataaccess.SchoolDatabaseOperations;
@@ -34,24 +40,17 @@ import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
 import com.codeforcommunity.logger.SLogger;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.BookLogsRecord;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithoutLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolsRecord;
-
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-import static org.jooq.generated.Tables.BOOK_LOGS;
-import static org.jooq.generated.Tables.SCHOOLS;
-import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
-import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITHOUT_LIBRARIES;
-import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
 
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
