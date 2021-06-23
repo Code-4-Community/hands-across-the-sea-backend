@@ -44,7 +44,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.BookLogsRecord;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
@@ -772,6 +774,40 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     log.setDeletedAt(Timestamp.from(Instant.now()));
     log.store();
+  }
+
+  @Override
+  public SchoolListResponse getSchoolsFromUserIdReports(JWTData userData) {
+    Set<Integer> schoolIds = new HashSet<>();
+
+    List<ReportWithLibrary> withLibraryReports =
+        db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+            .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId()))
+            .fetchInto(ReportWithLibrary.class);
+
+    List<ReportWithoutLibrary> noLibraryReports =
+        db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(userData.getUserId()))
+            .fetchInto(ReportWithoutLibrary.class);
+
+    for (ReportWithLibrary report : withLibraryReports) {
+      schoolIds.add(report.getSchoolId());
+    }
+
+    for (ReportWithoutLibrary report : noLibraryReports) {
+      schoolIds.add(report.getSchoolId());
+    }
+
+    List<SchoolSummary> schools =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.HIDDEN.isFalse())
+            .and(SCHOOLS.DELETED_AT.isNull())
+            .and(SCHOOLS.ID.in(schoolIds))
+            .fetchInto(SchoolSummary.class);
+
+    return new SchoolListResponse(schools);
   }
 
   @Override
