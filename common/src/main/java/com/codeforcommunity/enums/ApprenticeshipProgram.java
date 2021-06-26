@@ -1,9 +1,10 @@
 package com.codeforcommunity.enums;
 
 public enum ApprenticeshipProgram {
-  OECS("oecs"),
-  NEP("nep"),
-  OTHER("OTHER");
+  OECS_YES("OECS YES"),
+  NEP("NEP"),
+  OTHER("Other"),
+  NONE("No Apprenticeship Program");
 
   private String name;
 
