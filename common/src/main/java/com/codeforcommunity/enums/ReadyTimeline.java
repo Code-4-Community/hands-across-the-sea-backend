@@ -1,9 +1,9 @@
 package com.codeforcommunity.enums;
 
 public enum ReadyTimeline {
-  UPCOMING_SCHOOL_YEAR("UPCOMING_SCHOOL_YEAR"),
-  YEAR_AFTER_NEXT("YEAR_AFTER_NEXT"),
-  MORE_THAN_TWO_YEARS("MORE_THAN_TWO_YEARS");
+  UPCOMING_SCHOOL_YEAR("upcoming_school_year"),
+  YEAR_AFTER_NEXT("year_after_next"),
+  MORE_THAN_TWO_YEARS("more_than_two_years");
 
   private String name;
 
