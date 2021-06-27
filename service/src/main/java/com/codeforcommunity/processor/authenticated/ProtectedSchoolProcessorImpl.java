@@ -789,7 +789,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     List<ReportWithoutLibrary> noLibraryReports =
         db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
             .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(userData.getUserId()))
+            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.USER_ID.eq(userData.getUserId()))
             .fetchInto(ReportWithoutLibrary.class);
 
     for (ReportWithLibrary report : withLibraryReports) {
