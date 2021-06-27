@@ -1,18 +1,18 @@
 package com.codeforcommunity.enums;
 
 public enum Grade {
-  KINDERGARTEN("KINDERGARTEN"),
-  FIRST_GRADE("FIRST_GRADE"),
-  SECOND_GRADE("SECOND_GRADE"),
-  THIRD_GRADE("THIRD_GRADE"),
-  FOURTH_GRADE("FOURTH_GRADE"),
-  FIFTH_GRADE("FIFTH_GRADE"),
-  SIXTH_GRADE("SIXTH_GRADE"),
-  FORM_ONE("FORM_ONE"),
-  FORM_TWO("FORM_TWO"),
-  FORM_THREE("FORM_THREE"),
-  FORM_FOUR("FORM_FOUR"),
-  FORM_FIVE("FORM_FIVE");
+  KINDERGARTEN("kindergarten"),
+  FIRST_GRADE("first_grade"),
+  SECOND_GRADE("second_grade"),
+  THIRD_GRADE("third_grade"),
+  FOURTH_GRADE("fourth_grade"),
+  FIFTH_GRADE("fifth_grade"),
+  SIXTH_GRADE("sixth_grade"),
+  FORM_ONE("form_one"),
+  FORM_TWO("form_two"),
+  FORM_THREE("form_three"),
+  FORM_FOUR("form_four"),
+  FORM_FIVE("form_five");
 
   private String name;
 
