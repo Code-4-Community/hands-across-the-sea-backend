@@ -1,10 +1,10 @@
 package com.codeforcommunity.enums;
 
 public enum AssignedPersonTitle {
-  LIBRARIAN("LIBRARIAN"),
-  SCHOOL_SECRETARY("SCHOOL_SECRETARY"),
-  CLASSROOM_TEACHER("CLASSROOM_TEACHER"),
-  APPRENTICE("APPRENTICE"),
+  LIBRARIAN("librarian"),
+  SCHOOL_SECRETARY("school_secretary"),
+  CLASSROOM_TEACHER("classroom_teacher"),
+  APPRENTICE("apprentice"),
   PCV("PCV"),
   OTHER("OTHER");
 
