@@ -73,4 +73,6 @@ public interface IProtectedSchoolProcessor {
   BookLog updateBookLog(JWTData userData, int schoolId, int bookId, UpsertBookLogRequest request);
 
   void deleteBookLog(JWTData userData, int schoolId, int bookId);
+
+  SchoolListResponse getSchoolsFromUserIdReports(JWTData userData);
 }
