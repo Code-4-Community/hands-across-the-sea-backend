@@ -67,10 +67,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public SchoolListResponse getAllSchools(JWTData userData) {
     List<SchoolSummary> schools =
-        db.selectFrom(SCHOOLS)
-            .where(SCHOOLS.HIDDEN.isFalse())
-            .and(SCHOOLS.DELETED_AT.isNull())
-            .fetchInto(SchoolSummary.class);
+            db.selectFrom(SCHOOLS)
+                    .where(SCHOOLS.HIDDEN.isFalse())
+                    .and(SCHOOLS.DELETED_AT.isNull())
+                    .fetchInto(SchoolSummary.class);
 
     return new SchoolListResponse(schools);
   }
@@ -78,10 +78,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public School getSchool(JWTData userData, int schoolId) {
     School school =
-        db.selectFrom(SCHOOLS)
-            .where(SCHOOLS.DELETED_AT.isNull())
-            .and(SCHOOLS.ID.eq(schoolId))
-            .fetchOneInto(School.class);
+            db.selectFrom(SCHOOLS)
+                    .where(SCHOOLS.DELETED_AT.isNull())
+                    .and(SCHOOLS.ID.eq(schoolId))
+                    .fetchOneInto(School.class);
 
     if (school == null) {
       // Check to make sure the school exists first
@@ -108,11 +108,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     LibraryStatus libraryStatus = upsertSchoolRequest.getLibraryStatus();
 
     SchoolsRecord school =
-        db.selectFrom(SCHOOLS)
-            .where(SCHOOLS.NAME.eq(name))
-            .and(SCHOOLS.ADDRESS.eq(address))
-            .and(SCHOOLS.COUNTRY.eq(country))
-            .fetchOne();
+            db.selectFrom(SCHOOLS)
+                    .where(SCHOOLS.NAME.eq(name))
+                    .and(SCHOOLS.ADDRESS.eq(address))
+                    .and(SCHOOLS.COUNTRY.eq(country))
+                    .fetchOne();
 
     if (school == null) {
       // If the school doesn't already exist, create it
@@ -129,16 +129,16 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       newSchool.store();
 
       return new School(
-          newSchool.getId(),
-          newSchool.getName(),
-          newSchool.getAddress(),
-          newSchool.getEmail(),
-          newSchool.getPhone(),
-          newSchool.getNotes(),
-          newSchool.getArea(),
-          newSchool.getCountry(),
-          newSchool.getHidden(),
-          newSchool.getLibraryStatus());
+              newSchool.getId(),
+              newSchool.getName(),
+              newSchool.getAddress(),
+              newSchool.getEmail(),
+              newSchool.getPhone(),
+              newSchool.getNotes(),
+              newSchool.getArea(),
+              newSchool.getCountry(),
+              newSchool.getHidden(),
+              newSchool.getLibraryStatus());
     }
 
     if (school.getDeletedAt() != null || school.getHidden()) {
@@ -156,17 +156,17 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       List<SchoolContact> contacts = this.queryForSchoolContacts(schoolId);
 
       return new School(
-          school.getId(),
-          school.getName(),
-          school.getAddress(),
-          school.getEmail(),
-          school.getPhone(),
-          school.getNotes(),
-          school.getArea(),
-          school.getCountry(),
-          school.getHidden(),
-          school.getLibraryStatus(),
-          contacts);
+              school.getId(),
+              school.getName(),
+              school.getAddress(),
+              school.getEmail(),
+              school.getPhone(),
+              school.getNotes(),
+              school.getArea(),
+              school.getCountry(),
+              school.getHidden(),
+              school.getLibraryStatus(),
+              contacts);
     }
 
     throw new SchoolAlreadyExistsException(name, country);
@@ -180,10 +180,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
     List<SchoolContact> schoolContacts =
-        db.selectFrom(SCHOOL_CONTACTS)
-            .where(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
-            .and(SCHOOL_CONTACTS.DELETED_AT.isNull())
-            .fetchInto(SchoolContact.class);
+            db.selectFrom(SCHOOL_CONTACTS)
+                    .where(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+                    .and(SCHOOL_CONTACTS.DELETED_AT.isNull())
+                    .fetchInto(SchoolContact.class);
 
     return new SchoolContactListResponse(schoolContacts);
   }
@@ -196,11 +196,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
     SchoolContact schoolContact =
-        db.selectFrom(SCHOOL_CONTACTS)
-            .where(SCHOOL_CONTACTS.ID.eq(contactId))
-            .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
-            .and(SCHOOL_CONTACTS.DELETED_AT.isNull())
-            .fetchOneInto(SchoolContact.class);
+            db.selectFrom(SCHOOL_CONTACTS)
+                    .where(SCHOOL_CONTACTS.ID.eq(contactId))
+                    .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+                    .and(SCHOOL_CONTACTS.DELETED_AT.isNull())
+                    .fetchOneInto(SchoolContact.class);
 
     if (schoolContact == null) {
       throw new SchoolContactDoesNotExistException(schoolId, contactId);
@@ -211,7 +211,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public SchoolContact createSchoolContact(
-      JWTData userData, int schoolId, UpsertSchoolContactRequest upsertSchoolContactRequest) {
+          JWTData userData, int schoolId, UpsertSchoolContactRequest upsertSchoolContactRequest) {
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
@@ -225,15 +225,15 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     ContactType type = upsertSchoolContactRequest.getType();
 
     SchoolContactsRecord contact =
-        db.selectFrom(SCHOOL_CONTACTS)
-            .where(SCHOOL_CONTACTS.FIRST_NAME.eq(firstName))
-            .and(SCHOOL_CONTACTS.LAST_NAME.eq(lastName))
-            .and(SCHOOL_CONTACTS.EMAIL.eq(email))
-            .and(SCHOOL_CONTACTS.ADDRESS.eq(address))
-            .and(SCHOOL_CONTACTS.PHONE.eq(phone))
-            .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
-            .and(SCHOOL_CONTACTS.TYPE.eq(type))
-            .fetchOne();
+            db.selectFrom(SCHOOL_CONTACTS)
+                    .where(SCHOOL_CONTACTS.FIRST_NAME.eq(firstName))
+                    .and(SCHOOL_CONTACTS.LAST_NAME.eq(lastName))
+                    .and(SCHOOL_CONTACTS.EMAIL.eq(email))
+                    .and(SCHOOL_CONTACTS.ADDRESS.eq(address))
+                    .and(SCHOOL_CONTACTS.PHONE.eq(phone))
+                    .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+                    .and(SCHOOL_CONTACTS.TYPE.eq(type))
+                    .fetchOne();
 
     if (contact == null) {
       // If the contact doesn't already exist, create it
@@ -248,14 +248,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       newContact.store();
 
       return new SchoolContact(
-          newContact.getId(),
-          newContact.getSchoolId(),
-          newContact.getFirstName(),
-          newContact.getLastName(),
-          newContact.getEmail(),
-          newContact.getAddress(),
-          newContact.getPhone(),
-          newContact.getType());
+              newContact.getId(),
+              newContact.getSchoolId(),
+              newContact.getFirstName(),
+              newContact.getLastName(),
+              newContact.getEmail(),
+              newContact.getAddress(),
+              newContact.getPhone(),
+              newContact.getType());
     }
 
     if (contact.getDeletedAt() != null) {
@@ -264,14 +264,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       contact.store();
 
       return new SchoolContact(
-          contact.getId(),
-          contact.getSchoolId(),
-          contact.getFirstName(),
-          contact.getLastName(),
-          contact.getEmail(),
-          contact.getAddress(),
-          contact.getPhone(),
-          contact.getType());
+              contact.getId(),
+              contact.getSchoolId(),
+              contact.getFirstName(),
+              contact.getLastName(),
+              contact.getEmail(),
+              contact.getAddress(),
+              contact.getPhone(),
+              contact.getType());
     }
 
     throw new SchoolContactAlreadyExistsException(school.getName(), firstName, lastName);
@@ -279,16 +279,16 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public void updateSchoolContact(
-      JWTData userData,
-      int schoolId,
-      int contactId,
-      UpsertSchoolContactRequest upsertSchoolContactRequest) {
+          JWTData userData,
+          int schoolId,
+          int contactId,
+          UpsertSchoolContactRequest upsertSchoolContactRequest) {
     SchoolContactsRecord contactRecord =
-        db.selectFrom(SCHOOL_CONTACTS)
-            .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
-            .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
-            .and(SCHOOL_CONTACTS.ID.eq(contactId))
-            .fetchOne();
+            db.selectFrom(SCHOOL_CONTACTS)
+                    .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
+                    .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+                    .and(SCHOOL_CONTACTS.ID.eq(contactId))
+                    .fetchOne();
 
     if (contactRecord == null) {
       throw new SchoolContactDoesNotExistException(schoolId, contactId);
@@ -313,11 +313,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   @Override
   public void deleteSchoolContact(JWTData userData, int schoolId, int contactId) {
     SchoolContactsRecord schoolContactsRecord =
-        db.selectFrom(SCHOOL_CONTACTS)
-            .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
-            .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
-            .and(SCHOOL_CONTACTS.ID.eq(contactId))
-            .fetchOne();
+            db.selectFrom(SCHOOL_CONTACTS)
+                    .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
+                    .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+                    .and(SCHOOL_CONTACTS.ID.eq(contactId))
+                    .fetchOne();
 
     if (schoolContactsRecord == null) {
       throw new SchoolContactDoesNotExistException(schoolId, contactId);
@@ -329,7 +329,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public void updateSchool(
-      JWTData userData, int schoolId, UpsertSchoolRequest upsertSchoolRequest) {
+          JWTData userData, int schoolId, UpsertSchoolRequest upsertSchoolRequest) {
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
@@ -395,7 +395,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public ReportWithLibrary createReportWithLibrary(
-      JWTData userData, int schoolId, UpsertReportWithLibrary req) {
+          JWTData userData, int schoolId, UpsertReportWithLibrary req) {
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
@@ -430,7 +430,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
+    newReport.setGradesAttended(stringGradesAttended);
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
@@ -439,36 +439,36 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     Grade[] savedGradesAttended = Grade.from(stringGradesAttended);
 
     return new ReportWithLibrary(
-        newReport.getId(),
-        newReport.getCreatedAt(),
-        newReport.getUpdatedAt(),
-        newReport.getSchoolId(),
-        userData.getUserId(),
-        newReport.getNumberOfChildren(),
-        newReport.getNumberOfBooks(),
-        newReport.getMostRecentShipmentYear(),
-        newReport.getIsSharedSpace(),
-        newReport.getHasInvitingSpace(),
-        newReport.getAssignedPersonRole(),
-        newReport.getAssignedPersonTitle(),
-        newReport.getApprenticeshipProgram(),
-        newReport.getTrainsAndMentorsApprentices(),
-        newReport.getHasCheckInTimetables(),
-        newReport.getHasBookCheckoutSystem(),
-        newReport.getNumberOfStudentLibrarians(),
-        newReport.getReasonNoStudentLibrarians(),
-        newReport.getHasSufficientTraining(),
-        newReport.getTeacherSupport(),
-        newReport.getParentSupport(),
-        newReport.getVisitReason(),
-        newReport.getActionPlan(),
-        newReport.getSuccessStories(),
-        savedGradesAttended);
+            newReport.getId(),
+            newReport.getCreatedAt(),
+            newReport.getUpdatedAt(),
+            newReport.getSchoolId(),
+            userData.getUserId(),
+            newReport.getNumberOfChildren(),
+            newReport.getNumberOfBooks(),
+            newReport.getMostRecentShipmentYear(),
+            newReport.getIsSharedSpace(),
+            newReport.getHasInvitingSpace(),
+            newReport.getAssignedPersonRole(),
+            newReport.getAssignedPersonTitle(),
+            newReport.getApprenticeshipProgram(),
+            newReport.getTrainsAndMentorsApprentices(),
+            newReport.getHasCheckInTimetables(),
+            newReport.getHasBookCheckoutSystem(),
+            newReport.getNumberOfStudentLibrarians(),
+            newReport.getReasonNoStudentLibrarians(),
+            newReport.getHasSufficientTraining(),
+            newReport.getTeacherSupport(),
+            newReport.getParentSupport(),
+            newReport.getVisitReason(),
+            newReport.getActionPlan(),
+            newReport.getSuccessStories(),
+            savedGradesAttended);
   }
 
   @Override
   public void updateReportWithLibrary(
-      JWTData userData, int schoolId, int reportId, UpsertReportWithLibrary req) {
+          JWTData userData, int schoolId, int reportId, UpsertReportWithLibrary req) {
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
@@ -476,9 +476,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithLibrariesRecord newReport =
-        db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-            .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId))
-            .fetchOne();
+            db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+                    .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId))
+                    .fetchOne();
 
     if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
       throw new AdminOnlyRouteException();
@@ -511,7 +511,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
+    newReport.setGradesAttended(stringGradesAttended);
     newReport.store();
   }
 
@@ -527,20 +527,20 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     if (libraryStatus == LibraryStatus.EXISTS) {
       report =
-          db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-              .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
-              .orderBy(SCHOOL_REPORTS_WITH_LIBRARIES.ID.desc())
-              .limit(1)
-              .fetchOneInto(ReportWithLibrary.class);
+              db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+                      .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+                      .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
+                      .orderBy(SCHOOL_REPORTS_WITH_LIBRARIES.ID.desc())
+                      .limit(1)
+                      .fetchOneInto(ReportWithLibrary.class);
     } else if (libraryStatus == LibraryStatus.DOES_NOT_EXIST) {
       report =
-          db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-              .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
-              .orderBy(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.desc())
-              .limit(1)
-              .fetchOneInto(ReportWithoutLibrary.class);
+              db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+                      .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+                      .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
+                      .orderBy(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.desc())
+                      .limit(1)
+                      .fetchOneInto(ReportWithoutLibrary.class);
     }
 
     if (report == null) {
@@ -553,7 +553,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public ReportWithoutLibrary createReportWithoutLibrary(
-      JWTData userData, int schoolId, UpsertReportWithoutLibrary req) {
+          JWTData userData, int schoolId, UpsertReportWithoutLibrary req) {
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
@@ -571,14 +571,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setNumberOfBooks(req.getNumberOfBooks());
     newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
     newReport.setHasSpace(req.getHasSpace());
-    newReport.setCurrentStatus(req.getCurrentStatus().stream().toArray(Object[]::new));
+    newReport.setCurrentStatus(req.getCurrentStatus().toArray(new String[0]));
     newReport.setReasonWhyNot(req.getReasonWhyNot());
     newReport.setWantsLibrary(req.getWantsLibrary());
     newReport.setReadyTimeline(req.getReadyTimeline());
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
+    newReport.setGradesAttended(stringGradesAttended);
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
@@ -587,28 +587,28 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     Grade[] savedGradesAttended = Grade.from(stringGradesAttended);
 
     return new ReportWithoutLibrary(
-        newReport.getId(),
-        newReport.getCreatedAt(),
-        newReport.getUpdatedAt(),
-        newReport.getSchoolId(),
-        newReport.getUserId(),
-        newReport.getNumberOfChildren(),
-        newReport.getNumberOfBooks(),
-        newReport.getMostRecentShipmentYear(),
-        newReport.getWantsLibrary(),
-        newReport.getHasSpace(),
-        Arrays.asList((String[]) newReport.getCurrentStatus()),
-        newReport.getReasonWhyNot(),
-        newReport.getReadyTimeline(),
-        newReport.getVisitReason(),
-        newReport.getActionPlan(),
-        newReport.getSuccessStories(),
-        savedGradesAttended);
+            newReport.getId(),
+            newReport.getCreatedAt(),
+            newReport.getUpdatedAt(),
+            newReport.getSchoolId(),
+            newReport.getUserId(),
+            newReport.getNumberOfChildren(),
+            newReport.getNumberOfBooks(),
+            newReport.getMostRecentShipmentYear(),
+            newReport.getWantsLibrary(),
+            newReport.getHasSpace(),
+            Arrays.asList((String[]) newReport.getCurrentStatus()),
+            newReport.getReasonWhyNot(),
+            newReport.getReadyTimeline(),
+            newReport.getVisitReason(),
+            newReport.getActionPlan(),
+            newReport.getSuccessStories(),
+            savedGradesAttended);
   }
 
   @Override
   public void updateReportWithoutLibrary(
-      JWTData userData, int schoolId, int reportId, UpsertReportWithoutLibrary req) {
+          JWTData userData, int schoolId, int reportId, UpsertReportWithoutLibrary req) {
 
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
@@ -617,9 +617,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithoutLibrariesRecord newReport =
-        db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-            .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId))
-            .fetchOne();
+            db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+                    .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId))
+                    .fetchOne();
 
     if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
       throw new AdminOnlyRouteException();
@@ -644,7 +644,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
+    newReport.setGradesAttended(stringGradesAttended);
     newReport.store();
   }
 
@@ -660,28 +660,28 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
     List<ReportWithLibrary> withLibraryReports =
-        db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-            .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-            .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
-            .fetchInto(ReportWithLibrary.class);
+            db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+                    .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+                    .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
+                    .fetchInto(ReportWithLibrary.class);
 
     List<ReportWithoutLibrary> noLibraryReports =
-        db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-            .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
-            .fetchInto(ReportWithoutLibrary.class);
+            db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+                    .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+                    .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
+                    .fetchInto(ReportWithoutLibrary.class);
 
     int countWithLibrary =
-        db.fetchCount(
-            db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-                .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-                .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId)));
+            db.fetchCount(
+                    db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+                            .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+                            .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId)));
 
     int countWithoutLibrary =
-        db.fetchCount(
-            db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-                .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-                .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)));
+            db.fetchCount(
+                    db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+                            .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+                            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)));
 
     List<ReportGeneric> reports = new ArrayList<ReportGeneric>();
     reports.addAll(withLibraryReports);
@@ -692,10 +692,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     int from = (page - 1) * maxCountPerPage;
     int to = Math.min(page * maxCountPerPage, reports.size());
     List<ReportGeneric> paginatedReports =
-        (from >= reports.size()) ? new ArrayList<>() : reports.subList(from, to);
+            (from >= reports.size()) ? new ArrayList<>() : reports.subList(from, to);
 
     return new ReportGenericListResponse(
-        paginatedReports, (countWithLibrary + countWithoutLibrary));
+            paginatedReports, (countWithLibrary + countWithoutLibrary));
   }
 
   @Override
@@ -725,7 +725,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public BookLog updateBookLog(
-      JWTData userData, int schoolId, int bookId, UpsertBookLogRequest request) {
+          JWTData userData, int schoolId, int bookId, UpsertBookLogRequest request) {
     if (!userData.isAdmin()) {
       throw new AdminOnlyRouteException();
     }
@@ -735,10 +735,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
     BookLogsRecord log =
-        db.selectFrom(BOOK_LOGS)
-            .where(BOOK_LOGS.DELETED_AT.isNull())
-            .and(BOOK_LOGS.ID.eq(bookId))
-            .fetchOne();
+            db.selectFrom(BOOK_LOGS)
+                    .where(BOOK_LOGS.DELETED_AT.isNull())
+                    .and(BOOK_LOGS.ID.eq(bookId))
+                    .fetchOne();
 
     if (log == null) {
       throw new BookLogDoesNotExistException(bookId);
@@ -781,16 +781,16 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     Set<Integer> schoolIds = new HashSet<>();
 
     List<ReportWithLibrary> withLibraryReports =
-        db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-            .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-            .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId()))
-            .fetchInto(ReportWithLibrary.class);
+            db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+                    .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+                    .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId()))
+                    .fetchInto(ReportWithLibrary.class);
 
     List<ReportWithoutLibrary> noLibraryReports =
-        db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-            .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(userData.getUserId()))
-            .fetchInto(ReportWithoutLibrary.class);
+            db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+                    .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+                    .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(userData.getUserId()))
+                    .fetchInto(ReportWithoutLibrary.class);
 
     for (ReportWithLibrary report : withLibraryReports) {
       schoolIds.add(report.getSchoolId());
@@ -801,11 +801,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
     List<SchoolSummary> schools =
-        db.selectFrom(SCHOOLS)
-            .where(SCHOOLS.HIDDEN.isFalse())
-            .and(SCHOOLS.DELETED_AT.isNull())
-            .and(SCHOOLS.ID.in(schoolIds))
-            .fetchInto(SchoolSummary.class);
+            db.selectFrom(SCHOOLS)
+                    .where(SCHOOLS.HIDDEN.isFalse())
+                    .and(SCHOOLS.DELETED_AT.isNull())
+                    .and(SCHOOLS.ID.in(schoolIds))
+                    .fetchInto(SchoolSummary.class);
 
     return new SchoolListResponse(schools);
   }
@@ -820,8 +820,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     List<BookLog> logs = db.selectFrom(BOOK_LOGS).fetchInto(BookLog.class);
 
     return (logs != null)
-        ? new BookLogListResponse(logs)
-        : new BookLogListResponse(new ArrayList<>());
+            ? new BookLogListResponse(logs)
+            : new BookLogListResponse(new ArrayList<>());
   }
 
   @Override
@@ -829,14 +829,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     ReportGeneric report;
     if (hasLibrary) {
       report =
-          db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId))
-              .fetchOneInto(ReportWithLibrary.class);
+              db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+                      .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId))
+                      .fetchOneInto(ReportWithLibrary.class);
     } else {
       report =
-          db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId))
-              .fetchOneInto(ReportWithoutLibrary.class);
+              db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+                      .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId))
+                      .fetchOneInto(ReportWithoutLibrary.class);
     }
     if (report == null) {
       throw new NoReportByIdFoundException(reportId);
@@ -854,15 +854,15 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   private SchoolsRecord queryForSchool(int schoolId) {
     return db.selectFrom(SCHOOLS)
-        .where(SCHOOLS.ID.eq(schoolId))
-        .and(SCHOOLS.DELETED_AT.isNull())
-        .fetchOne();
+            .where(SCHOOLS.ID.eq(schoolId))
+            .and(SCHOOLS.DELETED_AT.isNull())
+            .fetchOne();
   }
 
   private List<SchoolContact> queryForSchoolContacts(int schoolId) {
     return db.selectFrom(SCHOOL_CONTACTS)
-        .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
-        .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
-        .fetchInto(SchoolContact.class);
+            .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
+            .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
+            .fetchInto(SchoolContact.class);
   }
 }
