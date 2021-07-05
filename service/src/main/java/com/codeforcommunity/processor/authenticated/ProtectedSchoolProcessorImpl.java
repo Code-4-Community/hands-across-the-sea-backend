@@ -430,7 +430,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
+    newReport.setGradesAttended(stringGradesAttended);
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
@@ -511,7 +511,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
+    newReport.setGradesAttended(stringGradesAttended);
     newReport.store();
   }
 
@@ -571,14 +571,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setNumberOfBooks(req.getNumberOfBooks());
     newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
     newReport.setHasSpace(req.getHasSpace());
-    newReport.setCurrentStatus(req.getCurrentStatus().stream().toArray(Object[]::new));
+    newReport.setCurrentStatus(req.getCurrentStatus().toArray(new String[0]));
     newReport.setReasonWhyNot(req.getReasonWhyNot());
     newReport.setWantsLibrary(req.getWantsLibrary());
     newReport.setReadyTimeline(req.getReadyTimeline());
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
+    newReport.setGradesAttended(stringGradesAttended);
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
@@ -644,7 +644,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
+    newReport.setGradesAttended(stringGradesAttended);
     newReport.store();
   }
 
