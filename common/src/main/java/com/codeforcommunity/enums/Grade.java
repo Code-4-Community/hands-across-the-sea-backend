@@ -46,7 +46,7 @@ public enum Grade {
 
   public static Grade[] from(String[] stringGradesAttended) {
     Grade[] gradesAttended = new Grade[stringGradesAttended.length];
-    for (int i = 0; i < stringGradesAttended.length; i++) {
+    for (int i  = 0; i < stringGradesAttended.length; i++) {
       gradesAttended[i] = Grade.from(stringGradesAttended[i]);
     }
     return gradesAttended;

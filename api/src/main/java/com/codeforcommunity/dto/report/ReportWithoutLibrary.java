@@ -4,13 +4,12 @@ import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.ReadyTimeline;
 import java.sql.Timestamp;
-import java.util.List;
 
 public class ReportWithoutLibrary extends ReportGeneric {
 
   private Boolean wantsLibrary;
   private Boolean hasSpace;
-  private List<String> currentStatus;
+  private String currentStatus;
   private String reason;
   private ReadyTimeline readyTimeline;
 
@@ -29,7 +28,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
       Integer mostRecentShipmentYear,
       Boolean wantsLibrary,
       Boolean hasSpace,
-      List<String> currentStatus,
+      String currentStatus,
       String reason,
       ReadyTimeline readyTimeline,
       String visitReason,
@@ -65,7 +64,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
     return this.hasSpace;
   }
 
-  public List<String> getCurrentStatus() {
+  public String getCurrentStatus() {
     return this.currentStatus;
   }
 

@@ -3,8 +3,7 @@ package com.codeforcommunity.enums;
 public enum ApprenticeshipProgram {
   OECS("oecs"),
   NEP("nep"),
-  OTHER("OTHER"),
-  NONE("NONE");
+  OTHER("OTHER");
 
   private String name;
 
