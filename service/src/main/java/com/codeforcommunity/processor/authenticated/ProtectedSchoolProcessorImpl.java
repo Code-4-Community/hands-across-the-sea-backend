@@ -43,6 +43,7 @@ import com.codeforcommunity.logger.SLogger;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -429,7 +430,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(stringGradesAttended);
+    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
@@ -510,7 +511,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(stringGradesAttended);
+    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
     newReport.store();
   }
 
@@ -570,14 +571,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setNumberOfBooks(req.getNumberOfBooks());
     newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
     newReport.setHasSpace(req.getHasSpace());
-    newReport.setCurrentStatus(req.getCurrentStatus());
+    newReport.setCurrentStatus(req.getCurrentStatus().stream().toArray(Object[]::new));
     newReport.setReasonWhyNot(req.getReasonWhyNot());
     newReport.setWantsLibrary(req.getWantsLibrary());
     newReport.setReadyTimeline(req.getReadyTimeline());
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(stringGradesAttended);
+    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
@@ -596,7 +597,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getMostRecentShipmentYear(),
         newReport.getWantsLibrary(),
         newReport.getHasSpace(),
-        newReport.getCurrentStatus(),
+        Arrays.asList((String[]) newReport.getCurrentStatus()),
         newReport.getReasonWhyNot(),
         newReport.getReadyTimeline(),
         newReport.getVisitReason(),
@@ -630,7 +631,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
 
-
     newReport.setSchoolId(schoolId);
     newReport.setUserId(userData.getUserId());
     newReport.setNumberOfChildren(req.getNumberOfChildren());
@@ -644,7 +644,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(stringGradesAttended);
+    newReport.setGradesAttended(Arrays.stream(stringGradesAttended).toArray(Object[]::new));
     newReport.store();
   }
 

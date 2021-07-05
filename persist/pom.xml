@@ -151,7 +151,7 @@
 
                 <!-- Enum converter for apprentice titles -->
                 <forcedType>
-                  <userType>com.codeforcommunity.enums.ApprenticeTitle</userType>
+                  <userType>com.codeforcommunity.enums.AssignedPersonTitle</userType>
                   <enumConverter>true</enumConverter>
 
                   <includeExpression>.*\.*\.assigned_person_title</includeExpression>
