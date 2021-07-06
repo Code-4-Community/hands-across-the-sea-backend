@@ -27,6 +27,7 @@ import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
 import com.codeforcommunity.enums.ContactType;
 import com.codeforcommunity.enums.Country;
+import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
@@ -43,8 +44,11 @@ import com.codeforcommunity.logger.SLogger;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.BookLogsRecord;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
@@ -402,9 +406,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.EXISTS);
     school.store();
 
+
     if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
       throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
     }
+    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
 
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITH_LIBRARIES);
@@ -429,10 +435,13 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
+    newReport.setGradesAttended(stringGradesAttended);
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
     newReport.refresh();
+
+    Grade[] savedGradesAttended = Grade.from(stringGradesAttended);
 
     return new ReportWithLibrary(
         newReport.getId(),
@@ -458,7 +467,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getParentSupport(),
         newReport.getVisitReason(),
         newReport.getActionPlan(),
-        newReport.getSuccessStories());
+        newReport.getSuccessStories(),
+        savedGradesAttended);
   }
 
   @Override
@@ -482,10 +492,12 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     if (newReport == null) {
       throw new NoReportFoundException(schoolId);
     }
-
+    
     if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
       throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
     }
+
+    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
 
     newReport.setUserId(userData.getUserId());
     newReport.setSchoolId(schoolId);
@@ -508,7 +520,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-
+    newReport.setGradesAttended(stringGradesAttended);
     newReport.store();
   }
 
@@ -563,6 +575,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
     school.store();
 
+    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
+
     SchoolReportsWithoutLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITHOUT_LIBRARIES);
     newReport.setSchoolId(schoolId);
     newReport.setUserId(userData.getUserId());
@@ -570,17 +584,20 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setNumberOfBooks(req.getNumberOfBooks());
     newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
     newReport.setHasSpace(req.getHasSpace());
-    newReport.setCurrentStatus(req.getCurrentStatus());
+    newReport.setCurrentStatus(req.getCurrentStatus().toArray(new String[0]));
     newReport.setReasonWhyNot(req.getReasonWhyNot());
     newReport.setWantsLibrary(req.getWantsLibrary());
     newReport.setReadyTimeline(req.getReadyTimeline());
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
+    newReport.setGradesAttended(stringGradesAttended);
 
     // save record and refresh to fetch report ID and timestamps
     newReport.store();
     newReport.refresh();
+
+    Grade[] savedGradesAttended = Grade.from(stringGradesAttended);
 
     return new ReportWithoutLibrary(
         newReport.getId(),
@@ -593,12 +610,13 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getMostRecentShipmentYear(),
         newReport.getWantsLibrary(),
         newReport.getHasSpace(),
-        newReport.getCurrentStatus(),
+        Arrays.asList((String[]) newReport.getCurrentStatus()),
         newReport.getReasonWhyNot(),
         newReport.getReadyTimeline(),
         newReport.getVisitReason(),
         newReport.getActionPlan(),
-        newReport.getSuccessStories());
+        newReport.getSuccessStories(),
+        savedGradesAttended);
   }
 
   @Override
@@ -628,6 +646,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     }
 
 
+    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
+
     newReport.setSchoolId(schoolId);
     newReport.setUserId(userData.getUserId());
     newReport.setNumberOfChildren(req.getNumberOfChildren());
@@ -641,7 +661,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-
+    newReport.setGradesAttended(stringGradesAttended);
     newReport.store();
   }
 
@@ -771,6 +791,40 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     log.setDeletedAt(Timestamp.from(Instant.now()));
     log.store();
+  }
+
+  @Override
+  public SchoolListResponse getSchoolsFromUserIdReports(JWTData userData) {
+    Set<Integer> schoolIds = new HashSet<>();
+
+    List<ReportWithLibrary> withLibraryReports =
+        db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+            .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId()))
+            .fetchInto(ReportWithLibrary.class);
+
+    List<ReportWithoutLibrary> noLibraryReports =
+        db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(userData.getUserId()))
+            .fetchInto(ReportWithoutLibrary.class);
+
+    for (ReportWithLibrary report : withLibraryReports) {
+      schoolIds.add(report.getSchoolId());
+    }
+
+    for (ReportWithoutLibrary report : noLibraryReports) {
+      schoolIds.add(report.getSchoolId());
+    }
+
+    List<SchoolSummary> schools =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.HIDDEN.isFalse())
+            .and(SCHOOLS.DELETED_AT.isNull())
+            .and(SCHOOLS.ID.in(schoolIds))
+            .fetchInto(SchoolSummary.class);
+
+    return new SchoolListResponse(schools);
   }
 
   @Override

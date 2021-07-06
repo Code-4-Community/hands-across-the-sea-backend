@@ -1,14 +1,16 @@
 package com.codeforcommunity.dto.report;
 
+import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.ReadyTimeline;
 import java.sql.Timestamp;
+import java.util.List;
 
 public class ReportWithoutLibrary extends ReportGeneric {
 
   private Boolean wantsLibrary;
   private Boolean hasSpace;
-  private String currentStatus;
+  private List<String> currentStatus;
   private String reason;
   private ReadyTimeline readyTimeline;
 
@@ -27,12 +29,13 @@ public class ReportWithoutLibrary extends ReportGeneric {
       Integer mostRecentShipmentYear,
       Boolean wantsLibrary,
       Boolean hasSpace,
-      String currentStatus,
+      List<String> currentStatus,
       String reason,
       ReadyTimeline readyTimeline,
       String visitReason,
       String actionPlan,
-      String successStories) {
+      String successStories,
+      Grade[] gradesAttended) {
     super(
         id,
         createdAt,
@@ -45,7 +48,8 @@ public class ReportWithoutLibrary extends ReportGeneric {
         LibraryStatus.DOES_NOT_EXIST,
         visitReason,
         actionPlan,
-        successStories);
+        successStories,
+        gradesAttended);
     this.wantsLibrary = wantsLibrary;
     this.hasSpace = hasSpace;
     this.currentStatus = currentStatus;
@@ -61,7 +65,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
     return this.hasSpace;
   }
 
-  public String getCurrentStatus() {
+  public List<String> getCurrentStatus() {
     return this.currentStatus;
   }
 

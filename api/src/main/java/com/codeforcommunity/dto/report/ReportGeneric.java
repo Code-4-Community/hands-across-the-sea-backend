@@ -1,5 +1,6 @@
 package com.codeforcommunity.dto.report;
 
+import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -18,6 +19,7 @@ public class ReportGeneric {
   protected String visitReason;
   protected String actionPlan;
   protected String successStories;
+  protected Grade[] gradesAttended;
 
   public ReportGeneric(LibraryStatus libraryStatus) {
     this.libraryStatus = libraryStatus;
@@ -35,7 +37,8 @@ public class ReportGeneric {
       LibraryStatus libraryStatus,
       String visitReason,
       String actionPlan,
-      String successStories) {
+      String successStories,
+      Grade[] gradesAttended) {
     this.id = id;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
@@ -48,6 +51,7 @@ public class ReportGeneric {
     this.visitReason = visitReason;
     this.actionPlan = actionPlan;
     this.successStories = successStories;
+    this.gradesAttended = gradesAttended;
   }
 
   public Integer getId() {
@@ -144,5 +148,13 @@ public class ReportGeneric {
 
   public void setSuccessStories(String successStories) {
     this.successStories = successStories;
+  }
+
+  public Grade[] getGradesAttended() {
+    return gradesAttended;
+  }
+
+  public void setGradesAttended(Grade[] gradesAttended) {
+    this.gradesAttended = gradesAttended;
   }
 }
