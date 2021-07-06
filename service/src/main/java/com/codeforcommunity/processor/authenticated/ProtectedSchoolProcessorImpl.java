@@ -32,6 +32,7 @@ import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
 import com.codeforcommunity.exceptions.CsvSerializerException;
+import com.codeforcommunity.exceptions.InvalidShipmentYearException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.NoReportByIdFoundException;
 import com.codeforcommunity.exceptions.NoReportFoundException;
@@ -405,6 +406,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.EXISTS);
     school.store();
 
+
+    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
     String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
 
     // Save a record to the school_reports_with_libraries table
@@ -487,6 +492,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     if (newReport == null) {
       throw new NoReportFoundException(schoolId);
     }
+    
+    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
 
     String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
 
@@ -559,6 +568,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
+    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
+
     school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
     school.store();
 
@@ -628,6 +641,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     if (newReport == null) {
       throw new NoReportFoundException(schoolId);
     }
+    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
+
 
     String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
 
@@ -864,5 +881,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
         .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
         .fetchInto(SchoolContact.class);
+  }
+
+  private boolean isShipmentYearValid(Integer year) {
+    return year > 999 && year < 10000;
   }
 }
