@@ -44,7 +44,6 @@ import com.codeforcommunity.logger.SLogger;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -406,7 +405,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.EXISTS);
     school.store();
 
-
     if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
       throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
     }
@@ -492,7 +490,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     if (newReport == null) {
       throw new NoReportFoundException(schoolId);
     }
-    
+
     if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
       throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
     }
@@ -578,23 +576,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
 
     SchoolReportsWithoutLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITHOUT_LIBRARIES);
-    newReport.setSchoolId(schoolId);
-    newReport.setUserId(userData.getUserId());
-    newReport.setNumberOfChildren(req.getNumberOfChildren());
-    newReport.setNumberOfBooks(req.getNumberOfBooks());
-    newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
-    newReport.setHasSpace(req.getHasSpace());
-    newReport.setCurrentStatus(req.getCurrentStatus().toArray(new String[0]));
-    newReport.setReasonWhyNot(req.getReasonWhyNot());
-    newReport.setWantsLibrary(req.getWantsLibrary());
-    newReport.setReadyTimeline(req.getReadyTimeline());
-    newReport.setVisitReason(req.getVisitReason());
-    newReport.setActionPlan(req.getActionPlan());
-    newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(stringGradesAttended);
-
-    // save record and refresh to fetch report ID and timestamps
-    newReport.store();
+    storeReportWithoutLibrary(userData, schoolId, req, newReport, stringGradesAttended);
     newReport.refresh();
 
     Grade[] savedGradesAttended = Grade.from(stringGradesAttended);
@@ -610,7 +592,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getMostRecentShipmentYear(),
         newReport.getWantsLibrary(),
         newReport.getHasSpace(),
-        Arrays.asList((String[]) newReport.getCurrentStatus()),
+        req.getCurrentStatus(),
         newReport.getReasonWhyNot(),
         newReport.getReadyTimeline(),
         newReport.getVisitReason(),
@@ -645,16 +627,23 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
     }
 
-
     String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
+    storeReportWithoutLibrary(userData, schoolId, req, newReport, stringGradesAttended);
+  }
 
+  private void storeReportWithoutLibrary(
+      JWTData userData,
+      int schoolId,
+      UpsertReportWithoutLibrary req,
+      SchoolReportsWithoutLibrariesRecord newReport,
+      Object[] stringGradesAttended) {
     newReport.setSchoolId(schoolId);
     newReport.setUserId(userData.getUserId());
     newReport.setNumberOfChildren(req.getNumberOfChildren());
     newReport.setNumberOfBooks(req.getNumberOfBooks());
     newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
     newReport.setHasSpace(req.getHasSpace());
-    newReport.setCurrentStatus(req.getCurrentStatus());
+    newReport.setCurrentStatus((Object[]) req.getCurrentStatus().toArray(new String[0]));
     newReport.setReasonWhyNot(req.getReasonWhyNot());
     newReport.setWantsLibrary(req.getWantsLibrary());
     newReport.setReadyTimeline(req.getReadyTimeline());
