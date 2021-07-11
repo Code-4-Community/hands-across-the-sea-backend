@@ -1,13 +1,14 @@
 package com.codeforcommunity.dto.report;
 
 import com.codeforcommunity.enums.ReadyTimeline;
+import java.util.List;
 
 public class UpsertReportWithoutLibrary extends UpsertReportGeneric {
 
   private String reasonWhyNot;
   private Boolean wantsLibrary;
   private Boolean hasSpace;
-  private String currentStatus;
+  private List<String> currentStatus;
   private ReadyTimeline readyTimeline;
 
   public String getReasonWhyNot() {
@@ -34,11 +35,11 @@ public class UpsertReportWithoutLibrary extends UpsertReportGeneric {
     this.hasSpace = hasSpace;
   }
 
-  public String getCurrentStatus() {
+  public List<String> getCurrentStatus() {
     return currentStatus;
   }
 
-  public void setCurrentStatus(String currentStatus) {
+  public void setCurrentStatus(List<String> currentStatus) {
     this.currentStatus = currentStatus;
   }
 

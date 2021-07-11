@@ -32,6 +32,7 @@ import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
 import com.codeforcommunity.exceptions.CsvSerializerException;
+import com.codeforcommunity.exceptions.InvalidShipmentYearException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.NoReportByIdFoundException;
 import com.codeforcommunity.exceptions.NoReportFoundException;
@@ -404,6 +405,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.EXISTS);
     school.store();
 
+    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
     String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
 
     // Save a record to the school_reports_with_libraries table
@@ -487,6 +491,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new NoReportFoundException(schoolId);
     }
 
+    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
+
     String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
 
     newReport.setUserId(userData.getUserId());
@@ -558,29 +566,17 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
+    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
+
     school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
     school.store();
 
     String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
 
     SchoolReportsWithoutLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITHOUT_LIBRARIES);
-    newReport.setSchoolId(schoolId);
-    newReport.setUserId(userData.getUserId());
-    newReport.setNumberOfChildren(req.getNumberOfChildren());
-    newReport.setNumberOfBooks(req.getNumberOfBooks());
-    newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
-    newReport.setHasSpace(req.getHasSpace());
-    newReport.setCurrentStatus(req.getCurrentStatus());
-    newReport.setReasonWhyNot(req.getReasonWhyNot());
-    newReport.setWantsLibrary(req.getWantsLibrary());
-    newReport.setReadyTimeline(req.getReadyTimeline());
-    newReport.setVisitReason(req.getVisitReason());
-    newReport.setActionPlan(req.getActionPlan());
-    newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(stringGradesAttended);
-
-    // save record and refresh to fetch report ID and timestamps
-    newReport.store();
+    storeReportWithoutLibrary(userData, schoolId, req, newReport, stringGradesAttended);
     newReport.refresh();
 
     Grade[] savedGradesAttended = Grade.from(stringGradesAttended);
@@ -596,7 +592,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getMostRecentShipmentYear(),
         newReport.getWantsLibrary(),
         newReport.getHasSpace(),
-        newReport.getCurrentStatus(),
+        req.getCurrentStatus(),
         newReport.getReasonWhyNot(),
         newReport.getReadyTimeline(),
         newReport.getVisitReason(),
@@ -627,17 +623,27 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     if (newReport == null) {
       throw new NoReportFoundException(schoolId);
     }
+    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    }
 
     String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
+    storeReportWithoutLibrary(userData, schoolId, req, newReport, stringGradesAttended);
+  }
 
-
+  private void storeReportWithoutLibrary(
+      JWTData userData,
+      int schoolId,
+      UpsertReportWithoutLibrary req,
+      SchoolReportsWithoutLibrariesRecord newReport,
+      Object[] stringGradesAttended) {
     newReport.setSchoolId(schoolId);
     newReport.setUserId(userData.getUserId());
     newReport.setNumberOfChildren(req.getNumberOfChildren());
     newReport.setNumberOfBooks(req.getNumberOfBooks());
     newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
     newReport.setHasSpace(req.getHasSpace());
-    newReport.setCurrentStatus(req.getCurrentStatus());
+    newReport.setCurrentStatus((Object[]) req.getCurrentStatus().toArray(new String[0]));
     newReport.setReasonWhyNot(req.getReasonWhyNot());
     newReport.setWantsLibrary(req.getWantsLibrary());
     newReport.setReadyTimeline(req.getReadyTimeline());
@@ -789,7 +795,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     List<ReportWithoutLibrary> noLibraryReports =
         db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
             .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(userData.getUserId()))
+            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.USER_ID.eq(userData.getUserId()))
             .fetchInto(ReportWithoutLibrary.class);
 
     for (ReportWithLibrary report : withLibraryReports) {
@@ -864,5 +870,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         .where(SCHOOL_CONTACTS.DELETED_AT.isNull())
         .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
         .fetchInto(SchoolContact.class);
+  }
+
+  private boolean isShipmentYearValid(Integer year) {
+    return year > 999 && year < 10000;
   }
 }

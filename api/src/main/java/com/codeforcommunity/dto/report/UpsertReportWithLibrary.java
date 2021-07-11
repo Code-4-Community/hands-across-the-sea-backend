@@ -1,7 +1,7 @@
 package com.codeforcommunity.dto.report;
 
-import com.codeforcommunity.enums.ApprenticeTitle;
 import com.codeforcommunity.enums.ApprenticeshipProgram;
+import com.codeforcommunity.enums.AssignedPersonTitle;
 import com.codeforcommunity.enums.TimeRole;
 import com.codeforcommunity.exceptions.HandledException;
 import java.util.List;
@@ -11,7 +11,7 @@ public class UpsertReportWithLibrary extends UpsertReportGeneric {
   private Boolean isSharedSpace;
   private Boolean hasInvitingSpace;
   private TimeRole assignedPersonRole;
-  private ApprenticeTitle assignedPersonTitle;
+  private AssignedPersonTitle assignedPersonTitle;
   private ApprenticeshipProgram apprenticeshipProgram;
   private Boolean trainsAndMentorsApprentices;
   private Boolean hasCheckInTimetables;
@@ -46,11 +46,11 @@ public class UpsertReportWithLibrary extends UpsertReportGeneric {
     this.assignedPersonRole = assignedPersonRole;
   }
 
-  public ApprenticeTitle getAssignedPersonTitle() {
+  public AssignedPersonTitle getAssignedPersonTitle() {
     return assignedPersonTitle;
   }
 
-  public void setAssignedPersonTitle(ApprenticeTitle assignedPersonTitle) {
+  public void setAssignedPersonTitle(AssignedPersonTitle assignedPersonTitle) {
     this.assignedPersonTitle = assignedPersonTitle;
   }
 
