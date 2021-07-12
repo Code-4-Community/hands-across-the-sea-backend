@@ -5,18 +5,18 @@ import java.util.List;
 
 public class UpsertReportWithoutLibrary extends UpsertReportGeneric {
 
-  private String reasonWhyNot;
+  private String reason;
   private Boolean wantsLibrary;
   private Boolean hasSpace;
   private List<String> currentStatus;
   private ReadyTimeline readyTimeline;
 
-  public String getReasonWhyNot() {
-    return reasonWhyNot;
+  public String getReason() {
+    return reason;
   }
 
-  public void setReasonWhyNot(String reasonWhyNot) {
-    this.reasonWhyNot = reasonWhyNot;
+  public void setReason(String reason) {
+    this.reason = reason;
   }
 
   public Boolean getWantsLibrary() {

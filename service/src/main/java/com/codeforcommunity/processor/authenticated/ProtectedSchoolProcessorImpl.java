@@ -644,7 +644,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
     newReport.setHasSpace(req.getHasSpace());
     newReport.setCurrentStatus((Object[]) req.getCurrentStatus().toArray(new String[0]));
-    newReport.setReasonWhyNot(req.getReasonWhyNot());
+    newReport.setReasonWhyNot(req.getReason());
     newReport.setWantsLibrary(req.getWantsLibrary());
     newReport.setReadyTimeline(req.getReadyTimeline());
     newReport.setVisitReason(req.getVisitReason());
