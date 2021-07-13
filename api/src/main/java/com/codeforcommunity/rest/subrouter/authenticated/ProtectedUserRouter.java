@@ -37,7 +37,7 @@ public class ProtectedUserRouter implements IRouter {
     registerChangeEmail(router);
     registerUpdateUserData(router);
     registerGetAllUsers(router);
-
+    registerDisableAccount(router);
     return router;
   }
 
@@ -69,6 +69,18 @@ public class ProtectedUserRouter implements IRouter {
   private void registerGetAllUsers(Router router) {
     Route getAllUsersRoute = router.get("/");
     getAllUsersRoute.handler(this::handleGetAllUsers);
+  }
+
+  private void registerDisableAccount(Router router) {
+    Route disableUserAccountRoute = router.post("/disable/:user_id");
+    disableUserAccountRoute.handler(this::handleDisableUser);
+  }
+
+  private void handleDisableUser(RoutingContext ctx) {
+    JWTData jwtData = ctx.get("jwt_data");
+    int userId = RestFunctions.getPathParamAsInt(ctx, "user_id");
+    processor.disableUserAccount(jwtData, userId);
+    end(ctx.response(), 200);
   }
 
   private void handleGetAllUsers(RoutingContext ctx) {

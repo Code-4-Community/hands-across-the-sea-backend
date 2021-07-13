@@ -90,7 +90,7 @@ public class AuthDatabaseOperations {
     Optional<Users> maybeUser =
         Optional.ofNullable(
             db.selectFrom(USERS)
-                .where(USERS.EMAIL.eq(email).and(USERS.DELETED_AT.isNull()))
+                .where(USERS.EMAIL.eq(email).and(USERS.DELETED_AT.isNull()).and(USERS.DISABLED.eq(Boolean.FALSE)))
                 .fetchOneInto(Users.class));
 
     return maybeUser
