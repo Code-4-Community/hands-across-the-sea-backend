@@ -823,7 +823,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    List<BookLog> logs = db.selectFrom(BOOK_LOGS).fetchInto(BookLog.class);
+    List<BookLog> logs = db.selectFrom(BOOK_LOGS).where(BOOK_LOGS.SCHOOL_ID.eq(schoolId)).and(BOOK_LOGS.DELETED_AT.isNull()).fetchInto(BookLog.class);
 
     return (logs != null)
         ? new BookLogListResponse(logs)
