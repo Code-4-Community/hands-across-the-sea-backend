@@ -86,9 +86,11 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     return new UserDataResponse(
         user.getFirstName(),
         user.getLastName(),
+        user.getId(),
         user.getEmail(),
         user.getCountry(),
-        user.getPrivilegeLevel());
+        user.getPrivilegeLevel(),
+        user.getDisabled());
   }
 
   @Override
@@ -132,6 +134,19 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
   }
 
   @Override
+  public void disableUserAccount(JWTData userData, int userId) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+    UsersRecord user = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
+    if (user == null) {
+      throw new UserDoesNotExistException(userId);
+    }
+    user.setDisabled(true);
+    user.store();
+  }
+
+  @Override
   public UserListResponse getAllUsers(JWTData userData, Country country) {
 
     if (!userData.isAdmin()) {
@@ -156,9 +171,11 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
           new UserDataResponse(
               user.getFirstName(),
               user.getLastName(),
+              user.getId(),
               user.getEmail(),
               user.getCountry(),
-              user.getPrivilegeLevel()));
+              user.getPrivilegeLevel(),
+              user.getDisabled()));
     }
 
     return new UserListResponse(response);
