@@ -48,6 +48,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.BookLogsRecord;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
@@ -117,16 +118,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     if (school == null) {
       // If the school doesn't already exist, create it
       SchoolsRecord newSchool = db.newRecord(SCHOOLS);
-      newSchool.setName(name);
-      newSchool.setAddress(address);
-      newSchool.setPhone(phone);
-      newSchool.setEmail(email);
-      newSchool.setNotes(notes);
-      newSchool.setArea(area);
-      newSchool.setCountry(country);
-      newSchool.setHidden(hidden);
-      newSchool.setLibraryStatus(libraryStatus);
-      newSchool.store();
+      storeSchool(
+          newSchool, name, address, phone, email, notes, area, country, hidden, libraryStatus);
 
       return new School(
           newSchool.getId(),
@@ -345,6 +338,20 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     Boolean hidden = upsertSchoolRequest.getHidden();
     LibraryStatus libraryStatus = upsertSchoolRequest.getLibraryStatus();
 
+    storeSchool(school, name, address, phone, email, notes, area, country, hidden, libraryStatus);
+  }
+
+  private void storeSchool(
+      SchoolsRecord school,
+      String name,
+      String address,
+      String phone,
+      String email,
+      String notes,
+      String area,
+      Country country,
+      Boolean hidden,
+      LibraryStatus libraryStatus) {
     school.setName(name);
     school.setAddress(address);
     school.setPhone(phone);
@@ -405,41 +412,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.EXISTS);
     school.store();
 
-    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
       throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
     }
-    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
 
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITH_LIBRARIES);
-    newReport.setUserId(userData.getUserId());
-    newReport.setSchoolId(schoolId);
-    newReport.setNumberOfChildren(req.getNumberOfChildren());
-    newReport.setNumberOfBooks(req.getNumberOfBooks());
-    newReport.setMostRecentShipmentYear(req.getMostRecentShipmentYear());
-    newReport.setIsSharedSpace(req.getIsSharedSpace());
-    newReport.setHasInvitingSpace(req.getHasInvitingSpace());
-    newReport.setAssignedPersonRole(req.getAssignedPersonRole());
-    newReport.setAssignedPersonTitle(req.getAssignedPersonTitle());
-    newReport.setApprenticeshipProgram(req.getApprenticeshipProgram());
-    newReport.setTrainsAndMentorsApprentices(req.getTrainsAndMentorsApprentices());
-    newReport.setHasCheckInTimetables(req.getHasCheckInTimetables());
-    newReport.setHasBookCheckoutSystem(req.getHasBookCheckoutSystem());
-    newReport.setNumberOfStudentLibrarians(req.getNumberOfStudentLibrarians());
-    newReport.setReasonNoStudentLibrarians(req.getReasonNoStudentLibrarians());
-    newReport.setHasSufficientTraining(req.getHasSufficientTraining());
-    newReport.setTeacherSupport(req.getTeacherSupport());
-    newReport.setParentSupport(req.getParentSupport());
-    newReport.setVisitReason(req.getVisitReason());
-    newReport.setActionPlan(req.getActionPlan());
-    newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(stringGradesAttended);
-
-    // save record and refresh to fetch report ID and timestamps
-    newReport.store();
+    storeReportWithLibrary(userData, schoolId, req, newReport);
     newReport.refresh();
-
-    Grade[] savedGradesAttended = Grade.from(stringGradesAttended);
 
     return new ReportWithLibrary(
         newReport.getId(),
@@ -466,7 +446,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getVisitReason(),
         newReport.getActionPlan(),
         newReport.getSuccessStories(),
-        savedGradesAttended);
+        req.getGradesAttended());
   }
 
   @Override
@@ -483,20 +463,26 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
             .where(SCHOOL_REPORTS_WITH_LIBRARIES.ID.eq(reportId))
             .fetchOne();
 
-    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
-      throw new AdminOnlyRouteException();
-    }
-
     if (newReport == null) {
       throw new NoReportFoundException(schoolId);
     }
 
-    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
+      throw new AdminOnlyRouteException();
+    }
+
+    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
       throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
     }
 
-    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
+    storeReportWithLibrary(userData, schoolId, req, newReport);
+  }
 
+  private void storeReportWithLibrary(
+      JWTData userData,
+      int schoolId,
+      UpsertReportWithLibrary req,
+      SchoolReportsWithLibrariesRecord newReport) {
     newReport.setUserId(userData.getUserId());
     newReport.setSchoolId(schoolId);
     newReport.setNumberOfChildren(req.getNumberOfChildren());
@@ -518,7 +504,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(stringGradesAttended);
+    newReport.setGradesAttended(
+        (Object[]) req.getGradesAttended().stream().map(Grade::name).toArray(String[]::new));
     newReport.store();
   }
 
@@ -534,20 +521,22 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     if (libraryStatus == LibraryStatus.EXISTS) {
       report =
-          db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-              .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
-              .orderBy(SCHOOL_REPORTS_WITH_LIBRARIES.ID.desc())
-              .limit(1)
-              .fetchOneInto(ReportWithLibrary.class);
+          ReportWithLibrary.instantiateFromRecord(
+              db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+                  .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+                  .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
+                  .orderBy(SCHOOL_REPORTS_WITH_LIBRARIES.ID.desc())
+                  .limit(1)
+                  .fetchOne());
     } else if (libraryStatus == LibraryStatus.DOES_NOT_EXIST) {
       report =
-          db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-              .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
-              .orderBy(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.desc())
-              .limit(1)
-              .fetchOneInto(ReportWithoutLibrary.class);
+          ReportWithoutLibrary.instantiateFromRecord(
+              db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+                  .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+                  .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
+                  .orderBy(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.desc())
+                  .limit(1)
+                  .fetchOne());
     }
 
     if (report == null) {
@@ -566,20 +555,16 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
       throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
     }
 
     school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
     school.store();
 
-    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
-
     SchoolReportsWithoutLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITHOUT_LIBRARIES);
-    storeReportWithoutLibrary(userData, schoolId, req, newReport, stringGradesAttended);
+    storeReportWithoutLibrary(userData, schoolId, req, newReport, req.getGradesAttended());
     newReport.refresh();
-
-    Grade[] savedGradesAttended = Grade.from(stringGradesAttended);
 
     return new ReportWithoutLibrary(
         newReport.getId(),
@@ -598,7 +583,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getVisitReason(),
         newReport.getActionPlan(),
         newReport.getSuccessStories(),
-        savedGradesAttended);
+        req.getGradesAttended());
   }
 
   @Override
@@ -616,19 +601,19 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
             .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.eq(reportId))
             .fetchOne();
 
+    if (newReport == null) {
+      throw new NoReportFoundException(schoolId);
+    }
+
     if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
       throw new AdminOnlyRouteException();
     }
 
-    if (newReport == null) {
-      throw new NoReportFoundException(schoolId);
-    }
-    if (!isShipmentYearValid(req.getMostRecentShipmentYear())) {
+    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
       throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
     }
 
-    String[] stringGradesAttended = Grade.toStringArray(req.getGradesAttended());
-    storeReportWithoutLibrary(userData, schoolId, req, newReport, stringGradesAttended);
+    storeReportWithoutLibrary(userData, schoolId, req, newReport, req.getGradesAttended());
   }
 
   private void storeReportWithoutLibrary(
@@ -636,7 +621,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       int schoolId,
       UpsertReportWithoutLibrary req,
       SchoolReportsWithoutLibrariesRecord newReport,
-      Object[] stringGradesAttended) {
+      List<Grade> gradesAttended) {
     newReport.setSchoolId(schoolId);
     newReport.setUserId(userData.getUserId());
     newReport.setNumberOfChildren(req.getNumberOfChildren());
@@ -650,7 +635,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setVisitReason(req.getVisitReason());
     newReport.setActionPlan(req.getActionPlan());
     newReport.setSuccessStories(req.getSuccessStories());
-    newReport.setGradesAttended(stringGradesAttended);
+    newReport.setGradesAttended(
+        (Object[]) gradesAttended.stream().map(Grade::name).toArray(String[]::new));
     newReport.store();
   }
 
@@ -668,14 +654,16 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     List<ReportWithLibrary> withLibraryReports =
         db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
             .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-            .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
-            .fetchInto(ReportWithLibrary.class);
+            .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId)).fetch().stream()
+            .map(ReportWithLibrary::instantiateFromRecord)
+            .collect(Collectors.toList());
 
     List<ReportWithoutLibrary> noLibraryReports =
         db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
             .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
-            .fetchInto(ReportWithoutLibrary.class);
+            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)).fetch().stream()
+            .map(ReportWithoutLibrary::instantiateFromRecord)
+            .collect(Collectors.toList());
 
     int countWithLibrary =
         db.fetchCount(
@@ -689,7 +677,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
                 .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
                 .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)));
 
-    List<ReportGeneric> reports = new ArrayList<ReportGeneric>();
+    List<ReportGeneric> reports = new ArrayList<>();
     reports.addAll(withLibraryReports);
     reports.addAll(noLibraryReports);
     reports.sort(Comparator.comparing(ReportGeneric::getCreatedAt));
@@ -789,14 +777,16 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     List<ReportWithLibrary> withLibraryReports =
         db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
             .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-            .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId()))
-            .fetchInto(ReportWithLibrary.class);
+            .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId())).fetch().stream()
+            .map(ReportWithLibrary::instantiateFromRecord)
+            .collect(Collectors.toList());
 
     List<ReportWithoutLibrary> noLibraryReports =
         db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
             .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.USER_ID.eq(userData.getUserId()))
-            .fetchInto(ReportWithoutLibrary.class);
+            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.USER_ID.eq(userData.getUserId())).fetch().stream()
+            .map(ReportWithoutLibrary::instantiateFromRecord)
+            .collect(Collectors.toList());
 
     for (ReportWithLibrary report : withLibraryReports) {
       schoolIds.add(report.getSchoolId());
@@ -876,7 +866,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         .fetchInto(SchoolContact.class);
   }
 
-  private boolean isShipmentYearValid(Integer year) {
-    return year > 999 && year < 10000;
+  private boolean isShipmentYearInvalid(Integer year) {
+    return year <= 999 || year >= 10000;
   }
 }
