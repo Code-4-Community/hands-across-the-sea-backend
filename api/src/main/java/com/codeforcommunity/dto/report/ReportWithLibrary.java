@@ -6,6 +6,10 @@ import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.TimeRole;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.jooq.generated.tables.records.SchoolReportsWithLibrariesRecord;
 
 public class ReportWithLibrary extends ReportGeneric {
 
@@ -52,7 +56,7 @@ public class ReportWithLibrary extends ReportGeneric {
       String visitReason,
       String actionPlan,
       String successStories,
-      Grade[] gradesAttended) {
+      List<Grade> gradesAttended) {
     super(
         id,
         createdAt,
@@ -80,6 +84,37 @@ public class ReportWithLibrary extends ReportGeneric {
     this.hasSufficientTraining = hasSufficientTraining;
     this.teacherSupport = teacherSupport;
     this.parentSupport = parentSupport;
+  }
+
+  public static ReportWithLibrary instantiateFromRecord(SchoolReportsWithLibrariesRecord record) {
+    return new ReportWithLibrary(
+        record.getId(),
+        record.getCreatedAt(),
+        record.getUpdatedAt(),
+        record.getSchoolId(),
+        record.getUserId(),
+        record.getNumberOfChildren(),
+        record.getNumberOfBooks(),
+        record.getMostRecentShipmentYear(),
+        record.getIsSharedSpace(),
+        record.getHasInvitingSpace(),
+        record.getAssignedPersonRole(),
+        record.getAssignedPersonTitle(),
+        record.getApprenticeshipProgram(),
+        record.getTrainsAndMentorsApprentices(),
+        record.getHasCheckInTimetables(),
+        record.getHasBookCheckoutSystem(),
+        record.getNumberOfStudentLibrarians(),
+        record.getReasonNoStudentLibrarians(),
+        record.getHasSufficientTraining(),
+        record.getTeacherSupport(),
+        record.getParentSupport(),
+        record.getVisitReason(),
+        record.getActionPlan(),
+        record.getSuccessStories(),
+        Arrays.stream(record.getGradesAttended())
+            .map(gradeString -> Grade.valueOf((String) gradeString))
+            .collect(Collectors.toList()));
   }
 
   public Boolean getIsSharedSpace() {

@@ -14,7 +14,7 @@ public class UpsertReportGeneric extends ApiDto {
   private String visitReason;
   private String actionPlan;
   private String successStories;
-  private Grade[] gradesAttended;
+  private List<Grade> gradesAttended;
 
   public Integer getNumberOfChildren() {
     return numberOfChildren;
@@ -64,11 +64,11 @@ public class UpsertReportGeneric extends ApiDto {
     this.successStories = successStories;
   }
 
-  public Grade[] getGradesAttended() {
+  public List<Grade> getGradesAttended() {
     return gradesAttended;
   }
 
-  public void setGradesAttended(Grade[] gradesAttended) {
+  public void setGradesAttended(List<Grade> gradesAttended) {
     this.gradesAttended = gradesAttended;
   }
 

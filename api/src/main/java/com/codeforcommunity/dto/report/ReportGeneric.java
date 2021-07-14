@@ -4,6 +4,7 @@ import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 public class ReportGeneric {
 
@@ -19,7 +20,7 @@ public class ReportGeneric {
   protected String visitReason;
   protected String actionPlan;
   protected String successStories;
-  protected Grade[] gradesAttended;
+  protected List<Grade> gradesAttended;
 
   public ReportGeneric(LibraryStatus libraryStatus) {
     this.libraryStatus = libraryStatus;
@@ -38,7 +39,7 @@ public class ReportGeneric {
       String visitReason,
       String actionPlan,
       String successStories,
-      Grade[] gradesAttended) {
+      List<Grade> gradesAttended) {
     this.id = id;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
@@ -150,11 +151,11 @@ public class ReportGeneric {
     this.successStories = successStories;
   }
 
-  public Grade[] getGradesAttended() {
+  public List<Grade> getGradesAttended() {
     return gradesAttended;
   }
 
-  public void setGradesAttended(Grade[] gradesAttended) {
+  public void setGradesAttended(List<Grade> gradesAttended) {
     this.gradesAttended = gradesAttended;
   }
 }

@@ -4,7 +4,10 @@ import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.ReadyTimeline;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.jooq.generated.tables.records.SchoolReportsWithoutLibrariesRecord;
 
 public class ReportWithoutLibrary extends ReportGeneric {
 
@@ -35,7 +38,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
       String visitReason,
       String actionPlan,
       String successStories,
-      Grade[] gradesAttended) {
+      List<Grade> gradesAttended) {
     super(
         id,
         createdAt,
@@ -55,6 +58,30 @@ public class ReportWithoutLibrary extends ReportGeneric {
     this.currentStatus = currentStatus;
     this.reason = reason;
     this.readyTimeline = readyTimeline;
+  }
+
+  public static ReportWithoutLibrary instantiateFromRecord(
+      SchoolReportsWithoutLibrariesRecord record) {
+    return new ReportWithoutLibrary(
+        record.getId(),
+        record.getCreatedAt(),
+        record.getUpdatedAt(),
+        record.getSchoolId(),
+        record.getUserId(),
+        record.getNumberOfChildren(),
+        record.getNumberOfBooks(),
+        record.getMostRecentShipmentYear(),
+        record.getWantsLibrary(),
+        record.getHasSpace(),
+        Arrays.asList((String[]) record.getCurrentStatus()),
+        record.getReasonWhyNot(),
+        record.getReadyTimeline(),
+        record.getVisitReason(),
+        record.getActionPlan(),
+        record.getSuccessStories(),
+        Arrays.stream(record.getGradesAttended())
+            .map(gradeString -> Grade.valueOf((String) gradeString))
+            .collect(Collectors.toList()));
   }
 
   public Boolean getWantsLibrary() {
