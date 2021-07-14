@@ -11,7 +11,7 @@ public class UserDataResponse {
   private Integer id;
   private Country country;
   private PrivilegeLevel privilegeLevel;
-  private Boolean disabled;
+  private Boolean isDisabled;
 
   public UserDataResponse(
       String firstName,
@@ -27,7 +27,7 @@ public class UserDataResponse {
     this.lastName = lastName;
     this.country = country;
     this.privilegeLevel = privilegeLevel;
-    this.disabled = disabled;
+    this.isDisabled = disabled;
   }
 
   public UserDataResponse(
@@ -42,7 +42,7 @@ public class UserDataResponse {
     this.lastName = lastName;
     this.id = id;
     this.country = country;
-    this.disabled = disabled;
+    this.isDisabled = disabled;
   }
 
   public String getEmail() {
@@ -66,7 +66,7 @@ public class UserDataResponse {
   }
 
   public Boolean getDisabled() {
-    return this.disabled;
+    return this.isDisabled;
   }
 
   public PrivilegeLevel getPrivilegeLevel() {
