@@ -147,6 +147,19 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
   }
 
   @Override
+  public void enableUserAccount(JWTData userData, int userId) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+    UsersRecord user = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
+    if (user == null) {
+      throw new UserDoesNotExistException(userId);
+    }
+    user.setDisabled(true);
+    user.store();
+  }
+
+  @Override
   public UserListResponse getAllUsers(JWTData userData, Country country) {
 
     if (!userData.isAdmin()) {
@@ -163,6 +176,46 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
           db.selectFrom(USERS)
               .where(USERS.COUNTRY.eq(country))
               .and(USERS.DELETED_AT.isNull())
+              .fetch();
+    }
+
+    for (UsersRecord user : users) {
+      response.add(
+          new UserDataResponse(
+              user.getFirstName(),
+              user.getLastName(),
+              user.getId(),
+              user.getEmail(),
+              user.getCountry(),
+              user.getPrivilegeLevel(),
+              user.getDisabled()));
+    }
+
+    return new UserListResponse(response);
+  }
+
+  @Override
+  public UserListResponse getDisabledUsers(JWTData userData, Country country) {
+
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+
+    List<UserDataResponse> response = new ArrayList<>();
+    List<UsersRecord> users = new ArrayList<>();
+
+    if (country == null) {
+      users =
+          db.selectFrom(USERS)
+              .where(USERS.DELETED_AT.isNull())
+              .and(USERS.DISABLED.eq(true))
+              .fetch();
+    } else {
+      users =
+          db.selectFrom(USERS)
+              .where(USERS.COUNTRY.eq(country))
+              .and(USERS.DELETED_AT.isNull())
+              .and(USERS.DISABLED.eq(true))
               .fetch();
     }
 
