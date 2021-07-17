@@ -22,6 +22,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.pojos.Users;
 import org.jooq.generated.tables.records.UsersRecord;
@@ -147,6 +148,19 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
   }
 
   @Override
+  public void enableUserAccount(JWTData userData, int userId) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+    UsersRecord user = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
+    if (user == null) {
+      throw new UserDoesNotExistException(userId);
+    }
+    user.setDisabled(true);
+    user.store();
+  }
+
+  @Override
   public UserListResponse getAllUsers(JWTData userData, Country country) {
 
     if (!userData.isAdmin()) {
@@ -179,5 +193,53 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     }
 
     return new UserListResponse(response);
+  }
+
+  @Override
+  public UserListResponse getDisabledUsers(JWTData userData) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+    List<UserDataResponse> users =
+        db.selectFrom(USERS).where(USERS.DELETED_AT.isNull()).and(USERS.DISABLED.eq(true)).fetch()
+            .stream()
+            .map(
+                user ->
+                    new UserDataResponse(
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getId(),
+                        user.getEmail(),
+                        user.getCountry(),
+                        user.getPrivilegeLevel(),
+                        user.getDisabled()))
+            .collect(Collectors.toList());
+
+    return new UserListResponse(users);
+  }
+
+  @Override
+  public UserListResponse getDisabledUsers(JWTData userData, Country country) {
+
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+
+    List<UserDataResponse> users =
+        db.selectFrom(USERS).where(USERS.COUNTRY.eq(country)).and(USERS.DELETED_AT.isNull())
+            .and(USERS.DISABLED.eq(true)).fetch().stream()
+            .map(
+                user ->
+                    new UserDataResponse(
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getId(),
+                        user.getEmail(),
+                        user.getCountry(),
+                        user.getPrivilegeLevel(),
+                        user.getDisabled()))
+            .collect(Collectors.toList());
+
+    return new UserListResponse(users);
   }
 }
