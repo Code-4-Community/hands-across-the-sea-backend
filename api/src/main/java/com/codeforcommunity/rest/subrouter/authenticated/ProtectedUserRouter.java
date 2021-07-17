@@ -124,9 +124,8 @@ public class ProtectedUserRouter implements IRouter {
         RestFunctions.getOptionalQueryParam(ctx, "country", (str -> str));
 
     UserListResponse users;
-
     if (!countryName.isPresent()) {
-      users = processor.getDisabledUsers(jwtData, null);
+      users = processor.getDisabledUsers(jwtData);
     } else {
       Country country = RestFunctions.getCountryFromString(countryName.get());
       users = processor.getDisabledUsers(jwtData, country);
