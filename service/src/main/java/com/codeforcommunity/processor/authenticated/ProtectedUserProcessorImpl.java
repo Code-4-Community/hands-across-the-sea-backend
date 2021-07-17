@@ -201,17 +201,19 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
       throw new AdminOnlyRouteException();
     }
     List<UserDataResponse> users =
-        db.selectFrom(USERS)
-            .where(USERS.DELETED_AT.isNull())
-            .and(USERS.DISABLED.eq(true))
-            .fetch().stream().map(user -> new UserDataResponse(
-            user.getFirstName(),
-            user.getLastName(),
-            user.getId(),
-            user.getEmail(),
-            user.getCountry(),
-            user.getPrivilegeLevel(),
-            user.getDisabled())).collect(Collectors.toList());
+        db.selectFrom(USERS).where(USERS.DELETED_AT.isNull()).and(USERS.DISABLED.eq(true)).fetch()
+            .stream()
+            .map(
+                user ->
+                    new UserDataResponse(
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getId(),
+                        user.getEmail(),
+                        user.getCountry(),
+                        user.getPrivilegeLevel(),
+                        user.getDisabled()))
+            .collect(Collectors.toList());
 
     return new UserListResponse(users);
   }
@@ -224,18 +226,19 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     }
 
     List<UserDataResponse> users =
-          db.selectFrom(USERS)
-              .where(USERS.COUNTRY.eq(country))
-              .and(USERS.DELETED_AT.isNull())
-              .and(USERS.DISABLED.eq(true))
-              .fetch().stream().map(user -> new UserDataResponse(
-              user.getFirstName(),
-              user.getLastName(),
-              user.getId(),
-              user.getEmail(),
-              user.getCountry(),
-              user.getPrivilegeLevel(),
-              user.getDisabled())).collect(Collectors.toList());
+        db.selectFrom(USERS).where(USERS.COUNTRY.eq(country)).and(USERS.DELETED_AT.isNull())
+            .and(USERS.DISABLED.eq(true)).fetch().stream()
+            .map(
+                user ->
+                    new UserDataResponse(
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getId(),
+                        user.getEmail(),
+                        user.getCountry(),
+                        user.getPrivilegeLevel(),
+                        user.getDisabled()))
+            .collect(Collectors.toList());
 
     return new UserListResponse(users);
   }
