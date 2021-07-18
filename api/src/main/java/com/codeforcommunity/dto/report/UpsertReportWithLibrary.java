@@ -2,11 +2,20 @@ package com.codeforcommunity.dto.report;
 
 import com.codeforcommunity.enums.ApprenticeshipProgram;
 import com.codeforcommunity.enums.AssignedPersonTitle;
+import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.TimeRole;
 import com.codeforcommunity.exceptions.HandledException;
+import com.codeforcommunity.logger.SLogger;
+import com.codeforcommunity.rest.RestFunctions;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class UpsertReportWithLibrary extends UpsertReportGeneric {
+
+  SLogger logger = new SLogger(UpsertReportWithLibrary.class);
 
   private Boolean isSharedSpace;
   private Boolean hasInvitingSpace;
@@ -21,6 +30,15 @@ public class UpsertReportWithLibrary extends UpsertReportGeneric {
   private Boolean hasSufficientTraining;
   private String teacherSupport;
   private String parentSupport;
+  private JsonNode timetable;
+
+  public JsonNode getTimetable() {
+    return timetable;
+  }
+
+  public void JsonNode(JsonNode timetable) {
+    this.timetable = timetable;
+  }
 
   public Boolean getIsSharedSpace() {
     return isSharedSpace;
@@ -152,6 +170,117 @@ public class UpsertReportWithLibrary extends UpsertReportGeneric {
       fields.add("hasSufficientTraining");
     }
 
+    List<String> timetableFields = this.validateTimetable();
+    fields.addAll(timetableFields);
+
     return fields;
+  }
+
+  private List<String> validateTimetable() {
+    List<String> invalidFields = new ArrayList<String>();
+
+    if (this.timetable.isNull()) {
+      return invalidFields;
+    }
+
+    boolean hasMonthField = false;
+    boolean hasYearField = false;
+
+    Iterator<Map.Entry<String, JsonNode>> it = this.timetable.fields();
+    while (it.hasNext()) {
+      Map.Entry<String, JsonNode> entry = it.next();
+      String fieldName = entry.getKey(); // e.g. "firstGrade"
+      JsonNode value = entry.getValue(); // e.g. { "3": 19 }
+
+      // Validate the "month" field
+      if (fieldName.equals("month")) {
+        hasMonthField = true;
+        if (!value.isInt()) {
+          logger.error("`UpsertReportWithLibrary` `timetable.month` must be an integer");
+          invalidFields.add("timetable.month");
+          continue;
+        }
+
+        int month = value.asInt();
+        if (month < 1 || month > 12) {
+          logger.error(
+              String.format(
+                  "`UpsertReportWithLibrary` `timetable` has an invalid field: `%s`", fieldName));
+          invalidFields.add("timetable.month");
+        }
+        continue;
+      }
+
+      // Validate the "year" field
+      if (fieldName.equals("year")) {
+        hasYearField = true;
+        if (!value.isInt()) {
+          logger.error("`UpsertReportWithLibrary` `timetable.year` must be an integer");
+          invalidFields.add("timetable.year");
+          continue;
+        }
+
+        int year = value.asInt();
+        if (year < 1900 || year > 2999) {
+          logger.error(
+              String.format(
+                  "`UpsertReportWithLibrary` `timetable` has an invalid field: `%s`", fieldName));
+          invalidFields.add("timetable.year");
+        }
+        continue;
+      }
+
+      try { // Validate the grade fields
+        String gradeName = RestFunctions.getUpperSnakeFromCamel(fieldName);
+        Grade grade = Grade.valueOf(gradeName);
+
+        // Validate the values of each grade field
+        if (!this.validateTimetableGrade(grade, value)) {
+          invalidFields.add(String.format("timetable.%s", fieldName));
+        }
+      } catch (IllegalArgumentException e) {
+        logger.error(
+            String.format(
+                "`UpsertReportWithLibrary` `timetable` has an invalid field: `%s`", fieldName));
+        invalidFields.add(String.format("timetable.%s", fieldName));
+      }
+    }
+
+    if (!hasYearField) { // "year" is a required field
+      invalidFields.add("timetable.year");
+    }
+    if (!hasMonthField) { // "month" is a required field
+      invalidFields.add("timetable.month");
+    }
+
+    return invalidFields;
+  }
+
+  private boolean validateTimetableGrade(Grade grade, JsonNode timetableGrade) {
+    Iterator<Map.Entry<String, JsonNode>> it = timetableGrade.fields();
+    while (it.hasNext()) {
+      Map.Entry<String, JsonNode> entry = it.next();
+      String dayStr = entry.getKey(); // e.g. "3"
+      JsonNode countNode = entry.getValue(); // e.g. 19
+
+      try {
+        int day = Integer.parseInt(dayStr);
+      } catch (NumberFormatException e) {
+        logger.error(
+            String.format(
+                "`UpsertReportWithLibrary` `timetable.%s` has an invalid date field",
+                grade.toString()));
+        return false;
+      }
+
+      if (!countNode.isInt()) {
+        logger.error(
+            String.format(
+                "`UpsertReportWithLibrary` `timetable.%s` has an invalid count field",
+                grade.toString()));
+        return false;
+      }
+    }
+    return true;
   }
 }

@@ -5,6 +5,9 @@ import com.codeforcommunity.enums.AssignedPersonTitle;
 import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.TimeRole;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +29,7 @@ public class ReportWithLibrary extends ReportGeneric {
   private Boolean hasSufficientTraining;
   private String teacherSupport;
   private String parentSupport;
+  private JsonNode timetable;
 
   public ReportWithLibrary() {
     super(LibraryStatus.EXISTS);
@@ -56,7 +60,8 @@ public class ReportWithLibrary extends ReportGeneric {
       String visitReason,
       String actionPlan,
       String successStories,
-      List<Grade> gradesAttended) {
+      List<Grade> gradesAttended,
+      JsonNode timetable) {
     super(
         id,
         createdAt,
@@ -84,6 +89,71 @@ public class ReportWithLibrary extends ReportGeneric {
     this.hasSufficientTraining = hasSufficientTraining;
     this.teacherSupport = teacherSupport;
     this.parentSupport = parentSupport;
+    this.timetable = timetable;
+  }
+
+  public ReportWithLibrary(
+      Integer id,
+      Timestamp createdAt,
+      Timestamp updatedAt,
+      Integer schoolId,
+      Integer userId,
+      Integer numberOfChildren,
+      Integer numberOfBooks,
+      Integer mostRecentShipmentYear,
+      Boolean isSharedSpace,
+      Boolean hasInvitingSpace,
+      TimeRole assignedPersonRole,
+      AssignedPersonTitle assignedPersonTitle,
+      ApprenticeshipProgram apprenticeshipProgram,
+      Boolean trainsAndMentorsApprentices,
+      Boolean hasCheckInTimetables,
+      Boolean hasBookCheckoutSystem,
+      Integer numberOfStudentLibrarians,
+      String reasonNoStudentLibrarians,
+      Boolean hasSufficientTraining,
+      String teacherSupport,
+      String parentSupport,
+      String visitReason,
+      String actionPlan,
+      String successStories,
+      List<Grade> gradesAttended,
+      String timetable) {
+    super(
+        id,
+        createdAt,
+        updatedAt,
+        schoolId,
+        userId,
+        numberOfChildren,
+        numberOfBooks,
+        mostRecentShipmentYear,
+        LibraryStatus.EXISTS,
+        visitReason,
+        actionPlan,
+        successStories,
+        gradesAttended);
+    this.isSharedSpace = isSharedSpace;
+    this.hasInvitingSpace = hasInvitingSpace;
+    this.assignedPersonRole = assignedPersonRole;
+    this.assignedPersonTitle = assignedPersonTitle;
+    this.apprenticeshipProgram = apprenticeshipProgram;
+    this.trainsAndMentorsApprentices = trainsAndMentorsApprentices;
+    this.hasCheckInTimetables = hasCheckInTimetables;
+    this.hasBookCheckoutSystem = hasBookCheckoutSystem;
+    this.numberOfStudentLibrarians = numberOfStudentLibrarians;
+    this.reasonNoStudentLibrarians = reasonNoStudentLibrarians;
+    this.hasSufficientTraining = hasSufficientTraining;
+    this.teacherSupport = teacherSupport;
+    this.parentSupport = parentSupport;
+
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      this.timetable = mapper.readTree(timetable);
+    } catch (IOException e) {
+      throw new RuntimeException(
+          String.format("Failed to parse `timetable` for `ReportWithLibrary` with ID %d", id));
+    }
   }
 
   public static ReportWithLibrary instantiateFromRecord(SchoolReportsWithLibrariesRecord record) {
@@ -114,7 +184,8 @@ public class ReportWithLibrary extends ReportGeneric {
         record.getSuccessStories(),
         Arrays.stream(record.getGradesAttended())
             .map(gradeString -> Grade.valueOf((String) gradeString))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList()),
+        record.getTimetable());
   }
 
   public Boolean getIsSharedSpace() {
@@ -219,5 +290,13 @@ public class ReportWithLibrary extends ReportGeneric {
 
   public void setParentSupport(String parentSupport) {
     this.parentSupport = parentSupport;
+  }
+
+  public JsonNode getTimetable() {
+    return timetable;
+  }
+
+  public void setTimetable(JsonNode timetable) {
+    this.timetable = timetable;
   }
 }
