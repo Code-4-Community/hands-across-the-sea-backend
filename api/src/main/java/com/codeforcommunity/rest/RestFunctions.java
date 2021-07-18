@@ -85,6 +85,7 @@ public class RestFunctions {
       throw new UnknownCountryException(countryName);
     }
   }
+
   /**
    * Get's a query parameter that may or may not be there as an optional of the desired type.
    * Attempts to map the query parameter from a string to an instance of the desired type.
@@ -109,5 +110,11 @@ public class RestFunctions {
       returnValue = null;
     }
     return Optional.ofNullable(returnValue);
+  }
+
+  public static String getUpperSnakeFromCamel(String camel) {
+    String regex = "([a-z])([A-Z])";
+    String replacement = "$1_$2";
+    return camel.replaceAll(regex, replacement).toUpperCase();
   }
 }

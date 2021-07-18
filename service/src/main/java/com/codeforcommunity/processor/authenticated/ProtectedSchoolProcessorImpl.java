@@ -446,7 +446,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getVisitReason(),
         newReport.getActionPlan(),
         newReport.getSuccessStories(),
-        req.getGradesAttended());
+        req.getGradesAttended(),
+        req.getTimetable());
   }
 
   @Override
@@ -506,6 +507,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setSuccessStories(req.getSuccessStories());
     newReport.setGradesAttended(
         (Object[]) req.getGradesAttended().stream().map(Grade::name).toArray(String[]::new));
+
+    newReport.setTimetable(req.getTimetable().toString());
     newReport.store();
   }
 
