@@ -195,6 +195,12 @@ public class UpsertReportWithLibrary extends UpsertReportGeneric {
       // Validate the "month" field
       if (fieldName.equals("month")) {
         hasMonthField = true;
+        if (!value.isInt()) {
+          logger.error("`UpsertReportWithLibrary` `timetable.month` must be an integer");
+          invalidFields.add("timetable.month");
+          continue;
+        }
+
         int month = value.asInt();
         if (month < 1 || month > 12) {
           logger.error(
@@ -208,6 +214,12 @@ public class UpsertReportWithLibrary extends UpsertReportGeneric {
       // Validate the "year" field
       if (fieldName.equals("year")) {
         hasYearField = true;
+        if (!value.isInt()) {
+          logger.error("`UpsertReportWithLibrary` `timetable.year` must be an integer");
+          invalidFields.add("timetable.year");
+          continue;
+        }
+
         int year = value.asInt();
         if (year < 1900 || year > 2999) {
           logger.error(
