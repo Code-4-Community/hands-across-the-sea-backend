@@ -30,21 +30,6 @@ public class UserDataResponse {
     this.isDisabled = disabled;
   }
 
-  public UserDataResponse(
-      String firstName,
-      String lastName,
-      Integer id,
-      String email,
-      Country country,
-      Boolean disabled) {
-    this.email = email;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.id = id;
-    this.country = country;
-    this.isDisabled = disabled;
-  }
-
   public String getEmail() {
     return email;
   }
