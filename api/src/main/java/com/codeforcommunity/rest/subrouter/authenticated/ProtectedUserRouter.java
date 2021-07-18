@@ -79,8 +79,8 @@ public class ProtectedUserRouter implements IRouter {
   }
 
   private void registerEnableAccount(Router router) {
-    Route disableUserAccountRoute = router.post("/enable/:user_id");
-    disableUserAccountRoute.handler(this::handleEnableUser);
+    Route enableUserAccountRoute = router.post("/enable/:user_id");
+    enableUserAccountRoute.handler(this::handleEnableUser);
   }
 
   private void registerGetDisabledUsers(Router router) {

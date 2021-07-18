@@ -22,7 +22,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.pojos.Users;
 import org.jooq.generated.tables.records.UsersRecord;
@@ -152,7 +151,8 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     if (!userData.isAdmin()) {
       throw new AdminOnlyRouteException();
     }
-    UsersRecord user = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
+    UsersRecord user =
+        db.selectFrom(USERS).where(USERS.ID.eq(userId)).and(USERS.DELETED_AT.isNull()).fetchOne();
     if (user == null) {
       throw new UserDoesNotExistException(userId);
     }
@@ -201,19 +201,10 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
       throw new AdminOnlyRouteException();
     }
     List<UserDataResponse> users =
-        db.selectFrom(USERS).where(USERS.DELETED_AT.isNull()).and(USERS.DISABLED.eq(true)).fetch()
-            .stream()
-            .map(
-                user ->
-                    new UserDataResponse(
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getId(),
-                        user.getEmail(),
-                        user.getCountry(),
-                        user.getPrivilegeLevel(),
-                        user.getDisabled()))
-            .collect(Collectors.toList());
+        db.selectFrom(USERS)
+            .where(USERS.DELETED_AT.isNull())
+            .and(USERS.DISABLED.eq(true))
+            .fetchInto(UserDataResponse.class);
 
     return new UserListResponse(users);
   }
@@ -226,19 +217,11 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     }
 
     List<UserDataResponse> users =
-        db.selectFrom(USERS).where(USERS.COUNTRY.eq(country)).and(USERS.DELETED_AT.isNull())
-            .and(USERS.DISABLED.eq(true)).fetch().stream()
-            .map(
-                user ->
-                    new UserDataResponse(
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getId(),
-                        user.getEmail(),
-                        user.getCountry(),
-                        user.getPrivilegeLevel(),
-                        user.getDisabled()))
-            .collect(Collectors.toList());
+        db.selectFrom(USERS)
+            .where(USERS.COUNTRY.eq(country))
+            .and(USERS.DELETED_AT.isNull())
+            .and(USERS.DISABLED.eq(true))
+            .fetchInto(UserDataResponse.class);
 
     return new UserListResponse(users);
   }
