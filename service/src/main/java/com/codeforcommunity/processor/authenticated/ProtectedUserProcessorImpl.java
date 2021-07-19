@@ -17,17 +17,20 @@ import com.codeforcommunity.exceptions.AdminOnlyRouteException;
 import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.exceptions.WrongPasswordException;
+import com.codeforcommunity.logger.SLogger;
 import com.codeforcommunity.requester.Emailer;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.pojos.Users;
 import org.jooq.generated.tables.records.UsersRecord;
 
 public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
 
+  SLogger logger = new SLogger(ProtectedUserProcessorImpl.class);
   private final DSLContext db;
   private final Emailer emailer;
 
@@ -144,9 +147,35 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     }
     UsersRecord user = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
     if (user == null) {
+      logger.error("`disableUserAccount` tried to disable an account that doesn't exist");
       throw new UserDoesNotExistException(userId);
     }
+    if (user.getDisabled()) {
+      logger.error(
+          "`disableUserAccount` tried to disable an account that is already disabled",
+          new UserDoesNotExistException(userId));
+    }
     user.setDisabled(true);
+    user.store();
+  }
+
+  @Override
+  public void enableUserAccount(JWTData userData, int userId) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+    UsersRecord user =
+        db.selectFrom(USERS).where(USERS.ID.eq(userId)).and(USERS.DELETED_AT.isNull()).fetchOne();
+    if (user == null) {
+      logger.error("`enableUserAccount` tried to enable an account that doesn't exist");
+      throw new UserDoesNotExistException(userId);
+    }
+    if (!user.getDisabled()) {
+      logger.error(
+          "`enableUserAccount` tried to enable an account that is already enabled",
+          new UserDoesNotExistException(userId));
+    }
+    user.setDisabled(false);
     user.store();
   }
 
@@ -158,7 +187,7 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     }
 
     List<UserDataResponse> response = new ArrayList<>();
-    List<UsersRecord> users = new ArrayList<>();
+    List<UsersRecord> users;
 
     if (country == null) {
       users = db.selectFrom(USERS).where(USERS.DELETED_AT.isNull()).fetch();
@@ -183,5 +212,53 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     }
 
     return new UserListResponse(response);
+  }
+
+  @Override
+  public UserListResponse getDisabledUsers(JWTData userData) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+    List<UserDataResponse> users =
+        db.selectFrom(USERS).where(USERS.DELETED_AT.isNull()).and(USERS.DISABLED.eq(true)).fetch()
+            .stream()
+            .map(
+                user ->
+                    new UserDataResponse(
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getId(),
+                        user.getEmail(),
+                        user.getCountry(),
+                        user.getPrivilegeLevel(),
+                        user.getDisabled()))
+            .collect(Collectors.toList());
+
+    return new UserListResponse(users);
+  }
+
+  @Override
+  public UserListResponse getDisabledUsers(JWTData userData, Country country) {
+
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+
+    List<UserDataResponse> users =
+        db.selectFrom(USERS).where(USERS.COUNTRY.eq(country)).and(USERS.DELETED_AT.isNull())
+            .and(USERS.DISABLED.eq(true)).fetch().stream()
+            .map(
+                user ->
+                    new UserDataResponse(
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getId(),
+                        user.getEmail(),
+                        user.getCountry(),
+                        user.getPrivilegeLevel(),
+                        user.getDisabled()))
+            .collect(Collectors.toList());
+
+    return new UserListResponse(users);
   }
 }
