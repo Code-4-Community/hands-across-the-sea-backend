@@ -146,6 +146,11 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
       logger.error("`disableUserAccount` tried to disable an account that doesn't exist");
       throw new UserDoesNotExistException(userId);
     }
+    if (user.getDisabled()) {
+      logger.error(
+          "`disableUserAccount` tried to disable an account that is already disabled",
+          new UserDoesNotExistException(userId));
+    }
     user.setDisabled(true);
     user.store();
   }
@@ -161,7 +166,12 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
       logger.error("`enableUserAccount` tried to enable an account that doesn't exist");
       throw new UserDoesNotExistException(userId);
     }
-    user.setDisabled(true);
+    if (!user.getDisabled()) {
+      logger.error(
+          "`enableUserAccount` tried to enable an account that is already enabled",
+          new UserDoesNotExistException(userId));
+    }
+    user.setDisabled(false);
     user.store();
   }
 
@@ -173,7 +183,7 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     }
 
     List<UserDataResponse> response = new ArrayList<>();
-    List<UsersRecord> users = new ArrayList<>();
+    List<UsersRecord> users;
 
     if (country == null) {
       users = db.selectFrom(USERS).where(USERS.DELETED_AT.isNull()).fetch();
