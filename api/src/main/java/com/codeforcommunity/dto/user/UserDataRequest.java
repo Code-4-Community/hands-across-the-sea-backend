@@ -11,10 +11,23 @@ public class UserDataRequest extends ApiDto {
 
   private Country country;
   private PrivilegeLevel privilegeLevel;
+  private String firstName;
+  private String lastName;
+  private String email;
 
-  public UserDataRequest(Country country, PrivilegeLevel privilegeLevel) {
+  public UserDataRequest() {}
+
+  public UserDataRequest(
+      Country country,
+      PrivilegeLevel privilegeLevel,
+      String firstName,
+      String lastName,
+      String email) {
     this.country = country;
     this.privilegeLevel = privilegeLevel;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
   }
 
   public Country getCountry() {
@@ -23,6 +36,18 @@ public class UserDataRequest extends ApiDto {
 
   public PrivilegeLevel getPrivilegeLevel() {
     return privilegeLevel;
+  }
+
+  public String getFirstName() {
+    return this.firstName;
+  }
+
+  public String getLastName() {
+    return this.lastName;
+  }
+
+  public String getEmail() {
+    return this.email;
   }
 
   @Override
@@ -35,6 +60,10 @@ public class UserDataRequest extends ApiDto {
     }
     if (country == null) {
       fields.add(fieldName + "country");
+    }
+
+    if (emailInvalid(this.email)) {
+      fields.add(fieldName + "email");
     }
     return fields;
   }
