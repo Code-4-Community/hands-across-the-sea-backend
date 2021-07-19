@@ -128,8 +128,12 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
     if (user == null) {
       throw new UserDoesNotExistException(userId);
     }
+
     user.setCountry(request.getCountry());
     user.setPrivilegeLevel(request.getPrivilegeLevel());
+    user.setEmail(request.getEmail());
+    user.setFirstName(request.getFirstName());
+    user.setLastName(request.getLastName());
     user.store();
   }
 
