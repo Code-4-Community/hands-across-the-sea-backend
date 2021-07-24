@@ -61,7 +61,9 @@ public class ReportWithLibrary extends ReportGeneric {
       String actionPlan,
       String successStories,
       List<Grade> gradesAttended,
-      JsonNode timetable) {
+      JsonNode timetable,
+      String userName,
+      String schoolName) {
     super(
         id,
         createdAt,
@@ -75,7 +77,9 @@ public class ReportWithLibrary extends ReportGeneric {
         visitReason,
         actionPlan,
         successStories,
-        gradesAttended);
+        gradesAttended,
+        userName,
+        schoolName);
     this.isSharedSpace = isSharedSpace;
     this.hasInvitingSpace = hasInvitingSpace;
     this.assignedPersonRole = assignedPersonRole;
@@ -118,7 +122,9 @@ public class ReportWithLibrary extends ReportGeneric {
       String actionPlan,
       String successStories,
       List<Grade> gradesAttended,
-      String timetable) {
+      String timetable,
+      String userName,
+      String schoolName) {
     super(
         id,
         createdAt,
@@ -132,7 +138,9 @@ public class ReportWithLibrary extends ReportGeneric {
         visitReason,
         actionPlan,
         successStories,
-        gradesAttended);
+        gradesAttended,
+        userName,
+        schoolName);
     this.isSharedSpace = isSharedSpace;
     this.hasInvitingSpace = hasInvitingSpace;
     this.assignedPersonRole = assignedPersonRole;
@@ -156,7 +164,8 @@ public class ReportWithLibrary extends ReportGeneric {
     }
   }
 
-  public static ReportWithLibrary instantiateFromRecord(SchoolReportsWithLibrariesRecord record) {
+  public static ReportWithLibrary instantiateFromRecord(
+      SchoolReportsWithLibrariesRecord record, String userName, String schoolName) {
     return new ReportWithLibrary(
         record.getId(),
         record.getCreatedAt(),
@@ -185,7 +194,9 @@ public class ReportWithLibrary extends ReportGeneric {
         Arrays.stream(record.getGradesAttended())
             .map(gradeString -> Grade.valueOf((String) gradeString))
             .collect(Collectors.toList()),
-        record.getTimetable());
+        record.getTimetable(),
+        userName,
+        schoolName);
   }
 
   public Boolean getIsSharedSpace() {
