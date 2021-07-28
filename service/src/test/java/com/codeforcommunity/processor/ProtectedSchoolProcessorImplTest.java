@@ -65,7 +65,7 @@ public class ProtectedSchoolProcessorImplTest {
 
     // Mock the DB
     JWTData user = mock(JWTData.class);
-    when(user.getPrivilegeLevel()).thenReturn(PrivilegeLevel.STANDARD);
+    when(user.getPrivilegeLevel()).thenReturn(PrivilegeLevel.ADMIN);
     when(user.isAdmin()).thenReturn(false);
 
     try {
