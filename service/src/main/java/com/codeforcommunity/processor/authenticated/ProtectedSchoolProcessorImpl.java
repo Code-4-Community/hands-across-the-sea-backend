@@ -41,6 +41,7 @@ import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
+import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.logger.SLogger;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -901,11 +902,19 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   private String getUserName(int userId) {
     UsersRecord userRecord = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
+    if(userRecord == null){
+      logger.error(String.format("No username found for userId:  %d", userId));
+      throw new UserDoesNotExistException(userId);
+    }
     return userRecord.getFirstName() + " " + userRecord.getLastName();
   }
 
   private String getSchoolName(int schoolId) {
     SchoolsRecord schoolRecord = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
+    if(schoolRecord == null){
+      logger.error(String.format("No school name found for schoolId:  %d", schoolId));
+      throw new SchoolDoesNotExistException(schoolId);
+    }
     return schoolRecord.getName();
   }
 }
