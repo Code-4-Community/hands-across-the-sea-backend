@@ -21,6 +21,8 @@ public class ReportGeneric {
   protected String actionPlan;
   protected String successStories;
   protected List<Grade> gradesAttended;
+  protected String userName;
+  protected String schoolName;
 
   public ReportGeneric(LibraryStatus libraryStatus) {
     this.libraryStatus = libraryStatus;
@@ -39,7 +41,9 @@ public class ReportGeneric {
       String visitReason,
       String actionPlan,
       String successStories,
-      List<Grade> gradesAttended) {
+      List<Grade> gradesAttended,
+      String userName,
+      String schoolName) {
     this.id = id;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
@@ -53,6 +57,8 @@ public class ReportGeneric {
     this.actionPlan = actionPlan;
     this.successStories = successStories;
     this.gradesAttended = gradesAttended;
+    this.userName = userName;
+    this.schoolName = schoolName;
   }
 
   public Integer getId() {
@@ -157,5 +163,21 @@ public class ReportGeneric {
 
   public void setGradesAttended(List<Grade> gradesAttended) {
     this.gradesAttended = gradesAttended;
+  }
+
+  public String getUserName() {
+    return userName;
+  }
+
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+
+  public String getSchoolName() {
+    return schoolName;
+  }
+
+  public void setSchoolName(String schoolName) {
+    this.schoolName = schoolName;
   }
 }

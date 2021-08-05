@@ -38,7 +38,9 @@ public class ReportWithoutLibrary extends ReportGeneric {
       String visitReason,
       String actionPlan,
       String successStories,
-      List<Grade> gradesAttended) {
+      List<Grade> gradesAttended,
+      String userName,
+      String schoolName) {
     super(
         id,
         createdAt,
@@ -52,7 +54,9 @@ public class ReportWithoutLibrary extends ReportGeneric {
         visitReason,
         actionPlan,
         successStories,
-        gradesAttended);
+        gradesAttended,
+        userName,
+        schoolName);
     this.wantsLibrary = wantsLibrary;
     this.hasSpace = hasSpace;
     this.currentStatus = currentStatus;
@@ -61,7 +65,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
   }
 
   public static ReportWithoutLibrary instantiateFromRecord(
-      SchoolReportsWithoutLibrariesRecord record) {
+      SchoolReportsWithoutLibrariesRecord record, String userName, String schoolName) {
     return new ReportWithoutLibrary(
         record.getId(),
         record.getCreatedAt(),
@@ -81,7 +85,9 @@ public class ReportWithoutLibrary extends ReportGeneric {
         record.getSuccessStories(),
         Arrays.stream(record.getGradesAttended())
             .map(gradeString -> Grade.valueOf((String) gradeString))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList()),
+        userName,
+        schoolName);
   }
 
   public Boolean getWantsLibrary() {

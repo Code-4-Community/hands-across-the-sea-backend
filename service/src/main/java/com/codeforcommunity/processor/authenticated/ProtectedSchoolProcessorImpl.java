@@ -5,6 +5,7 @@ import static org.jooq.generated.Tables.SCHOOLS;
 import static org.jooq.generated.Tables.SCHOOL_CONTACTS;
 import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITHOUT_LIBRARIES;
 import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
+import static org.jooq.generated.Tables.USERS;
 
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
@@ -40,6 +41,7 @@ import com.codeforcommunity.exceptions.SchoolAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactAlreadyExistsException;
 import com.codeforcommunity.exceptions.SchoolContactDoesNotExistException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
+import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.logger.SLogger;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -55,6 +57,7 @@ import org.jooq.generated.tables.records.SchoolContactsRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithoutLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolsRecord;
+import org.jooq.generated.tables.records.UsersRecord;
 
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
@@ -447,7 +450,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getActionPlan(),
         newReport.getSuccessStories(),
         req.getGradesAttended(),
-        req.getTimetable());
+        req.getTimetable(),
+        getUserName(userData.getUserId()),
+        getSchoolName(schoolId));
   }
 
   @Override
@@ -530,7 +535,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
                   .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
                   .orderBy(SCHOOL_REPORTS_WITH_LIBRARIES.ID.desc())
                   .limit(1)
-                  .fetchOne());
+                  .fetchOne(),
+              getUserName(userData.getUserId()),
+              getSchoolName(schoolId));
     } else if (libraryStatus == LibraryStatus.DOES_NOT_EXIST) {
       report =
           ReportWithoutLibrary.instantiateFromRecord(
@@ -539,7 +546,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
                   .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
                   .orderBy(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.desc())
                   .limit(1)
-                  .fetchOne());
+                  .fetchOne(),
+              getUserName(userData.getUserId()),
+              getSchoolName(schoolId));
     }
 
     if (report == null) {
@@ -586,7 +595,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getVisitReason(),
         newReport.getActionPlan(),
         newReport.getSuccessStories(),
-        req.getGradesAttended());
+        req.getGradesAttended(),
+        getUserName(userData.getUserId()),
+        getSchoolName(schoolId));
   }
 
   @Override
@@ -658,14 +669,20 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
             .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
             .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId)).fetch().stream()
-            .map(ReportWithLibrary::instantiateFromRecord)
+            .map(
+                record ->
+                    ReportWithLibrary.instantiateFromRecord(
+                        record, getUserName(userData.getUserId()), getSchoolName(schoolId)))
             .collect(Collectors.toList());
 
     List<ReportWithoutLibrary> noLibraryReports =
         db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
             .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
             .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)).fetch().stream()
-            .map(ReportWithoutLibrary::instantiateFromRecord)
+            .map(
+                record ->
+                    ReportWithoutLibrary.instantiateFromRecord(
+                        record, getUserName(userData.getUserId()), getSchoolName(schoolId)))
             .collect(Collectors.toList());
 
     int countWithLibrary =
@@ -781,14 +798,24 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
             .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
             .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId())).fetch().stream()
-            .map(ReportWithLibrary::instantiateFromRecord)
+            .map(
+                record ->
+                    ReportWithLibrary.instantiateFromRecord(
+                        record,
+                        getUserName(record.getUserId()),
+                        getSchoolName(record.getSchoolId())))
             .collect(Collectors.toList());
 
     List<ReportWithoutLibrary> noLibraryReports =
         db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
             .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
             .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.USER_ID.eq(userData.getUserId())).fetch().stream()
-            .map(ReportWithoutLibrary::instantiateFromRecord)
+            .map(
+                record ->
+                    ReportWithoutLibrary.instantiateFromRecord(
+                        record,
+                        getUserName(record.getUserId()),
+                        getSchoolName(record.getSchoolId())))
             .collect(Collectors.toList());
 
     for (ReportWithLibrary report : withLibraryReports) {
@@ -871,5 +898,23 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   private boolean isShipmentYearInvalid(Integer year) {
     return year <= 999 || year >= 10000;
+  }
+
+  private String getUserName(int userId) {
+    UsersRecord userRecord = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
+    if(userRecord == null){
+      logger.error(String.format("No username found for userId:  %d", userId));
+      throw new UserDoesNotExistException(userId);
+    }
+    return userRecord.getFirstName() + " " + userRecord.getLastName();
+  }
+
+  private String getSchoolName(int schoolId) {
+    SchoolsRecord schoolRecord = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
+    if(schoolRecord == null){
+      logger.error(String.format("No school name found for schoolId:  %d", schoolId));
+      throw new SchoolDoesNotExistException(schoolId);
+    }
+    return schoolRecord.getName();
   }
 }
