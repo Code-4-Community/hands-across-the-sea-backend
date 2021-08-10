@@ -303,7 +303,9 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     UpsertReportWithLibrary request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithLibrary.class);
+    System.out.println("pt 1");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
+    System.out.println("pt w");
     ReportWithLibrary report = processor.createReportWithLibrary(userData, schoolId, request);
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
   }

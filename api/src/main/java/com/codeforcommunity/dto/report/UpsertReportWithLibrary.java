@@ -30,15 +30,20 @@ public class UpsertReportWithLibrary extends UpsertReportGeneric {
   private Boolean hasSufficientTraining;
   private String teacherSupport;
   private String parentSupport;
-  private JsonNode timetable;
+  private JsonNode checkInTimetable;
+  private JsonNode checkOutTimetable;
 
-  public JsonNode getTimetable() {
-    return timetable;
+  public JsonNode getCheckInTimetable() {
+    return checkInTimetable;
   }
 
-  public void JsonNode(JsonNode timetable) {
-    this.timetable = timetable;
+  public JsonNode getCheckOutTimetable() { return checkOutTimetable; }
+
+  public void JsonNode(JsonNode checkInTimetable) {
+    this.checkInTimetable = checkInTimetable;
   }
+
+  public void setCheckOutTimetable(JsonNode checkOutTimetable) { this.checkOutTimetable = checkOutTimetable; }
 
   public Boolean getIsSharedSpace() {
     return isSharedSpace;
@@ -170,23 +175,24 @@ public class UpsertReportWithLibrary extends UpsertReportGeneric {
       fields.add("hasSufficientTraining");
     }
 
-    List<String> timetableFields = this.validateTimetable();
-    fields.addAll(timetableFields);
-
+    List<String> checkInTimetableFields = this.validateTimetable(checkInTimetable);
+    List<String> checkOutTimetableFields = this.validateTimetable(checkOutTimetable);
+    fields.addAll(checkInTimetableFields);
+    fields.addAll(checkOutTimetableFields);
     return fields;
   }
 
-  private List<String> validateTimetable() {
+  private List<String> validateTimetable(JsonNode timetable) {
     List<String> invalidFields = new ArrayList<String>();
 
-    if (this.timetable.isNull()) {
+    if (timetable.isNull()) {
       return invalidFields;
     }
 
     boolean hasMonthField = false;
     boolean hasYearField = false;
 
-    Iterator<Map.Entry<String, JsonNode>> it = this.timetable.fields();
+    Iterator<Map.Entry<String, JsonNode>> it = timetable.fields();
     while (it.hasNext()) {
       Map.Entry<String, JsonNode> entry = it.next();
       String fieldName = entry.getKey(); // e.g. "firstGrade"
@@ -252,7 +258,6 @@ public class UpsertReportWithLibrary extends UpsertReportGeneric {
     if (!hasMonthField) { // "month" is a required field
       invalidFields.add("timetable.month");
     }
-
     return invalidFields;
   }
 

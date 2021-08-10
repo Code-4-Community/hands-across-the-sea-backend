@@ -424,9 +424,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.EXISTS);
     school.store();
 
-    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
-      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
-    }
 
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITH_LIBRARIES);
@@ -459,9 +456,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getActionPlan(),
         newReport.getSuccessStories(),
         req.getGradesAttended(),
-        req.getTimetable(),
+        req.getCheckInTimetable(),
         getUserName(userData.getUserId()),
-        getSchoolName(schoolId));
+        getSchoolName(schoolId),
+        req.getCheckOutTimetable()
+        );
   }
 
   @Override
@@ -522,7 +521,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setGradesAttended(
         (Object[]) req.getGradesAttended().stream().map(Grade::name).toArray(String[]::new));
 
-    newReport.setTimetable(req.getTimetable().toString());
+    newReport.setCheckinTimetable(req.getCheckInTimetable().toString());
+    newReport.setCheckoutTimetable(req.getCheckOutTimetable().toString());
     newReport.store();
   }
 
@@ -911,7 +911,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   private String getUserName(int userId) {
     UsersRecord userRecord = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
-    if(userRecord == null){
+    if (userRecord == null) {
       logger.error(String.format("No username found for userId:  %d", userId));
       throw new UserDoesNotExistException(userId);
     }
@@ -920,7 +920,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   private String getSchoolName(int schoolId) {
     SchoolsRecord schoolRecord = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
-    if(schoolRecord == null){
+    if (schoolRecord == null) {
       logger.error(String.format("No school name found for schoolId:  %d", schoolId));
       throw new SchoolDoesNotExistException(schoolId);
     }
