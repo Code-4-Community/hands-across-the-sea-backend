@@ -23,4 +23,12 @@ public class JWTData {
   public boolean isAdmin() {
     return this.privilegeLevel == PrivilegeLevel.ADMIN;
   }
+
+  public boolean isOfficer() {
+    return this.privilegeLevel == PrivilegeLevel.OFFICER;
+  }
+
+  public boolean isVolunteer() {
+    return this.privilegeLevel == PrivilegeLevel.VOLUNTEER;
+  }
 }

@@ -64,14 +64,13 @@ public class ProtectedSchoolRouter implements IRouter {
     registerGetPaginatedReports(router);
     registerGetWithLibraryReportAsCsv(router);
     registerGetWithoutLibraryReportAsCsv(router);
+    registerGetSchoolsFromUserId(router);
 
     // Register all book tracking routes
     registerCreateBookLog(router);
     registerGetBookLog(router);
     registerUpdateBookLog(router);
     registerDeleteBookLog(router);
-
-    registerGetSchoolsFromUserId(router);
 
     return router;
   }

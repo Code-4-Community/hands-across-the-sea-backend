@@ -384,16 +384,25 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   @Override
   public void hideSchool(JWTData userData, int schoolId) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
+
     school.setHidden(true);
     school.store();
   }
 
   @Override
   public void unHideSchool(JWTData userData, int schoolId) {
+    if (!userData.isAdmin()) {
+      throw new AdminOnlyRouteException();
+    }
+
     SchoolsRecord school = this.queryForSchool(schoolId);
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);

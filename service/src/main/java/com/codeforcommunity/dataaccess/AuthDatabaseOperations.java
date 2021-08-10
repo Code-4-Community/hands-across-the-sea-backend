@@ -120,6 +120,7 @@ public class AuthDatabaseOperations {
     String password = newUserRequest.getPassword();
     String firstName = newUserRequest.getFirstName();
     String lastName = newUserRequest.getLastName();
+    PrivilegeLevel privilegeLevel = newUserRequest.getPrivilegeLevel();
     Country country = newUserRequest.getCountry();
 
     UsersRecord newUser = db.newRecord(USERS);
@@ -127,7 +128,7 @@ public class AuthDatabaseOperations {
     newUser.setPasswordHash(Passwords.createHash(password));
     newUser.setFirstName(firstName);
     newUser.setLastName(lastName);
-    newUser.setPrivilegeLevel(PrivilegeLevel.STANDARD);
+    newUser.setPrivilegeLevel(privilegeLevel);
     newUser.setCountry(country);
     newUser.store();
 

@@ -2,6 +2,7 @@ package com.codeforcommunity.dto.auth;
 
 import com.codeforcommunity.dto.ApiDto;
 import com.codeforcommunity.enums.Country;
+import com.codeforcommunity.enums.PrivilegeLevel;
 import com.codeforcommunity.exceptions.InvalidPasswordException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ public class NewUserRequest extends ApiDto {
   private String password;
   private String firstName;
   private String lastName;
+  private PrivilegeLevel privilegeLevel;
   private Country country;
 
   public String getEmail() {
@@ -54,6 +56,14 @@ public class NewUserRequest extends ApiDto {
     this.country = country;
   }
 
+  public PrivilegeLevel getPrivilegeLevel() {
+    return privilegeLevel;
+  }
+
+  public void setPrivilegeLevel(PrivilegeLevel privilegeLevel) {
+    this.privilegeLevel = privilegeLevel;
+  }
+
   @Override
   public List<String> validateFields(String fieldPrefix) {
     List<String> invalidFields = new ArrayList<>();
@@ -71,6 +81,9 @@ public class NewUserRequest extends ApiDto {
     }
     if (country == null) {
       invalidFields.add("country");
+    }
+    if (privilegeLevel == null) {
+      invalidFields.add("privilegeLevel");
     }
     // Only throw this exception if there are no issues with other fields
     if (passwordInvalid(password) && invalidFields.isEmpty()) {

@@ -76,7 +76,7 @@ public class JWTHandler {
     DecodedJWT decodedJWT = getDecodedJWT(token);
     int userId = decodedJWT.getClaim("userId").asInt();
     PrivilegeLevel privilegeLevel =
-        PrivilegeLevel.from(decodedJWT.getClaim("privilegeLevel").asString());
+        PrivilegeLevel.valueOf(decodedJWT.getClaim("privilegeLevel").asString());
     return new JWTData(userId, privilegeLevel);
   }
 
@@ -96,7 +96,7 @@ public class JWTHandler {
     Date date = getTokenExpiration(isRefresh);
     return JWT.create()
         .withClaim("userId", jwtData.getUserId())
-        .withClaim("privilegeLevel", jwtData.getPrivilegeLevel().getName())
+        .withClaim("privilegeLevel", jwtData.getPrivilegeLevel().name())
         .withExpiresAt(date)
         .withIssuer(C4C_ISSUER)
         .sign(algorithm);
