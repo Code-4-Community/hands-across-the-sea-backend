@@ -7,7 +7,6 @@ import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.TimeRole;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.vertx.core.json.JsonObject;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -32,6 +31,7 @@ public class ReportWithLibrary extends ReportGeneric {
   private String parentSupport;
   private JsonNode checkInTimetable;
   private JsonNode checkOutTimetable;
+  private Integer numberOfStudentLibrariansTrainers;
 
   public ReportWithLibrary() {
     super(LibraryStatus.EXISTS);
@@ -66,7 +66,8 @@ public class ReportWithLibrary extends ReportGeneric {
       JsonNode checkInTimetable,
       String userName,
       String schoolName,
-      JsonNode checkOutTimetable) {
+      JsonNode checkOutTimetable,
+      Integer numberOfStudentLibrariansTrainers) {
     super(
         id,
         createdAt,
@@ -98,6 +99,7 @@ public class ReportWithLibrary extends ReportGeneric {
     this.parentSupport = parentSupport;
     this.checkInTimetable = checkInTimetable;
     this.checkOutTimetable = checkOutTimetable;
+    this.numberOfStudentLibrariansTrainers = numberOfStudentLibrariansTrainers;
   }
 
   public ReportWithLibrary(
@@ -129,7 +131,8 @@ public class ReportWithLibrary extends ReportGeneric {
       String checkInTimetable,
       String userName,
       String schoolName,
-      String checkOutTimetable) {
+      String checkOutTimetable,
+      Integer numberOfStudentLibrariansTrainers) {
     super(
         id,
         createdAt,
@@ -159,6 +162,7 @@ public class ReportWithLibrary extends ReportGeneric {
     this.hasSufficientTraining = hasSufficientTraining;
     this.teacherSupport = teacherSupport;
     this.parentSupport = parentSupport;
+    this.numberOfStudentLibrariansTrainers = numberOfStudentLibrariansTrainers;
 
     try {
       ObjectMapper mapper = new ObjectMapper();
@@ -204,11 +208,16 @@ public class ReportWithLibrary extends ReportGeneric {
         record.getCheckinTimetable(),
         userName,
         schoolName,
-        record.getCheckoutTimetable());
+        record.getCheckoutTimetable(),
+        record.getNumberOfStudentLibrariansTrainers());
   }
 
   public Boolean getIsSharedSpace() {
     return isSharedSpace;
+  }
+
+  public Integer getNumberOfStudentLibrariansTrainers() {
+    return this.numberOfStudentLibrariansTrainers;
   }
 
   public void setIsSharedSpace(Boolean sharedSpace) {
@@ -315,7 +324,9 @@ public class ReportWithLibrary extends ReportGeneric {
     return checkInTimetable;
   }
 
-  public JsonNode getCheckOutTimetable() { return checkOutTimetable; }
+  public JsonNode getCheckOutTimetable() {
+    return checkOutTimetable;
+  }
 
   public void setCheckInTimetable(JsonNode checkInTimetable) {
     this.checkInTimetable = checkInTimetable;
@@ -323,5 +334,9 @@ public class ReportWithLibrary extends ReportGeneric {
 
   public void setCheckOutTimetable(JsonNode checkOutTimetable) {
     this.checkOutTimetable = checkOutTimetable;
+  }
+
+  public void setNumberOfStudentLibrariansTrainers(Integer trainers) {
+    this.numberOfStudentLibrariansTrainers = trainers;
   }
 }

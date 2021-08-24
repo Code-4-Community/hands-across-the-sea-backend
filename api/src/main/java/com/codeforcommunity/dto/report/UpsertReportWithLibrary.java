@@ -32,18 +32,31 @@ public class UpsertReportWithLibrary extends UpsertReportGeneric {
   private String parentSupport;
   private JsonNode checkInTimetable;
   private JsonNode checkOutTimetable;
+  private Integer numberOfStudentLibrariansTrainers;
 
   public JsonNode getCheckInTimetable() {
     return checkInTimetable;
   }
 
-  public JsonNode getCheckOutTimetable() { return checkOutTimetable; }
+  public JsonNode getCheckOutTimetable() {
+    return checkOutTimetable;
+  }
+
+  public Integer getNumberOfStudentLibrariansTrainers() {
+    return this.numberOfStudentLibrariansTrainers;
+  }
 
   public void JsonNode(JsonNode checkInTimetable) {
     this.checkInTimetable = checkInTimetable;
   }
 
-  public void setCheckOutTimetable(JsonNode checkOutTimetable) { this.checkOutTimetable = checkOutTimetable; }
+  public void setCheckOutTimetable(JsonNode checkOutTimetable) {
+    this.checkOutTimetable = checkOutTimetable;
+  }
+
+  public void setNumberOfStudentLibrariansTrainers(Integer trainers) {
+    this.numberOfStudentLibrariansTrainers = trainers;
+  }
 
   public Boolean getIsSharedSpace() {
     return isSharedSpace;
