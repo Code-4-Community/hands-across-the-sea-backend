@@ -7,6 +7,7 @@ import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.TimeRole;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.vertx.core.json.JsonObject;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -29,7 +30,8 @@ public class ReportWithLibrary extends ReportGeneric {
   private Boolean hasSufficientTraining;
   private String teacherSupport;
   private String parentSupport;
-  private JsonNode timetable;
+  private JsonNode checkInTimetable;
+  private JsonNode checkOutTimetable;
 
   public ReportWithLibrary() {
     super(LibraryStatus.EXISTS);
@@ -61,9 +63,10 @@ public class ReportWithLibrary extends ReportGeneric {
       String actionPlan,
       String successStories,
       List<Grade> gradesAttended,
-      JsonNode timetable,
+      JsonNode checkInTimetable,
       String userName,
-      String schoolName) {
+      String schoolName,
+      JsonNode checkOutTimetable) {
     super(
         id,
         createdAt,
@@ -93,7 +96,8 @@ public class ReportWithLibrary extends ReportGeneric {
     this.hasSufficientTraining = hasSufficientTraining;
     this.teacherSupport = teacherSupport;
     this.parentSupport = parentSupport;
-    this.timetable = timetable;
+    this.checkInTimetable = checkInTimetable;
+    this.checkOutTimetable = checkOutTimetable;
   }
 
   public ReportWithLibrary(
@@ -122,9 +126,10 @@ public class ReportWithLibrary extends ReportGeneric {
       String actionPlan,
       String successStories,
       List<Grade> gradesAttended,
-      String timetable,
+      String checkInTimetable,
       String userName,
-      String schoolName) {
+      String schoolName,
+      String checkOutTimetable) {
     super(
         id,
         createdAt,
@@ -157,10 +162,12 @@ public class ReportWithLibrary extends ReportGeneric {
 
     try {
       ObjectMapper mapper = new ObjectMapper();
-      this.timetable = mapper.readTree(timetable);
+      ObjectMapper checkoutMapper = new ObjectMapper();
+      this.checkInTimetable = mapper.readTree(checkInTimetable);
+      this.checkOutTimetable = checkoutMapper.readTree(checkOutTimetable);
     } catch (IOException e) {
       throw new RuntimeException(
-          String.format("Failed to parse `timetable` for `ReportWithLibrary` with ID %d", id));
+          String.format("Failed to parse timetables for `ReportWithLibrary` with ID %d", id));
     }
   }
 
@@ -194,9 +201,10 @@ public class ReportWithLibrary extends ReportGeneric {
         Arrays.stream(record.getGradesAttended())
             .map(gradeString -> Grade.valueOf((String) gradeString))
             .collect(Collectors.toList()),
-        record.getTimetable(),
+        record.getCheckinTimetable(),
         userName,
-        schoolName);
+        schoolName,
+        record.getCheckoutTimetable());
   }
 
   public Boolean getIsSharedSpace() {
@@ -303,11 +311,17 @@ public class ReportWithLibrary extends ReportGeneric {
     this.parentSupport = parentSupport;
   }
 
-  public JsonNode getTimetable() {
-    return timetable;
+  public JsonNode getCheckInTimetable() {
+    return checkInTimetable;
   }
 
-  public void setTimetable(JsonNode timetable) {
-    this.timetable = timetable;
+  public JsonNode getCheckOutTimetable() { return checkOutTimetable; }
+
+  public void setCheckInTimetable(JsonNode checkInTimetable) {
+    this.checkInTimetable = checkInTimetable;
+  }
+
+  public void setCheckOutTimetable(JsonNode checkOutTimetable) {
+    this.checkOutTimetable = checkOutTimetable;
   }
 }
