@@ -10,10 +10,13 @@ public class UpsertReportWithoutLibrary extends UpsertReportGeneric {
   private Boolean hasSpace;
   private List<String> currentStatus;
   private ReadyTimeline readyTimeline;
+  private String reasonNoLibrarySpace;
 
   public String getReason() {
     return reason;
   }
+
+  public String getReasonNoLibrarySpace() { return this.reasonNoLibrarySpace; }
 
   public void setReason(String reason) {
     this.reason = reason;

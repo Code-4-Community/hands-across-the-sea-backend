@@ -424,7 +424,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.EXISTS);
     school.store();
 
-
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITH_LIBRARIES);
     storeReportWithLibrary(userData, schoolId, req, newReport);
@@ -459,8 +458,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         req.getCheckInTimetable(),
         getUserName(userData.getUserId()),
         getSchoolName(schoolId),
-        req.getCheckOutTimetable()
-        );
+        req.getCheckOutTimetable(),
+        req.getNumberOfStudentLibrariansTrainers());
   }
 
   @Override
@@ -523,6 +522,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
     newReport.setCheckinTimetable(req.getCheckInTimetable().toString());
     newReport.setCheckoutTimetable(req.getCheckOutTimetable().toString());
+    newReport.setNumberOfStudentLibrariansTrainers(req.getNumberOfStudentLibrariansTrainers());
     newReport.store();
   }
 
@@ -606,7 +606,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getSuccessStories(),
         req.getGradesAttended(),
         getUserName(userData.getUserId()),
-        getSchoolName(schoolId));
+        getSchoolName(schoolId),
+        newReport.getReasonNoLibrarySpace()
+        );
   }
 
   @Override
@@ -660,6 +662,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setSuccessStories(req.getSuccessStories());
     newReport.setGradesAttended(
         (Object[]) gradesAttended.stream().map(Grade::name).toArray(String[]::new));
+    newReport.setReasonNoLibrarySpace(req.getReasonNoLibrarySpace());
     newReport.store();
   }
 
