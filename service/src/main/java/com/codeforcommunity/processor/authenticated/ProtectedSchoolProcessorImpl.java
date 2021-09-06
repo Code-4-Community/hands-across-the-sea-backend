@@ -484,8 +484,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new AdminOnlyRouteException();
     }
 
-    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
+
+    if (req.getMostRecentShipmentYear() != null) {
+      if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
       throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+      }
     }
 
     storeReportWithLibrary(userData, schoolId, req, newReport);
@@ -576,10 +579,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
-      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    if (req.getMostRecentShipmentYear() != null) {
+      if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
+        throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+      }
     }
-
     school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
     school.store();
 
@@ -634,8 +638,10 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new AdminOnlyRouteException();
     }
 
-    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
-      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    if (req.getMostRecentShipmentYear() != null) {
+      if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
+        throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+      }
     }
 
     storeReportWithoutLibrary(userData, schoolId, req, newReport, req.getGradesAttended());
