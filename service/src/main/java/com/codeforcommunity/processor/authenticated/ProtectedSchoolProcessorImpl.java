@@ -31,6 +31,7 @@ import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
+import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
 import com.codeforcommunity.exceptions.CsvSerializerException;
 import com.codeforcommunity.exceptions.InvalidShipmentYearException;
@@ -480,8 +481,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new NoReportFoundException(schoolId);
     }
 
-    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
-      throw new AdminOnlyRouteException();
+    if (!newReport.getUserId().equals(userData.getUserId())) {
+      throw new AuthException("User ID is incorrect");
     }
 
 
@@ -634,8 +635,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new NoReportFoundException(schoolId);
     }
 
-    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
-      throw new AdminOnlyRouteException();
+    if (!newReport.getUserId().equals(userData.getUserId())) {
+      throw new AuthException("User ID is incorrect");
     }
 
     if (req.getMostRecentShipmentYear() != null) {
