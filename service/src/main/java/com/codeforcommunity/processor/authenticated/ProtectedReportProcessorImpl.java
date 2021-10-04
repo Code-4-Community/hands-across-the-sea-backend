@@ -111,7 +111,7 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor  
       throw new NoReportFoundException(schoolId);
     }
 
-    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
+    if (!newReport.getUserId().equals(userData.getUserId())) {
       throw new AdminOnlyRouteException();
     }
 
@@ -265,7 +265,7 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor  
       throw new NoReportFoundException(schoolId);
     }
 
-    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
+    if (!newReport.getUserId().equals(userData.getUserId())) {
       throw new AdminOnlyRouteException();
     }
 
