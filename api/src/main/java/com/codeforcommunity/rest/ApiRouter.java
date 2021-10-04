@@ -1,6 +1,8 @@
 package com.codeforcommunity.rest;
 
+import com.codeforcommunity.api.authenticated.IProtectedBookLogProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedCountryProcessor;
+import com.codeforcommunity.api.authenticated.IProtectedReportProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedUserProcessor;
 import com.codeforcommunity.api.unauthenticated.IAuthProcessor;
@@ -26,12 +28,15 @@ public class ApiRouter implements IRouter {
       IAuthProcessor authProcessor,
       IProtectedUserProcessor protectedUserProcessor,
       IProtectedCountryProcessor protectedCountryProcessor,
-      IProtectedSchoolProcessor protectedSchoolProcessor) {
+      IProtectedSchoolProcessor protectedSchoolProcessor,
+      IProtectedReportProcessor protectedReportProcessor,
+      IProtectedBookLogProcessor protectedBookLogProcessor) {
     this.commonRouter = new CommonRouter(jwtAuthorizer);
     this.authRouter = new AuthRouter(authProcessor);
     this.protectedUserRouter = new ProtectedUserRouter(protectedUserProcessor);
     this.protectedCountryRouter = new ProtectedCountryRouter(protectedCountryProcessor);
-    this.protectedSchoolRouter = new ProtectedSchoolRouter(protectedSchoolProcessor);
+    this.protectedSchoolRouter = new ProtectedSchoolRouter(protectedSchoolProcessor, protectedReportProcessor, protectedBookLogProcessor);
+
   }
 
   /** Initialize a router and register all route handlers on it. */
