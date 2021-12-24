@@ -27,10 +27,16 @@ public class ProtectedDataRouter implements IRouter {
   public Router initializeRouter(Vertx vertx) {
     Router router = Router.router(vertx);
 
+    registerGetFixedTotalMetrics(router);
     registerGetFixedCountryMetrics(router);
-    registerGetFixedSchoolyMetrics(router);
+    registerGetFixedSchoolMetrics(router);
 
     return router;
+  }
+
+  private void registerGetFixedTotalMetrics(Router router) {
+    Route getTotalMetricRoute = router.get("/total");
+    getTotalMetricRoute.handler(this::handleGetFixedTotalMetrics);
   }
 
   private void registerGetFixedCountryMetrics(Router router) {
@@ -38,7 +44,7 @@ public class ProtectedDataRouter implements IRouter {
     getCountryMetricsRoute.handler(this::handleGetFixedCountryMetrics);
   }
 
-  private void registerGetFixedSchoolyMetrics(Router router) {
+  private void registerGetFixedSchoolMetrics(Router router) {
     Route getSchoolMetricsRoute = router.get("/school/:school_id");
     getSchoolMetricsRoute.handler(this::handleGetFixedSchoolMetrics);
   }
@@ -50,6 +56,10 @@ public class ProtectedDataRouter implements IRouter {
     MetricsCountryResponse response = processor.getFixedCountryMetrics(userData, country);
 
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
+  }
+
+  private void handleGetFixedTotalMetrics(RoutingContext ctx) {
+    return;
   }
 
   private void handleGetFixedSchoolMetrics(RoutingContext ctx) {
