@@ -8,6 +8,7 @@ import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dataaccess.SchoolDatabaseOperations;
 import com.codeforcommunity.dto.data.MetricsCountryResponse;
 import com.codeforcommunity.dto.data.MetricsSchoolResponse;
+import com.codeforcommunity.dto.data.MetricsTotalResponse;
 import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.enums.Country;
@@ -27,6 +28,19 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
   public ProtectedDataProcessorImpl(DSLContext db) {
     this.schoolDatabaseOperations = new SchoolDatabaseOperations(db);
     this.db = db;
+  }
+
+  @Override
+  public MetricsTotalResponse getFixedTotalMetrics(JWTData userData) {
+    int countSchools =
+        db.fetchCount(
+            db.selectFrom(SCHOOLS)
+                .where(SCHOOLS.HIDDEN.isFalse())
+                .and(SCHOOLS.DELETED_AT.isNull()));
+
+    int countBooks = 0;
+
+    return new MetricsTotalResponse(countSchools,countBooks);
   }
 
   @Override

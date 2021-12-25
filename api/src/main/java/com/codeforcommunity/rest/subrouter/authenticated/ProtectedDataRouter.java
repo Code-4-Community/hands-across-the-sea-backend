@@ -6,10 +6,12 @@ import com.codeforcommunity.api.authenticated.IProtectedDataProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.data.MetricsCountryResponse;
 import com.codeforcommunity.dto.data.MetricsSchoolResponse;
+import com.codeforcommunity.dto.data.MetricsTotalResponse;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
@@ -49,6 +51,14 @@ public class ProtectedDataRouter implements IRouter {
     getSchoolMetricsRoute.handler(this::handleGetFixedSchoolMetrics);
   }
 
+  private void handleGetFixedTotalMetrics(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+
+    MetricsTotalResponse response = processor.getFixedTotalMetrics(userData);
+
+    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
+  }
+
   private void handleGetFixedCountryMetrics(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
 
@@ -56,10 +66,6 @@ public class ProtectedDataRouter implements IRouter {
     MetricsCountryResponse response = processor.getFixedCountryMetrics(userData, country);
 
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
-  }
-
-  private void handleGetFixedTotalMetrics(RoutingContext ctx) {
-    return;
   }
 
   private void handleGetFixedSchoolMetrics(RoutingContext ctx) {
