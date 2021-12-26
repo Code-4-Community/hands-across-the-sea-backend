@@ -75,6 +75,18 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
+  public SchoolListResponse getAllSchoolsCountryFilter(JWTData userData, Country country) {
+    List<SchoolSummary> schools =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.HIDDEN.isFalse())
+            .and(SCHOOLS.DELETED_AT.isNull())
+            .and(SCHOOLS.COUNTRY.eq(country))
+            .fetchInto(SchoolSummary.class);
+
+    return new SchoolListResponse(schools);
+  }
+
+  @Override
   public School getSchool(JWTData userData, int schoolId) {
     School school =
         db.selectFrom(SCHOOLS)

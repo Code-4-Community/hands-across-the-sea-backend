@@ -16,10 +16,13 @@ import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.UpsertBookLogRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
+import com.codeforcommunity.enums.Country;
 
 public interface IProtectedSchoolProcessor {
 
   SchoolListResponse getAllSchools(JWTData userData);
+
+  SchoolListResponse getAllSchoolsCountryFilter(JWTData userData, Country country);
 
   School getSchool(JWTData userData, int schoolId);
 
