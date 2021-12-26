@@ -42,7 +42,6 @@ public class ProtectedSchoolRouter implements IRouter {
 
     // Register all school routes
     registerGetAllSchools(router);
-    registerGetAllSchoolsCountryFilter(router);
     registerGetSchool(router);
     registerCreateSchool(router);
     registerUpdateSchool(router);
@@ -79,11 +78,6 @@ public class ProtectedSchoolRouter implements IRouter {
   private void registerGetAllSchools(Router router) {
     Route getSchoolsRoute = router.get("/");
     getSchoolsRoute.handler(this::handleGetAllSchoolsRoute);
-  }
-
-  private void registerGetAllSchoolsCountryFilter(Router router) {
-    Route getSchoolsRoute = router.get("/:country");
-    getSchoolsRoute.handler(this::handleGetAllSchoolsCountryFilterRoute);
   }
 
   private void registerGetSchool(Router router) {
@@ -204,13 +198,6 @@ public class ProtectedSchoolRouter implements IRouter {
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     SchoolListResponse response = processor.getAllSchools(userData);
-    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
-  }
-
-  private void handleGetAllSchoolsCountryFilterRoute(RoutingContext ctx) {
-    JWTData userData = ctx.get("jwt_data");
-    Country country = RestFunctions.getCountryFromString(ctx.pathParam("country"));
-    SchoolListResponse response = processor.getAllSchoolsCountryFilter(userData, country);
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
