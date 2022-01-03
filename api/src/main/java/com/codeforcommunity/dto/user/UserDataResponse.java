@@ -8,27 +8,26 @@ public class UserDataResponse {
   private String firstName;
   private String lastName;
   private String email;
+  private Integer id;
   private Country country;
   private PrivilegeLevel privilegeLevel;
+  private Boolean isDisabled;
 
   public UserDataResponse(
       String firstName,
       String lastName,
+      Integer id,
       String email,
       Country country,
-      PrivilegeLevel privilegeLevel) {
+      PrivilegeLevel privilegeLevel,
+      Boolean disabled) {
     this.email = email;
     this.firstName = firstName;
+    this.id = id;
     this.lastName = lastName;
     this.country = country;
     this.privilegeLevel = privilegeLevel;
-  }
-
-  public UserDataResponse(String firstName, String lastName, String email, Country country) {
-    this.email = email;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.country = country;
+    this.isDisabled = disabled;
   }
 
   public String getEmail() {
@@ -45,6 +44,14 @@ public class UserDataResponse {
 
   public Country getCountry() {
     return country;
+  }
+
+  public Integer getId() {
+    return this.id;
+  }
+
+  public Boolean getDisabled() {
+    return this.isDisabled;
   }
 
   public PrivilegeLevel getPrivilegeLevel() {

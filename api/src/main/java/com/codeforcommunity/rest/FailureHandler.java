@@ -7,6 +7,7 @@ import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
 import com.codeforcommunity.exceptions.ExpiredSecretKeyException;
 import com.codeforcommunity.exceptions.HandledException;
 import com.codeforcommunity.exceptions.InvalidSecretKeyException;
+import com.codeforcommunity.exceptions.InvalidShipmentYearException;
 import com.codeforcommunity.exceptions.MalformedParameterException;
 import com.codeforcommunity.exceptions.MissingHeaderException;
 import com.codeforcommunity.exceptions.MissingParameterException;
@@ -214,6 +215,13 @@ public class FailureHandler {
     String message =
         String.format("Report with ID %d was unable to be converted to CSV", e.getReportId());
     end(ctx, message, 500);
+  }
+
+  public void handleInvalidShipmentYear(RoutingContext ctx, InvalidShipmentYearException e) {
+    String message =
+        String.format(
+            "Invalid shipment year. Expected 4 digit integer but received: %d", e.getYear());
+    end(ctx, message, 400);
   }
 
   private void handleUncaughtError(RoutingContext ctx, Throwable throwable) {

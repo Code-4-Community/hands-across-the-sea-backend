@@ -27,7 +27,9 @@ public class MetricsTotalResponse {
     this.countBooks = countBooks;
   }
 
-  public Integer getCountStudents() { return countStudents; }
+  public Integer getCountStudents() {
+    return countStudents;
+  }
 
   public void setCountStudents(Integer countStudents) {
     this.countStudents = countStudents;

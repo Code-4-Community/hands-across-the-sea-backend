@@ -64,6 +64,7 @@ public class ProtectedSchoolRouter implements IRouter {
     registerGetPaginatedReports(router);
     registerGetWithLibraryReportAsCsv(router);
     registerGetWithoutLibraryReportAsCsv(router);
+    registerGetSchoolsFromUserId(router);
 
     // Register all book tracking routes
     registerCreateBookLog(router);
@@ -192,6 +193,17 @@ public class ProtectedSchoolRouter implements IRouter {
   private void registerGetWithLibraryReportAsCsv(Router router) {
     Route getReportAsCsv = router.get("/reports/with-library/:report_id");
     getReportAsCsv.handler(this::handleGetWithLibraryReportAsCsv);
+  }
+
+  private void registerGetSchoolsFromUserId(Router router) {
+    Route getSchoolsFromUserId = router.get("/reports/users");
+    getSchoolsFromUserId.handler(this::handleGetSchoolsFromUserId);
+  }
+
+  private void handleGetSchoolsFromUserId(RoutingContext ctx) {
+    JWTData userData = ctx.get("jwt_data");
+    SchoolListResponse response = processor.getSchoolsFromUserIdReports(userData);
+    end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {

@@ -27,5 +27,13 @@ public interface IProtectedUserProcessor {
 
   void updateUserData(JWTData userData, int userId, UserDataRequest request);
 
+  void disableUserAccount(JWTData userData, int userId);
+
+  void enableUserAccount(JWTData userData, int userID);
+
   UserListResponse getAllUsers(JWTData userData, Country country);
+
+  UserListResponse getDisabledUsers(JWTData userData);
+
+  UserListResponse getDisabledUsers(JWTData userData, Country country);
 }

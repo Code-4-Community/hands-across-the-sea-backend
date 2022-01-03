@@ -12,7 +12,6 @@ import com.codeforcommunity.dto.data.MetricsSchoolResponse;
 import com.codeforcommunity.dto.data.MetricsTotalResponse;
 import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
-import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.PrivilegeLevel;
@@ -49,8 +48,8 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
     MetricGeneric metricGeneric = getGenericMetrics(schoolIds);
 
-    return new MetricsTotalResponse(countSchools, metricGeneric.getTotalBooks(),
-        metricGeneric.getTotalStudents());
+    return new MetricsTotalResponse(
+        countSchools, metricGeneric.getTotalBooks(), metricGeneric.getTotalStudents());
   }
 
   @Override
@@ -67,7 +66,14 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
             db.selectFrom(USERS)
                 .where(USERS.DELETED_AT.isNull())
                 .and(USERS.COUNTRY.eq(country))
-                .and(USERS.PRIVILEGE_LEVEL.eq(PrivilegeLevel.STANDARD)));
+                .and(USERS.PRIVILEGE_LEVEL.eq(PrivilegeLevel.VOLUNTEER)));
+
+    int countOfficerAccounts =
+        db.fetchCount(
+            db.selectFrom(USERS)
+                .where(USERS.DELETED_AT.isNull())
+                .and(USERS.COUNTRY.eq(country))
+                .and(USERS.PRIVILEGE_LEVEL.eq(PrivilegeLevel.OFFICER)));
 
     int countAdminAccounts =
         db.fetchCount(
@@ -105,6 +111,7 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     return new MetricsCountryResponse(
         countSchools,
         countVolunteerAccounts,
+        countOfficerAccounts,
         countAdminAccounts,
         avgCountBooksPerStudent,
         avgCountStudentLibrariansPerSchool,
@@ -162,10 +169,7 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
       ReportGeneric report = schoolDatabaseOperations.getMostRecentReport(schoolId);
 
       if (report == null) {
-        logger.info(
-            String.format(
-                "No report found for school with ID `%d`",
-                schoolId));
+        logger.info(String.format("No report found for school with ID `%d`", schoolId));
         continue;
       }
 

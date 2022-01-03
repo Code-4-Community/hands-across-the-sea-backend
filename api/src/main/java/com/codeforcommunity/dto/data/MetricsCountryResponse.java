@@ -3,6 +3,7 @@ package com.codeforcommunity.dto.data;
 public class MetricsCountryResponse {
   private Integer countSchools;
   private Integer countVolunteerAccounts;
+  private Integer countOfficerAccounts;
   private Integer countAdminAccounts;
   private Float avgCountBooksPerStudent;
   private Float avgCountStudentLibrariansPerSchool;
@@ -13,6 +14,7 @@ public class MetricsCountryResponse {
   public MetricsCountryResponse(
       Integer countSchools,
       Integer countVolunteerAccounts,
+      Integer countOfficerAccounts,
       Integer countAdminAccounts,
       Float avgCountBooksPerStudent,
       Float avgCountStudentLibrariansPerSchool,
@@ -21,6 +23,7 @@ public class MetricsCountryResponse {
       Integer countBooks) {
     this.countSchools = countSchools;
     this.countVolunteerAccounts = countVolunteerAccounts;
+    this.countOfficerAccounts = countOfficerAccounts;
     this.countAdminAccounts = countAdminAccounts;
     this.avgCountBooksPerStudent = avgCountBooksPerStudent;
     this.avgCountStudentLibrariansPerSchool = avgCountStudentLibrariansPerSchool;
@@ -91,5 +94,13 @@ public class MetricsCountryResponse {
 
   public void setCountStudents(Integer countStudents) {
     this.countStudents = countStudents;
+  }
+
+  public Integer getCountOfficerAccounts() {
+    return countOfficerAccounts;
+  }
+
+  public void setCountOfficerAccounts(Integer countOfficerAccounts) {
+    this.countOfficerAccounts = countOfficerAccounts;
   }
 }

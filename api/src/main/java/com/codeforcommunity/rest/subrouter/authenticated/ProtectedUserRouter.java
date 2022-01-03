@@ -37,7 +37,9 @@ public class ProtectedUserRouter implements IRouter {
     registerChangeEmail(router);
     registerUpdateUserData(router);
     registerGetAllUsers(router);
-
+    registerDisableAccount(router);
+    registerEnableAccount(router);
+    registerGetDisabledUsers(router);
     return router;
   }
 
@@ -71,6 +73,35 @@ public class ProtectedUserRouter implements IRouter {
     getAllUsersRoute.handler(this::handleGetAllUsers);
   }
 
+  private void registerDisableAccount(Router router) {
+    Route disableUserAccountRoute = router.post("/disable/:user_id");
+    disableUserAccountRoute.handler(this::handleDisableUser);
+  }
+
+  private void registerEnableAccount(Router router) {
+    Route enableUserAccountRoute = router.post("/enable/:user_id");
+    enableUserAccountRoute.handler(this::handleEnableUser);
+  }
+
+  private void registerGetDisabledUsers(Router router) {
+    Route getDisabledUsersRoute = router.get("/disabled");
+    getDisabledUsersRoute.handler(this::handleGetDisabledUsers);
+  }
+
+  private void handleDisableUser(RoutingContext ctx) {
+    JWTData jwtData = ctx.get("jwt_data");
+    int userId = RestFunctions.getPathParamAsInt(ctx, "user_id");
+    processor.disableUserAccount(jwtData, userId);
+    end(ctx.response(), 200);
+  }
+
+  private void handleEnableUser(RoutingContext ctx) {
+    JWTData jwtData = ctx.get("jwt_data");
+    int userId = RestFunctions.getPathParamAsInt(ctx, "user_id");
+    processor.enableUserAccount(jwtData, userId);
+    end(ctx.response(), 200);
+  }
+
   private void handleGetAllUsers(RoutingContext ctx) {
     JWTData jwtData = ctx.get("jwt_data");
     Optional<String> countryName =
@@ -83,6 +114,21 @@ public class ProtectedUserRouter implements IRouter {
     } else {
       Country country = RestFunctions.getCountryFromString(countryName.get());
       users = processor.getAllUsers(jwtData, country);
+    }
+    end(ctx.response(), 200, JsonObject.mapFrom(users).toString());
+  }
+
+  private void handleGetDisabledUsers(RoutingContext ctx) {
+    JWTData jwtData = ctx.get("jwt_data");
+    Optional<String> countryName =
+        RestFunctions.getOptionalQueryParam(ctx, "country", (str -> str));
+
+    UserListResponse users;
+    if (!countryName.isPresent()) {
+      users = processor.getDisabledUsers(jwtData);
+    } else {
+      Country country = RestFunctions.getCountryFromString(countryName.get());
+      users = processor.getDisabledUsers(jwtData, country);
     }
     end(ctx.response(), 200, JsonObject.mapFrom(users).toString());
   }

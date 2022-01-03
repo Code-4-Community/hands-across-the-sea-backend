@@ -1,6 +1,7 @@
 package com.codeforcommunity.dto.report;
 
 import com.codeforcommunity.dto.ApiDto;
+import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.exceptions.HandledException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ public class UpsertReportGeneric extends ApiDto {
   private String visitReason;
   private String actionPlan;
   private String successStories;
+  private List<Grade> gradesAttended;
 
   public Integer getNumberOfChildren() {
     return numberOfChildren;
@@ -62,6 +64,14 @@ public class UpsertReportGeneric extends ApiDto {
     this.successStories = successStories;
   }
 
+  public List<Grade> getGradesAttended() {
+    return gradesAttended;
+  }
+
+  public void setGradesAttended(List<Grade> gradesAttended) {
+    this.gradesAttended = gradesAttended;
+  }
+
   @Override
   public List<String> validateFields(String fieldPrefix) throws HandledException {
     List<String> fields = new ArrayList<String>();
@@ -71,11 +81,11 @@ public class UpsertReportGeneric extends ApiDto {
     if (numberOfBooks == null) {
       fields.add("numberOfBooks");
     }
-    if (mostRecentShipmentYear == null) {
-      fields.add("mostRecentShipmentYear");
-    }
     if (visitReason == null) {
       fields.add("visitReason");
+    }
+    if (gradesAttended == null) {
+      fields.add("gradesAttended");
     }
     return fields;
   }
