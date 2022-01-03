@@ -130,23 +130,26 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    Integer countBooks = report.getNumberOfBooks();
-    Integer countStudents = report.getNumberOfChildren();
+    if (report != null) {
+      Integer countBooks = report.getNumberOfBooks();
+      Integer countStudents = report.getNumberOfChildren();
 
-    Float countBooksPerStudent =
-        (countBooks != null && countStudents != null)
-            ? ((float) countBooks / (float) countStudents)
-            : null;
+      Float countBooksPerStudent =
+          (countBooks != null && countStudents != null)
+              ? ((float) countBooks / (float) countStudents)
+              : null;
 
-    Integer countStudentLibrarians =
-        (report instanceof ReportWithLibrary)
-            ? ((ReportWithLibrary) report).getNumberOfStudentLibrarians()
-            : null;
+      Integer countStudentLibrarians =
+          (report instanceof ReportWithLibrary)
+              ? ((ReportWithLibrary) report).getNumberOfStudentLibrarians()
+              : null;
 
-    Integer netBooksInOut = null; // TODO
+      Integer netBooksInOut = null; // TODO
 
-    return new MetricsSchoolResponse(
-        countBooksPerStudent, countStudents, countStudentLibrarians, netBooksInOut, countBooks);
+      return new MetricsSchoolResponse(
+          countBooksPerStudent, countStudents, countStudentLibrarians, netBooksInOut, countBooks);
+    }
+    return new MetricsSchoolResponse(null, null, null, null, null);
   }
 
   private List<ReportGeneric> getCountryReports(Country country) {
@@ -213,8 +216,12 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     Integer totalStudents = 0;
 
     for (Integer schoolId : schoolIds) {
-      totalBooks += schoolDatabaseOperations.getMostRecentReport(schoolId).getNumberOfBooks();
-      totalStudents += schoolDatabaseOperations.getMostRecentReport(schoolId).getNumberOfChildren();
+
+      ReportGeneric report = schoolDatabaseOperations.getMostRecentReport(schoolId);
+      if (report != null) {
+        totalBooks += report.getNumberOfBooks();
+        totalStudents += report.getNumberOfChildren();
+      }
     }
     return new MetricGeneric(totalBooks, totalStudents);
   }
