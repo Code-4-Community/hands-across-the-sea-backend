@@ -47,7 +47,7 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
             .and(SCHOOLS.DELETED_AT.isNull())
             .fetch(SCHOOLS.ID);
 
-    MetricGeneric metricGeneric = getGenericMetrics(getReports(schoolIds));
+    MetricGeneric metricGeneric = getGenericMetrics(schoolIds);
 
     return new MetricsTotalResponse(countSchools, metricGeneric.getTotalBooks(),
         metricGeneric.getTotalStudents());
@@ -78,6 +78,13 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
     List<ReportGeneric> schoolReports = this.getCountryReports(country);
 
+    List<Integer> schoolIds =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.HIDDEN.isFalse())
+            .and(SCHOOLS.DELETED_AT.isNull())
+            .and(SCHOOLS.COUNTRY.eq(country))
+            .fetch(SCHOOLS.ID);
+
     Float avgCountBooksPerStudent = this.getCountryBooksPerStudentAverage(country, schoolReports);
     Float avgCountStudentLibrariansPerSchool =
         this.getCountryStudentLibrariansPerSchoolAverage(country, schoolReports);
@@ -93,7 +100,7 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     float percentSchoolsWithLibraries =
         (countSchools > 0) ? ((float) countSchoolsWithLibrary / (float) countSchools) * 100 : 0;
 
-    MetricGeneric metricGeneric = getGenericMetrics(schoolReports);
+    MetricGeneric metricGeneric = getGenericMetrics(schoolIds);
 
     return new MetricsCountryResponse(
         countSchools,
@@ -197,13 +204,13 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
   }
 
   // gets total books and students from a list of schools
-  private MetricGeneric getGenericMetrics(List<ReportGeneric> reports) {
+  private MetricGeneric getGenericMetrics(List<Integer> schoolIds) {
     Integer totalBooks = 0;
     Integer totalStudents = 0;
 
-    for (ReportGeneric report : reports) {
-      totalBooks += report.getNumberOfBooks();
-      totalStudents += report.getNumberOfChildren();
+    for (Integer schoolId : schoolIds) {
+      totalBooks += schoolDatabaseOperations.getMostRecentReport(schoolId).getNumberOfBooks();
+      totalStudents += schoolDatabaseOperations.getMostRecentReport(schoolId).getNumberOfChildren();
     }
     return new MetricGeneric(totalBooks, totalStudents);
   }
