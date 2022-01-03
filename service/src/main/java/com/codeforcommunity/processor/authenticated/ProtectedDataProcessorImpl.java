@@ -6,11 +6,13 @@ import static org.jooq.generated.Tables.USERS;
 import com.codeforcommunity.api.authenticated.IProtectedDataProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dataaccess.SchoolDatabaseOperations;
+import com.codeforcommunity.dto.data.MetricGeneric;
 import com.codeforcommunity.dto.data.MetricsCountryResponse;
 import com.codeforcommunity.dto.data.MetricsSchoolResponse;
 import com.codeforcommunity.dto.data.MetricsTotalResponse;
 import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
+import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.PrivilegeLevel;
@@ -21,6 +23,7 @@ import java.util.List;
 import org.jooq.DSLContext;
 
 public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
+
   private final SLogger logger = new SLogger(ProtectedDataProcessorImpl.class);
   private final SchoolDatabaseOperations schoolDatabaseOperations;
   private final DSLContext db;
@@ -38,9 +41,16 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
                 .where(SCHOOLS.HIDDEN.isFalse())
                 .and(SCHOOLS.DELETED_AT.isNull()));
 
-    int countBooks = 0;
+    List<Integer> schoolIds =
+        db.selectFrom(SCHOOLS)
+            .where(SCHOOLS.HIDDEN.isFalse())
+            .and(SCHOOLS.DELETED_AT.isNull())
+            .fetch(SCHOOLS.ID);
 
-    return new MetricsTotalResponse(countSchools,countBooks);
+    MetricGeneric metricGeneric = getGenericMetrics(getReports(schoolIds));
+
+    return new MetricsTotalResponse(countSchools, metricGeneric.getTotalBooks(),
+        metricGeneric.getTotalStudents());
   }
 
   @Override
@@ -83,13 +93,17 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     float percentSchoolsWithLibraries =
         (countSchools > 0) ? ((float) countSchoolsWithLibrary / (float) countSchools) * 100 : 0;
 
+    MetricGeneric metricGeneric = getGenericMetrics(schoolReports);
+
     return new MetricsCountryResponse(
         countSchools,
         countVolunteerAccounts,
         countAdminAccounts,
         avgCountBooksPerStudent,
         avgCountStudentLibrariansPerSchool,
-        percentSchoolsWithLibraries);
+        percentSchoolsWithLibraries,
+        metricGeneric.getTotalStudents(),
+        metricGeneric.getTotalBooks());
   }
 
   @Override
@@ -118,7 +132,7 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     Integer netBooksInOut = null; // TODO
 
     return new MetricsSchoolResponse(
-        countBooksPerStudent, countStudents, countStudentLibrarians, netBooksInOut);
+        countBooksPerStudent, countStudents, countStudentLibrarians, netBooksInOut, countBooks);
   }
 
   private List<ReportGeneric> getCountryReports(Country country) {
@@ -130,6 +144,10 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
             .and(SCHOOLS.COUNTRY.eq(country))
             .fetch(SCHOOLS.ID);
 
+    return getReports(schoolIds);
+  }
+
+  private List<ReportGeneric> getReports(List<Integer> schoolIds) {
     List<ReportGeneric> reports = new ArrayList<ReportGeneric>();
 
     for (int schoolId : schoolIds) {
@@ -139,8 +157,8 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
       if (report == null) {
         logger.info(
             String.format(
-                "No report found for school with ID `%d` in country `%s`",
-                schoolId, country.getName()));
+                "No report found for school with ID `%d`",
+                schoolId));
         continue;
       }
 
@@ -176,6 +194,18 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     }
 
     return (float) schoolAveragesBooksPerStudent.stream().mapToDouble(d -> d).average().orElse(0.0);
+  }
+
+  // gets total books and students from a list of schools
+  private MetricGeneric getGenericMetrics(List<ReportGeneric> reports) {
+    Integer totalBooks = 0;
+    Integer totalStudents = 0;
+
+    for (ReportGeneric report : reports) {
+      totalBooks += report.getNumberOfBooks();
+      totalStudents += report.getNumberOfChildren();
+    }
+    return new MetricGeneric(totalBooks, totalStudents);
   }
 
   private Float getCountryStudentLibrariansPerSchoolAverage(

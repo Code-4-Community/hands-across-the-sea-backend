@@ -19,7 +19,6 @@ import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.UpsertBookLogRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
-import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.rest.IRouter;
 import com.codeforcommunity.rest.RestFunctions;
 import io.vertx.core.Vertx;

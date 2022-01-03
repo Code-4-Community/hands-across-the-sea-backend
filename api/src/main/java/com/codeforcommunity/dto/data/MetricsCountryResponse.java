@@ -7,6 +7,8 @@ public class MetricsCountryResponse {
   private Float avgCountBooksPerStudent;
   private Float avgCountStudentLibrariansPerSchool;
   private Float percentSchoolsWithLibraries;
+  private Integer countStudents;
+  private Integer countBooks;
 
   public MetricsCountryResponse(
       Integer countSchools,
@@ -14,13 +16,17 @@ public class MetricsCountryResponse {
       Integer countAdminAccounts,
       Float avgCountBooksPerStudent,
       Float avgCountStudentLibrariansPerSchool,
-      Float percentSchoolsWithLibraries) {
+      Float percentSchoolsWithLibraries,
+      Integer countStudents,
+      Integer countBooks) {
     this.countSchools = countSchools;
     this.countVolunteerAccounts = countVolunteerAccounts;
     this.countAdminAccounts = countAdminAccounts;
     this.avgCountBooksPerStudent = avgCountBooksPerStudent;
     this.avgCountStudentLibrariansPerSchool = avgCountStudentLibrariansPerSchool;
     this.percentSchoolsWithLibraries = percentSchoolsWithLibraries;
+    this.countStudents = countStudents;
+    this.countBooks = countBooks;
   }
 
   public Integer getCountSchools() {
@@ -69,5 +75,21 @@ public class MetricsCountryResponse {
 
   public void setPercentSchoolsWithLibraries(Float percentSchoolsWithLibraries) {
     this.percentSchoolsWithLibraries = percentSchoolsWithLibraries;
+  }
+
+  public Integer getCountBooks() {
+    return countBooks;
+  }
+
+  public void setCountBooks(Integer countBooks) {
+    this.countBooks = countBooks;
+  }
+
+  public Integer getCountStudents() {
+    return countStudents;
+  }
+
+  public void setCountStudents(Integer countStudents) {
+    this.countStudents = countStudents;
   }
 }

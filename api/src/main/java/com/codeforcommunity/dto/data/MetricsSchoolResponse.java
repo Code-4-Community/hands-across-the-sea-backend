@@ -5,16 +5,19 @@ public class MetricsSchoolResponse {
   private Integer countStudents;
   private Integer countStudentLibrarians;
   private Integer netBooksInOut;
+  private Integer countBooks;
 
   public MetricsSchoolResponse(
       Float countBooksPerStudent,
       Integer countStudents,
       Integer countStudentLibrarians,
-      Integer netBooksInOut) {
+      Integer netBooksInOut,
+      Integer countBooks) {
     this.countBooksPerStudent = countBooksPerStudent;
     this.countStudents = countStudents;
     this.countStudentLibrarians = countStudentLibrarians;
     this.netBooksInOut = netBooksInOut;
+    this.countBooks = countBooks;
   }
 
   public Float getCountBooksPerStudent() {
@@ -47,5 +50,13 @@ public class MetricsSchoolResponse {
 
   public void setNetBooksInOut(Integer netBooksInOut) {
     this.netBooksInOut = netBooksInOut;
+  }
+
+  public Integer getCountBooks() {
+    return countBooks;
+  }
+
+  public void setCountBooks(Integer countBooks) {
+    this.countBooks = countBooks;
   }
 }

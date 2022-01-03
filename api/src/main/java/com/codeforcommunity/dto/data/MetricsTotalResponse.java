@@ -3,13 +3,12 @@ package com.codeforcommunity.dto.data;
 public class MetricsTotalResponse {
   private Integer countSchools;
   private Integer countBooks;
+  private Integer countStudents;
 
-  public MetricsTotalResponse(
-      Integer countSchools,
-      Integer countBooks
-  ) {
+  public MetricsTotalResponse(Integer countSchools, Integer countBooks, Integer countStudents) {
     this.countSchools = countSchools;
     this.countBooks = countBooks;
+    this.countStudents = countStudents;
   }
 
   public Integer getCountSchools() {
@@ -26,5 +25,11 @@ public class MetricsTotalResponse {
 
   public void setCountBooks(Integer countBooks) {
     this.countBooks = countBooks;
+  }
+
+  public Integer getCountStudents() { return countStudents; }
+
+  public void setCountStudents(Integer countStudents) {
+    this.countStudents = countStudents;
   }
 }
