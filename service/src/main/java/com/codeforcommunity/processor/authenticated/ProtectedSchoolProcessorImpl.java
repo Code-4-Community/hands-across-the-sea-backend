@@ -485,10 +485,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new AuthException("User ID is incorrect");
     }
 
-
     if (req.getMostRecentShipmentYear() != null) {
       if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
-      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+        throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
       }
     }
 
@@ -612,8 +611,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         req.getGradesAttended(),
         getUserName(userData.getUserId()),
         getSchoolName(schoolId),
-        newReport.getReasonNoLibrarySpace()
-        );
+        newReport.getReasonNoLibrarySpace());
   }
 
   @Override

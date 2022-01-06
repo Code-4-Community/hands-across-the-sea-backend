@@ -16,7 +16,9 @@ public class UpsertReportWithoutLibrary extends UpsertReportGeneric {
     return reason;
   }
 
-  public String getReasonNoLibrarySpace() { return this.reasonNoLibrarySpace; }
+  public String getReasonNoLibrarySpace() {
+    return this.reasonNoLibrarySpace;
+  }
 
   public void setReason(String reason) {
     this.reason = reason;

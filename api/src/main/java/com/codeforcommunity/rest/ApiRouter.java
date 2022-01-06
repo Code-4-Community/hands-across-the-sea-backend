@@ -1,12 +1,14 @@
 package com.codeforcommunity.rest;
 
 import com.codeforcommunity.api.authenticated.IProtectedCountryProcessor;
+import com.codeforcommunity.api.authenticated.IProtectedDataProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedUserProcessor;
 import com.codeforcommunity.api.unauthenticated.IAuthProcessor;
 import com.codeforcommunity.auth.JWTAuthorizer;
 import com.codeforcommunity.rest.subrouter.CommonRouter;
 import com.codeforcommunity.rest.subrouter.authenticated.ProtectedCountryRouter;
+import com.codeforcommunity.rest.subrouter.authenticated.ProtectedDataRouter;
 import com.codeforcommunity.rest.subrouter.authenticated.ProtectedSchoolRouter;
 import com.codeforcommunity.rest.subrouter.authenticated.ProtectedUserRouter;
 import com.codeforcommunity.rest.subrouter.unauthenticated.AuthRouter;
@@ -20,18 +22,21 @@ public class ApiRouter implements IRouter {
   private final ProtectedUserRouter protectedUserRouter;
   private final ProtectedCountryRouter protectedCountryRouter;
   private final ProtectedSchoolRouter protectedSchoolRouter;
+  private final ProtectedDataRouter protectedDataRouter;
 
   public ApiRouter(
       JWTAuthorizer jwtAuthorizer,
       IAuthProcessor authProcessor,
       IProtectedUserProcessor protectedUserProcessor,
       IProtectedCountryProcessor protectedCountryProcessor,
-      IProtectedSchoolProcessor protectedSchoolProcessor) {
+      IProtectedSchoolProcessor protectedSchoolProcessor,
+      IProtectedDataProcessor protectedDataProcessor) {
     this.commonRouter = new CommonRouter(jwtAuthorizer);
     this.authRouter = new AuthRouter(authProcessor);
     this.protectedUserRouter = new ProtectedUserRouter(protectedUserProcessor);
     this.protectedCountryRouter = new ProtectedCountryRouter(protectedCountryProcessor);
     this.protectedSchoolRouter = new ProtectedSchoolRouter(protectedSchoolProcessor);
+    this.protectedDataRouter = new ProtectedDataRouter(protectedDataProcessor);
   }
 
   /** Initialize a router and register all route handlers on it. */
@@ -57,6 +62,7 @@ public class ApiRouter implements IRouter {
     protectedSubRouter.mountSubRouter("/user", protectedUserRouter.initializeRouter(vertx));
     protectedSubRouter.mountSubRouter("/countries", protectedCountryRouter.initializeRouter(vertx));
     protectedSubRouter.mountSubRouter("/schools", protectedSchoolRouter.initializeRouter(vertx));
+    protectedSubRouter.mountSubRouter("/data", protectedDataRouter.initializeRouter(vertx));
 
     return protectedSubRouter;
   }

@@ -110,7 +110,9 @@ public class ReportWithoutLibrary extends ReportGeneric {
     return this.reason;
   }
 
-  public String getReasonNoLibrarySpace() { return this.reasonNoLibrarySpace; }
+  public String getReasonNoLibrarySpace() {
+    return this.reasonNoLibrarySpace;
+  }
 
   public ReadyTimeline getReadyTimeline() {
     return this.readyTimeline;
