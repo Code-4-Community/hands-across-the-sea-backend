@@ -15,6 +15,7 @@ import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.PrivilegeLevel;
+import com.codeforcommunity.exceptions.NoReportFoundException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
 import com.codeforcommunity.logger.SLogger;
 import java.util.ArrayList;
@@ -130,26 +131,25 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    if (report != null) {
-      Integer countBooks = report.getNumberOfBooks();
-      Integer countStudents = report.getNumberOfChildren();
-
-      Float countBooksPerStudent =
-          (countBooks != null && countStudents != null)
-              ? ((float) countBooks / (float) countStudents)
-              : null;
-
-      Integer countStudentLibrarians =
-          (report instanceof ReportWithLibrary)
-              ? ((ReportWithLibrary) report).getNumberOfStudentLibrarians()
-              : null;
-
-      Integer netBooksInOut = null; // TODO
-
-      return new MetricsSchoolResponse(
-          countBooksPerStudent, countStudents, countStudentLibrarians, netBooksInOut, countBooks);
+    if (report == null) {
+      throw new NoReportFoundException(schoolId);
     }
-    return new MetricsSchoolResponse(null, null, null, null, null);
+
+    Integer countBooks = report.getNumberOfBooks();
+    Integer countStudents = report.getNumberOfChildren();
+
+    Float countBooksPerStudent =
+        (countBooks != null && countStudents != null)
+            ? ((float) countBooks / (float) countStudents)
+            : null;
+
+    Integer countStudentLibrarians =
+        (report instanceof ReportWithLibrary)
+            ? ((ReportWithLibrary) report).getNumberOfStudentLibrarians()
+            : null;
+    Integer netBooksInOut = null; // TODO
+    return new MetricsSchoolResponse(
+        countBooksPerStudent, countStudents, countStudentLibrarians, netBooksInOut, countBooks);
   }
 
   private List<ReportGeneric> getCountryReports(Country country) {
@@ -170,13 +170,9 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     for (int schoolId : schoolIds) {
       // For each school, get the most recent report
       ReportGeneric report = schoolDatabaseOperations.getMostRecentReport(schoolId);
-
-      if (report == null) {
-        logger.info(String.format("No report found for school with ID `%d`", schoolId));
-        continue;
+      if (report != null) {
+        reports.add(report);
       }
-
-      reports.add(report);
     }
 
     return reports;
@@ -236,7 +232,6 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
       if (report.getLibraryStatus() != LibraryStatus.EXISTS
           || !(report instanceof ReportWithLibrary)) {
         // Skip reports with no libraries
-
         logger.info(
             String.format(
                 "Skipping school report with ID `%d` since it has no library", report.getId()));
