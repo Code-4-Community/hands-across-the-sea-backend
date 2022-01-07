@@ -12,5 +12,6 @@ public enum Grade {
   FORM_TWO,
   FORM_THREE,
   FORM_FOUR,
-  FORM_FIVE;
+  FORM_FIVE,
+  FORM_SIX;
 }
