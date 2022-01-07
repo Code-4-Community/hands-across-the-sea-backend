@@ -31,6 +31,7 @@ import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
+import com.codeforcommunity.exceptions.AuthException;
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
 import com.codeforcommunity.exceptions.CsvSerializerException;
 import com.codeforcommunity.exceptions.InvalidShipmentYearException;
@@ -424,10 +425,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.setLibraryStatus(LibraryStatus.EXISTS);
     school.store();
 
-    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
-      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
-    }
-
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITH_LIBRARIES);
     storeReportWithLibrary(userData, schoolId, req, newReport);
@@ -459,9 +456,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getActionPlan(),
         newReport.getSuccessStories(),
         req.getGradesAttended(),
-        req.getTimetable(),
+        req.getCheckInTimetable(),
         getUserName(userData.getUserId()),
-        getSchoolName(schoolId));
+        getSchoolName(schoolId),
+        req.getCheckOutTimetable(),
+        req.getNumberOfStudentLibrariansTrainers());
   }
 
   @Override
@@ -482,12 +481,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new NoReportFoundException(schoolId);
     }
 
-    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
-      throw new AdminOnlyRouteException();
+    if (!newReport.getUserId().equals(userData.getUserId())) {
+      throw new AuthException("User ID is incorrect");
     }
 
-    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
-      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    if (req.getMostRecentShipmentYear() != null) {
+      if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
+        throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+      }
     }
 
     storeReportWithLibrary(userData, schoolId, req, newReport);
@@ -522,7 +523,9 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setGradesAttended(
         (Object[]) req.getGradesAttended().stream().map(Grade::name).toArray(String[]::new));
 
-    newReport.setTimetable(req.getTimetable().toString());
+    newReport.setCheckinTimetable(req.getCheckInTimetable().toString());
+    newReport.setCheckoutTimetable(req.getCheckOutTimetable().toString());
+    newReport.setNumberOfStudentLibrariansTrainers(req.getNumberOfStudentLibrariansTrainers());
     newReport.store();
   }
 
@@ -576,10 +579,11 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
-      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    if (req.getMostRecentShipmentYear() != null) {
+      if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
+        throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+      }
     }
-
     school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
     school.store();
 
@@ -606,7 +610,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
         newReport.getSuccessStories(),
         req.getGradesAttended(),
         getUserName(userData.getUserId()),
-        getSchoolName(schoolId));
+        getSchoolName(schoolId),
+        newReport.getReasonNoLibrarySpace());
   }
 
   @Override
@@ -628,12 +633,14 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       throw new NoReportFoundException(schoolId);
     }
 
-    if (!userData.isAdmin() && !newReport.getUserId().equals(userData.getUserId())) {
-      throw new AdminOnlyRouteException();
+    if (!newReport.getUserId().equals(userData.getUserId())) {
+      throw new AuthException("User ID is incorrect");
     }
 
-    if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
-      throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+    if (req.getMostRecentShipmentYear() != null) {
+      if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
+        throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
+      }
     }
 
     storeReportWithoutLibrary(userData, schoolId, req, newReport, req.getGradesAttended());
@@ -660,6 +667,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     newReport.setSuccessStories(req.getSuccessStories());
     newReport.setGradesAttended(
         (Object[]) gradesAttended.stream().map(Grade::name).toArray(String[]::new));
+    newReport.setReasonNoLibrarySpace(req.getReasonNoLibrarySpace());
     newReport.store();
   }
 
@@ -911,7 +919,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   private String getUserName(int userId) {
     UsersRecord userRecord = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
-    if(userRecord == null){
+    if (userRecord == null) {
       logger.error(String.format("No username found for userId:  %d", userId));
       throw new UserDoesNotExistException(userId);
     }
@@ -920,7 +928,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   private String getSchoolName(int schoolId) {
     SchoolsRecord schoolRecord = db.selectFrom(SCHOOLS).where(SCHOOLS.ID.eq(schoolId)).fetchOne();
-    if(schoolRecord == null){
+    if (schoolRecord == null) {
       logger.error(String.format("No school name found for schoolId:  %d", schoolId));
       throw new SchoolDoesNotExistException(schoolId);
     }

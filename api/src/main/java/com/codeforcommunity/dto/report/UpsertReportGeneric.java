@@ -81,9 +81,6 @@ public class UpsertReportGeneric extends ApiDto {
     if (numberOfBooks == null) {
       fields.add("numberOfBooks");
     }
-    if (mostRecentShipmentYear == null) {
-      fields.add("mostRecentShipmentYear");
-    }
     if (visitReason == null) {
       fields.add("visitReason");
     }

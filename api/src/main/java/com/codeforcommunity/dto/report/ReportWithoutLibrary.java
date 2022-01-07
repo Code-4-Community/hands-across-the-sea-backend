@@ -16,6 +16,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
   private List<String> currentStatus;
   private String reason;
   private ReadyTimeline readyTimeline;
+  private String reasonNoLibrarySpace;
 
   public ReportWithoutLibrary() {
     super(LibraryStatus.DOES_NOT_EXIST);
@@ -40,7 +41,8 @@ public class ReportWithoutLibrary extends ReportGeneric {
       String successStories,
       List<Grade> gradesAttended,
       String userName,
-      String schoolName) {
+      String schoolName,
+      String reasonNoLibrarySpace) {
     super(
         id,
         createdAt,
@@ -62,6 +64,7 @@ public class ReportWithoutLibrary extends ReportGeneric {
     this.currentStatus = currentStatus;
     this.reason = reason;
     this.readyTimeline = readyTimeline;
+    this.reasonNoLibrarySpace = reasonNoLibrarySpace;
   }
 
   public static ReportWithoutLibrary instantiateFromRecord(
@@ -87,7 +90,8 @@ public class ReportWithoutLibrary extends ReportGeneric {
             .map(gradeString -> Grade.valueOf((String) gradeString))
             .collect(Collectors.toList()),
         userName,
-        schoolName);
+        schoolName,
+        record.getReasonNoLibrarySpace());
   }
 
   public Boolean getWantsLibrary() {
@@ -104,6 +108,10 @@ public class ReportWithoutLibrary extends ReportGeneric {
 
   public String getReason() {
     return this.reason;
+  }
+
+  public String getReasonNoLibrarySpace() {
+    return this.reasonNoLibrarySpace;
   }
 
   public ReadyTimeline getReadyTimeline() {
