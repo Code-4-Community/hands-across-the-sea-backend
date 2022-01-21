@@ -1,6 +1,8 @@
 package com.codeforcommunity.rest;
 
+import com.codeforcommunity.api.authenticated.IProtectedBookLogProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedCountryProcessor;
+import com.codeforcommunity.api.authenticated.IProtectedReportProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedDataProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedUserProcessor;
@@ -30,12 +32,14 @@ public class ApiRouter implements IRouter {
       IProtectedUserProcessor protectedUserProcessor,
       IProtectedCountryProcessor protectedCountryProcessor,
       IProtectedSchoolProcessor protectedSchoolProcessor,
+      IProtectedReportProcessor protectedReportProcessor,
+      IProtectedBookLogProcessor protectedBookLogProcessor) {
       IProtectedDataProcessor protectedDataProcessor) {
     this.commonRouter = new CommonRouter(jwtAuthorizer);
     this.authRouter = new AuthRouter(authProcessor);
     this.protectedUserRouter = new ProtectedUserRouter(protectedUserProcessor);
     this.protectedCountryRouter = new ProtectedCountryRouter(protectedCountryProcessor);
-    this.protectedSchoolRouter = new ProtectedSchoolRouter(protectedSchoolProcessor);
+    this.protectedSchoolRouter = new ProtectedSchoolRouter(protectedSchoolProcessor, protectedReportProcessor, protectedBookLogProcessor);
     this.protectedDataRouter = new ProtectedDataRouter(protectedDataProcessor);
   }
 

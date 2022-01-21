@@ -48,31 +48,5 @@ public interface IProtectedSchoolProcessor {
 
   void unHideSchool(JWTData userData, int schoolId);
 
-  ReportGeneric getMostRecentReport(JWTData userData, int schoolId);
-
-  ReportWithLibrary createReportWithLibrary(
-      JWTData userData, int schoolId, UpsertReportWithLibrary upsertRequest);
-
-  ReportWithoutLibrary createReportWithoutLibrary(
-      JWTData userData, int schoolId, UpsertReportWithoutLibrary upsertRequest);
-
-  void updateReportWithLibrary(
-      JWTData userData, int schoolId, int reportId, UpsertReportWithLibrary upsertRequest);
-
-  void updateReportWithoutLibrary(
-      JWTData userData, int schoolId, int reportId, UpsertReportWithoutLibrary upsertRequest);
-
-  ReportGenericListResponse getPaginatedReports(JWTData userData, int schoolId, int page);
-
-  BookLog createBookLog(JWTData userData, int schoolId, UpsertBookLogRequest request);
-
-  BookLogListResponse getBookLog(JWTData userData, int schoolId);
-
-  String getReportAsCsv(JWTData userData, int reportId, boolean hasLibrary);
-
-  BookLog updateBookLog(JWTData userData, int schoolId, int bookId, UpsertBookLogRequest request);
-
-  void deleteBookLog(JWTData userData, int schoolId, int bookId);
-
   SchoolListResponse getSchoolsFromUserIdReports(JWTData userData);
 }

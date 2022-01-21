@@ -1,6 +1,8 @@
 package com.codeforcommunity;
 
+import com.codeforcommunity.api.authenticated.IProtectedBookLogProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedCountryProcessor;
+import com.codeforcommunity.api.authenticated.IProtectedReportProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedDataProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedUserProcessor;
@@ -9,7 +11,9 @@ import com.codeforcommunity.auth.JWTAuthorizer;
 import com.codeforcommunity.auth.JWTCreator;
 import com.codeforcommunity.auth.JWTHandler;
 import com.codeforcommunity.logger.SLogger;
+import com.codeforcommunity.processor.authenticated.ProtectedBookLogProcessorImpl;
 import com.codeforcommunity.processor.authenticated.ProtectedCountryProcessorImpl;
+import com.codeforcommunity.processor.authenticated.ProtectedReportProcessorImpl;
 import com.codeforcommunity.processor.authenticated.ProtectedDataProcessorImpl;
 import com.codeforcommunity.processor.authenticated.ProtectedSchoolProcessorImpl;
 import com.codeforcommunity.processor.authenticated.ProtectedUserProcessorImpl;
@@ -91,11 +95,14 @@ public class ServiceMain {
     IProtectedUserProcessor protectedUserProc = new ProtectedUserProcessorImpl(this.db, emailer);
     IProtectedCountryProcessor protectedCountryProc = new ProtectedCountryProcessorImpl(this.db);
     IProtectedSchoolProcessor protectedSchoolProc = new ProtectedSchoolProcessorImpl(this.db);
+    IProtectedReportProcessor protectedReportProcessor = new ProtectedReportProcessorImpl(this.db);
+    IProtectedBookLogProcessor protectedBookLogProcessor = new ProtectedBookLogProcessorImpl(this.db);
     IProtectedDataProcessor protectedDataProcessor = new ProtectedDataProcessorImpl(this.db);
 
     // Create the API router and start the HTTP server
     ApiRouter router =
         new ApiRouter(
+            jwtAuthorizer, authProc, protectedUserProc, protectedCountryProc, protectedSchoolProc, protectedReportProcessor, protectedBookLogProcessor);
             jwtAuthorizer,
             authProc,
             protectedUserProc,
