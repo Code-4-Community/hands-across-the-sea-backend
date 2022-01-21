@@ -388,7 +388,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.store();
   }
 
-  @Override
   public SchoolListResponse getSchoolsFromUserIdReports(JWTData userData) {
     Set<Integer> schoolIds = new HashSet<>();
 
