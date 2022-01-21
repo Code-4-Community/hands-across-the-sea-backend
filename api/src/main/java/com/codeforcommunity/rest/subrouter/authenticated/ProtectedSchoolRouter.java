@@ -2,6 +2,8 @@ package com.codeforcommunity.rest.subrouter.authenticated;
 
 import static com.codeforcommunity.rest.ApiRouter.end;
 
+import com.codeforcommunity.api.authenticated.IProtectedBookLogProcessor;
+import com.codeforcommunity.api.authenticated.IProtectedReportProcessor;
 import com.codeforcommunity.api.authenticated.IProtectedSchoolProcessor;
 import com.codeforcommunity.auth.JWTData;
 import com.codeforcommunity.dto.report.ReportGeneric;
@@ -29,10 +31,17 @@ import io.vertx.ext.web.RoutingContext;
 
 public class ProtectedSchoolRouter implements IRouter {
 
-  private final IProtectedSchoolProcessor processor;
+  private final IProtectedSchoolProcessor schoolProcessor;
+  private final IProtectedReportProcessor reportProcessor;
+  private final IProtectedBookLogProcessor bookLogProcessor;
 
-  public ProtectedSchoolRouter(IProtectedSchoolProcessor processor) {
-    this.processor = processor;
+  public ProtectedSchoolRouter(
+      IProtectedSchoolProcessor schoolProcessor,
+      IProtectedReportProcessor reportProcessor,
+      IProtectedBookLogProcessor bookLogProcessor ) {
+    this.schoolProcessor = schoolProcessor;
+    this.reportProcessor = reportProcessor;
+    this.bookLogProcessor = bookLogProcessor;
   }
 
   @Override
@@ -47,6 +56,7 @@ public class ProtectedSchoolRouter implements IRouter {
     registerDeleteSchool(router);
     registerHidingSchool(router);
     registerUnHidingSchool(router);
+    registerGetSchoolsFromUserId(router);
 
     // Register all school contact routes
     registerGetAllSchoolContacts(router);
@@ -64,7 +74,8 @@ public class ProtectedSchoolRouter implements IRouter {
     registerGetPaginatedReports(router);
     registerGetWithLibraryReportAsCsv(router);
     registerGetWithoutLibraryReportAsCsv(router);
-    registerGetSchoolsFromUserId(router);
+
+
 
     // Register all book tracking routes
     registerCreateBookLog(router);
@@ -202,20 +213,20 @@ public class ProtectedSchoolRouter implements IRouter {
 
   private void handleGetSchoolsFromUserId(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
-    SchoolListResponse response = processor.getSchoolsFromUserIdReports(userData);
+    SchoolListResponse response = schoolProcessor.getSchoolsFromUserIdReports(userData);
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
-    SchoolListResponse response = processor.getAllSchools(userData);
+    SchoolListResponse response = schoolProcessor.getAllSchools(userData);
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
   private void handleGetSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    School response = processor.getSchool(userData, schoolId);
+    School response = schoolProcessor.getSchool(userData, schoolId);
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
@@ -223,7 +234,7 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     UpsertSchoolRequest upsertSchoolRequest =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertSchoolRequest.class);
-    School response = processor.createSchool(userData, upsertSchoolRequest);
+    School response = schoolProcessor.createSchool(userData, upsertSchoolRequest);
     end(ctx.response(), 201, JsonObject.mapFrom(response).toString());
   }
 
@@ -232,35 +243,35 @@ public class ProtectedSchoolRouter implements IRouter {
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     UpsertSchoolRequest upsertSchoolRequest =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertSchoolRequest.class);
-    processor.updateSchool(userData, schoolId, upsertSchoolRequest);
+    schoolProcessor.updateSchool(userData, schoolId, upsertSchoolRequest);
     end(ctx.response(), 200);
   }
 
   private void handleDeleteSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    processor.deleteSchool(userData, schoolId);
+    schoolProcessor.deleteSchool(userData, schoolId);
     end(ctx.response(), 200);
   }
 
   private void handleHidingSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    processor.hideSchool(userData, schoolId);
+    schoolProcessor.hideSchool(userData, schoolId);
     end(ctx.response(), 200);
   }
 
   private void handleUnHidingSchoolRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    processor.unHideSchool(userData, schoolId);
+    schoolProcessor.unHideSchool(userData, schoolId);
     end(ctx.response(), 200);
   }
 
   private void handleGetAllSchoolContactsRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    SchoolContactListResponse response = processor.getAllSchoolContacts(userData, schoolId);
+    SchoolContactListResponse response = schoolProcessor.getAllSchoolContacts(userData, schoolId);
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
@@ -268,7 +279,7 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int contactId = RestFunctions.getPathParamAsInt(ctx, "contact_id");
-    SchoolContact response = processor.getSchoolContact(userData, schoolId, contactId);
+    SchoolContact response = schoolProcessor.getSchoolContact(userData, schoolId, contactId);
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
@@ -277,7 +288,7 @@ public class ProtectedSchoolRouter implements IRouter {
     UpsertSchoolContactRequest request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertSchoolContactRequest.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    SchoolContact response = processor.createSchoolContact(userData, schoolId, request);
+    SchoolContact response = schoolProcessor.createSchoolContact(userData, schoolId, request);
     end(ctx.response(), 201, JsonObject.mapFrom(response).toString());
   }
 
@@ -287,7 +298,7 @@ public class ProtectedSchoolRouter implements IRouter {
         RestFunctions.getJsonBodyAsClass(ctx, UpsertSchoolContactRequest.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int contactId = RestFunctions.getPathParamAsInt(ctx, "contact_id");
-    processor.updateSchoolContact(userData, schoolId, contactId, request);
+    schoolProcessor.updateSchoolContact(userData, schoolId, contactId, request);
     end(ctx.response(), 200);
   }
 
@@ -295,7 +306,7 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int contactId = RestFunctions.getPathParamAsInt(ctx, "contact_id");
-    processor.deleteSchoolContact(userData, schoolId, contactId);
+    schoolProcessor.deleteSchoolContact(userData, schoolId, contactId);
     end(ctx.response(), 200);
   }
 
@@ -304,7 +315,7 @@ public class ProtectedSchoolRouter implements IRouter {
     UpsertReportWithLibrary request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithLibrary.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    ReportWithLibrary report = processor.createReportWithLibrary(userData, schoolId, request);
+    ReportWithLibrary report = reportProcessor.createReportWithLibrary(userData, schoolId, request);
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
   }
 
@@ -314,14 +325,14 @@ public class ProtectedSchoolRouter implements IRouter {
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithLibrary.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
-    processor.updateReportWithLibrary(userData, schoolId, reportId, request);
+    reportProcessor.updateReportWithLibrary(userData, schoolId, reportId, request);
     end(ctx.response(), 200);
   }
 
   private void handleGetMostRecentReport(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    ReportGeneric report = processor.getMostRecentReport(userData, schoolId);
+    ReportGeneric report = reportProcessor.getMostRecentReport(userData, schoolId);
     end(ctx.response(), 200, JsonObject.mapFrom(report).toString());
   }
 
@@ -330,7 +341,7 @@ public class ProtectedSchoolRouter implements IRouter {
     UpsertReportWithoutLibrary request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithoutLibrary.class);
     int schoolID = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    ReportWithoutLibrary report = processor.createReportWithoutLibrary(userData, schoolID, request);
+    ReportWithoutLibrary report = reportProcessor.createReportWithoutLibrary(userData, schoolID, request);
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
   }
 
@@ -340,7 +351,7 @@ public class ProtectedSchoolRouter implements IRouter {
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithoutLibrary.class);
     int schoolID = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
-    processor.updateReportWithoutLibrary(userData, schoolID, reportId, request);
+    reportProcessor.updateReportWithoutLibrary(userData, schoolID, reportId, request);
     end(ctx.response(), 200);
   }
 
@@ -348,7 +359,7 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int page = RestFunctions.getRequestParameterAsInt(ctx.request(), "p");
-    ReportGenericListResponse reports = processor.getPaginatedReports(userData, schoolId, page);
+    ReportGenericListResponse reports = reportProcessor.getPaginatedReports(userData, schoolId, page);
     end(ctx.response(), 200, JsonObject.mapFrom(reports).toString());
   }
 
@@ -357,14 +368,14 @@ public class ProtectedSchoolRouter implements IRouter {
     UpsertBookLogRequest request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertBookLogRequest.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    BookLog log = processor.createBookLog(userData, schoolId, request);
+    BookLog log = bookLogProcessor.createBookLog(userData, schoolId, request);
     end(ctx.response(), 201, JsonObject.mapFrom(log).toString());
   }
 
   private void handleGetBookLog(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    BookLogListResponse response = processor.getBookLog(userData, schoolId);
+    BookLogListResponse response = bookLogProcessor.getBookLog(userData, schoolId);
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
@@ -374,7 +385,7 @@ public class ProtectedSchoolRouter implements IRouter {
         RestFunctions.getJsonBodyAsClass(ctx, UpsertBookLogRequest.class);
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int bookId = RestFunctions.getPathParamAsInt(ctx, "book_id");
-    BookLog log = processor.updateBookLog(userData, schoolId, bookId, request);
+    BookLog log = bookLogProcessor.updateBookLog(userData, schoolId, bookId, request);
     end(ctx.response(), 200, JsonObject.mapFrom(log).toString());
   }
 
@@ -382,7 +393,7 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int bookId = RestFunctions.getPathParamAsInt(ctx, "book_id");
-    processor.deleteBookLog(userData, schoolId, bookId);
+    bookLogProcessor.deleteBookLog(userData, schoolId, bookId);
     end(ctx.response(), 200);
   }
 
@@ -390,7 +401,7 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
     String response;
-    response = processor.getReportAsCsv(userData, reportId, false);
+    response = reportProcessor.getReportAsCsv(userData, reportId, false);
     end(ctx.response(), 200, response, "text/csv");
   }
 
@@ -398,7 +409,7 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     int reportId = RestFunctions.getPathParamAsInt(ctx, "report_id");
     String response;
-    response = processor.getReportAsCsv(userData, reportId, true);
+    response = reportProcessor.getReportAsCsv(userData, reportId, true);
     end(ctx.response(), 200, response, "text/csv");
   }
 }
