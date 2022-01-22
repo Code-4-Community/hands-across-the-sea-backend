@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.records.SchoolContactsRecord;
 import org.jooq.generated.tables.records.SchoolsRecord;
+
 public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
 
   private final DSLContext db;

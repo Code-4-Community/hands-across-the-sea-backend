@@ -32,7 +32,7 @@ import org.jooq.generated.tables.records.SchoolReportsWithLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolReportsWithoutLibrariesRecord;
 import org.jooq.generated.tables.records.SchoolsRecord;
 
-public class ProtectedReportProcessorImpl implements IProtectedReportProcessor  {
+public class ProtectedReportProcessorImpl implements IProtectedReportProcessor {
 
   private final SLogger logger = new SLogger(ProtectedSchoolProcessorImpl.class);
   private final DSLContext db;
@@ -114,7 +114,6 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor  
     if (!newReport.getUserId().equals(userData.getUserId())) {
       throw new AdminOnlyRouteException();
     }
-
 
     if (req.getMostRecentShipmentYear() != null) {
       if (isShipmentYearInvalid(req.getMostRecentShipmentYear())) {
@@ -242,8 +241,7 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor  
         req.getGradesAttended(),
         this.util.getUserName(userData.getUserId()),
         this.util.getSchoolName(schoolId),
-        newReport.getReasonNoLibrarySpace()
-    );
+        newReport.getReasonNoLibrarySpace());
   }
 
   @Override
@@ -321,7 +319,9 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor  
             .map(
                 record ->
                     ReportWithLibrary.instantiateFromRecord(
-                        record, this.util.getUserName(userData.getUserId()), this.util.getSchoolName(schoolId)))
+                        record,
+                        this.util.getUserName(userData.getUserId()),
+                        this.util.getSchoolName(schoolId)))
             .collect(Collectors.toList());
 
     List<ReportWithoutLibrary> noLibraryReports =
@@ -331,7 +331,9 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor  
             .map(
                 record ->
                     ReportWithoutLibrary.instantiateFromRecord(
-                        record, this.util.getUserName(userData.getUserId()), this.util.getSchoolName(schoolId)))
+                        record,
+                        this.util.getUserName(userData.getUserId()),
+                        this.util.getSchoolName(schoolId)))
             .collect(Collectors.toList());
 
     int countWithLibrary =
@@ -392,5 +394,4 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor  
   private boolean isShipmentYearInvalid(Integer year) {
     return year <= 999 || year >= 10000;
   }
-
 }

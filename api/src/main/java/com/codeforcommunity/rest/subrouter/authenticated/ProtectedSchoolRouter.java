@@ -38,7 +38,7 @@ public class ProtectedSchoolRouter implements IRouter {
   public ProtectedSchoolRouter(
       IProtectedSchoolProcessor schoolProcessor,
       IProtectedReportProcessor reportProcessor,
-      IProtectedBookLogProcessor bookLogProcessor ) {
+      IProtectedBookLogProcessor bookLogProcessor) {
     this.schoolProcessor = schoolProcessor;
     this.reportProcessor = reportProcessor;
     this.bookLogProcessor = bookLogProcessor;
@@ -74,8 +74,6 @@ public class ProtectedSchoolRouter implements IRouter {
     registerGetPaginatedReports(router);
     registerGetWithLibraryReportAsCsv(router);
     registerGetWithoutLibraryReportAsCsv(router);
-
-
 
     // Register all book tracking routes
     registerCreateBookLog(router);
@@ -341,7 +339,8 @@ public class ProtectedSchoolRouter implements IRouter {
     UpsertReportWithoutLibrary request =
         RestFunctions.getJsonBodyAsClass(ctx, UpsertReportWithoutLibrary.class);
     int schoolID = RestFunctions.getPathParamAsInt(ctx, "school_id");
-    ReportWithoutLibrary report = reportProcessor.createReportWithoutLibrary(userData, schoolID, request);
+    ReportWithoutLibrary report =
+        reportProcessor.createReportWithoutLibrary(userData, schoolID, request);
     end(ctx.response(), 201, JsonObject.mapFrom(report).toString());
   }
 
@@ -359,7 +358,8 @@ public class ProtectedSchoolRouter implements IRouter {
     JWTData userData = ctx.get("jwt_data");
     int schoolId = RestFunctions.getPathParamAsInt(ctx, "school_id");
     int page = RestFunctions.getRequestParameterAsInt(ctx.request(), "p");
-    ReportGenericListResponse reports = reportProcessor.getPaginatedReports(userData, schoolId, page);
+    ReportGenericListResponse reports =
+        reportProcessor.getPaginatedReports(userData, schoolId, page);
     end(ctx.response(), 200, JsonObject.mapFrom(reports).toString());
   }
 
