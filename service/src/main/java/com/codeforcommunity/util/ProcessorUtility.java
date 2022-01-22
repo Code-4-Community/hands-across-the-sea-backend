@@ -53,5 +53,4 @@ public class ProcessorUtility {
         .and(SCHOOL_CONTACTS.SCHOOL_ID.eq(schoolId))
         .fetchInto(SchoolContact.class);
   }
-
 }

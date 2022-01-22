@@ -124,5 +124,4 @@ public class ProtectedBookLogProcessorImpl implements IProtectedBookLogProcessor
         ? new BookLogListResponse(logs)
         : new BookLogListResponse(new ArrayList<>());
   }
-
 }
