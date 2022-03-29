@@ -103,8 +103,8 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
     float percentSchoolsWithLibraries =
         (countSchools > 0) ? ((float) countSchoolsWithLibrary / (float) countSchools) * 100 : 0;
-    Float percentOfSchoolsWithLibraries = percentSchoolsWithLibraries == 0
-        ? null : percentSchoolsWithLibraries;
+    Float percentOfSchoolsWithLibraries =
+        percentSchoolsWithLibraries == 0 ? null : percentSchoolsWithLibraries;
 
     MetricGeneric metricGeneric = getGenericMetrics(schoolIds);
     return new MetricsCountryResponse(

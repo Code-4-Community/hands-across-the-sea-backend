@@ -170,12 +170,13 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor {
     LibraryStatus libraryStatus = school.getLibraryStatus();
 
     if (libraryStatus == LibraryStatus.EXISTS) {
-      SchoolReportsWithLibrariesRecord fetchedReport = db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-          .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-          .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
-          .orderBy(SCHOOL_REPORTS_WITH_LIBRARIES.ID.desc())
-          .limit(1)
-          .fetchOne();
+      SchoolReportsWithLibrariesRecord fetchedReport =
+          db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+              .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+              .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
+              .orderBy(SCHOOL_REPORTS_WITH_LIBRARIES.ID.desc())
+              .limit(1)
+              .fetchOne();
       if (fetchedReport == null) {
         throw new NoReportFoundException(schoolId);
       }
@@ -185,12 +186,13 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor {
               this.util.getUserName(userData.getUserId()),
               this.util.getSchoolName(schoolId));
     } else if (libraryStatus == LibraryStatus.DOES_NOT_EXIST) {
-      SchoolReportsWithoutLibrariesRecord fetchedReport = db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-          .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-          .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
-          .orderBy(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.desc())
-          .limit(1)
-          .fetchOne();
+      SchoolReportsWithoutLibrariesRecord fetchedReport =
+          db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+              .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+              .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
+              .orderBy(SCHOOL_REPORTS_WITHOUT_LIBRARIES.ID.desc())
+              .limit(1)
+              .fetchOne();
       if (fetchedReport == null) {
         throw new NoReportFoundException(schoolId);
       }
