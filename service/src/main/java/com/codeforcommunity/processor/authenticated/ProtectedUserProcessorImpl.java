@@ -14,6 +14,7 @@ import com.codeforcommunity.dto.user.UserDataResponse;
 import com.codeforcommunity.dto.user.UserListResponse;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
+import com.codeforcommunity.exceptions.DisableOwnAccountException;
 import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
 import com.codeforcommunity.exceptions.UserDoesNotExistException;
 import com.codeforcommunity.exceptions.WrongPasswordException;
@@ -144,6 +145,10 @@ public class ProtectedUserProcessorImpl implements IProtectedUserProcessor {
   public void disableUserAccount(JWTData userData, int userId) {
     if (!userData.isAdmin()) {
       throw new AdminOnlyRouteException();
+    }
+    if (userData.getUserId().equals(userId)) {
+      logger.info("`disableUserAccount` tried to disable an owned account");
+      throw new DisableOwnAccountException();
     }
     UsersRecord user = db.selectFrom(USERS).where(USERS.ID.eq(userId)).fetchOne();
     if (user == null) {

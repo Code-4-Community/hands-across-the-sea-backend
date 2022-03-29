@@ -3,6 +3,7 @@ package com.codeforcommunity.rest;
 import com.codeforcommunity.exceptions.BookLogDoesNotExistException;
 import com.codeforcommunity.exceptions.CreateUserException;
 import com.codeforcommunity.exceptions.CsvSerializerException;
+import com.codeforcommunity.exceptions.DisableOwnAccountException;
 import com.codeforcommunity.exceptions.EmailAlreadyInUseException;
 import com.codeforcommunity.exceptions.ExpiredSecretKeyException;
 import com.codeforcommunity.exceptions.HandledException;
@@ -227,6 +228,11 @@ public class FailureHandler {
     logger.error(message);
     throwable.printStackTrace();
     end(ctx, message, 500);
+  }
+
+  public void handleDisableOwnAccount(RoutingContext ctx, DisableOwnAccountException e) {
+    String message = "Cannot disable your own account.";
+    end(ctx, message, 400);
   }
 
   private void end(RoutingContext ctx, String message, int statusCode) {

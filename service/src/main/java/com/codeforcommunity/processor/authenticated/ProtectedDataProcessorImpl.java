@@ -15,16 +15,13 @@ import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.PrivilegeLevel;
-import com.codeforcommunity.exceptions.NoReportFoundException;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
-import com.codeforcommunity.logger.SLogger;
 import java.util.ArrayList;
 import java.util.List;
 import org.jooq.DSLContext;
 
 public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
-  private final SLogger logger = new SLogger(ProtectedDataProcessorImpl.class);
   private final SchoolDatabaseOperations schoolDatabaseOperations;
   private final DSLContext db;
 
@@ -92,9 +89,9 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
             .and(SCHOOLS.COUNTRY.eq(country))
             .fetch(SCHOOLS.ID);
 
-    Float avgCountBooksPerStudent = this.getCountryBooksPerStudentAverage(country, schoolReports);
+    Float avgCountBooksPerStudent = this.getCountryBooksPerStudentAverage(schoolReports);
     Float avgCountStudentLibrariansPerSchool =
-        this.getCountryStudentLibrariansPerSchoolAverage(country, schoolReports);
+        this.getCountryStudentLibrariansPerSchoolAverage(schoolReports);
 
     int countSchoolsWithLibrary =
         db.fetchCount(
@@ -106,9 +103,10 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
     float percentSchoolsWithLibraries =
         (countSchools > 0) ? ((float) countSchoolsWithLibrary / (float) countSchools) * 100 : 0;
+    Float percentOfSchoolsWithLibraries = percentSchoolsWithLibraries == 0
+        ? null : percentSchoolsWithLibraries;
 
     MetricGeneric metricGeneric = getGenericMetrics(schoolIds);
-
     return new MetricsCountryResponse(
         countSchools,
         countVolunteerAccounts,
@@ -116,7 +114,7 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
         countAdminAccounts,
         avgCountBooksPerStudent,
         avgCountStudentLibrariansPerSchool,
-        percentSchoolsWithLibraries,
+        percentOfSchoolsWithLibraries,
         metricGeneric.getTotalStudents(),
         metricGeneric.getTotalBooks());
   }
@@ -132,7 +130,7 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     }
 
     if (report == null) {
-      throw new NoReportFoundException(schoolId);
+      return new MetricsSchoolResponse(null, null, null, null, null);
     }
 
     Integer countBooks = report.getNumberOfBooks();
@@ -165,8 +163,10 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
   }
 
   private List<ReportGeneric> getReports(List<Integer> schoolIds) {
-    List<ReportGeneric> reports = new ArrayList<ReportGeneric>();
-
+    List<ReportGeneric> reports = new ArrayList<>();
+    if (schoolIds == null || schoolIds.size() == 0) {
+      return reports;
+    }
     for (int schoolId : schoolIds) {
       // For each school, get the most recent report
       ReportGeneric report = schoolDatabaseOperations.getMostRecentReport(schoolId);
@@ -178,8 +178,7 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     return reports;
   }
 
-  private Float getCountryBooksPerStudentAverage(
-      Country country, List<ReportGeneric> schoolReports) {
+  private Float getCountryBooksPerStudentAverage(List<ReportGeneric> schoolReports) {
     List<Float> schoolAveragesBooksPerStudent = new ArrayList<Float>();
 
     for (ReportGeneric report : schoolReports) {
@@ -188,10 +187,6 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
       Integer countStudents = report.getNumberOfChildren();
 
       if (countBooks == null || countStudents == null) {
-        logger.info(
-            String.format(
-                "School report with ID `%d` missing count books or count students",
-                report.getId()));
         continue;
       }
 
@@ -208,6 +203,10 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
   // gets total books and students from a list of schools
   private MetricGeneric getGenericMetrics(List<Integer> schoolIds) {
+    if (schoolIds == null || schoolIds.size() == 0) {
+      return new MetricGeneric(null, null);
+    }
+    boolean updatedCount = false;
     Integer totalBooks = 0;
     Integer totalStudents = 0;
 
@@ -215,15 +214,20 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
       ReportGeneric report = schoolDatabaseOperations.getMostRecentReport(schoolId);
       if (report != null) {
+        updatedCount = true;
         totalBooks += report.getNumberOfBooks();
         totalStudents += report.getNumberOfChildren();
       }
     }
+
+    if (!updatedCount) {
+      totalBooks = null;
+      totalStudents = null;
+    }
     return new MetricGeneric(totalBooks, totalStudents);
   }
 
-  private Float getCountryStudentLibrariansPerSchoolAverage(
-      Country country, List<ReportGeneric> schoolReports) {
+  private Float getCountryStudentLibrariansPerSchoolAverage(List<ReportGeneric> schoolReports) {
     int totalCountStudentLibrarians = 0;
     int totalCountSchoolsWithLibraries = 0; // TODO: SHOULD THIS BE ALL SCHOOLS
 
@@ -231,10 +235,6 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
       // For each report, get count student librarians
       if (report.getLibraryStatus() != LibraryStatus.EXISTS
           || !(report instanceof ReportWithLibrary)) {
-        // Skip reports with no libraries
-        logger.info(
-            String.format(
-                "Skipping school report with ID `%d` since it has no library", report.getId()));
         continue;
       }
 
@@ -242,10 +242,6 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
       Integer numStudentLibrarians = reportWithLibrary.getNumberOfStudentLibrarians();
       if (numStudentLibrarians == null) {
-        logger.info(
-            String.format(
-                "Skipping school report with ID `%d` since it has a `null` student librarian count",
-                report.getId()));
         continue;
       }
 

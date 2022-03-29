@@ -84,11 +84,14 @@ public class ProtectedSchoolRouter implements IRouter {
     return router;
   }
 
+  // /api/schools/
   private void registerGetAllSchools(Router router) {
+    //
     Route getSchoolsRoute = router.get("/");
     getSchoolsRoute.handler(this::handleGetAllSchoolsRoute);
   }
 
+  // /api/schools/1
   private void registerGetSchool(Router router) {
     Route getSchoolsRoute = router.get("/:school_id");
     getSchoolsRoute.handler(this::handleGetSchoolRoute);
