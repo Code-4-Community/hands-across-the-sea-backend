@@ -87,6 +87,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     Country country = upsertSchoolRequest.getCountry();
     Boolean hidden = upsertSchoolRequest.getHidden();
     LibraryStatus libraryStatus = upsertSchoolRequest.getLibraryStatus();
+    Integer totalStudents = upsertSchoolRequest.getTotalStudents();
 
     SchoolsRecord school =
         db.selectFrom(SCHOOLS)
@@ -111,7 +112,8 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
           newSchool.getArea(),
           newSchool.getCountry(),
           newSchool.getHidden(),
-          newSchool.getLibraryStatus());
+          newSchool.getLibraryStatus(),
+          totalStudents);
     }
 
     if (school.getDeletedAt() != null || school.getHidden()) {

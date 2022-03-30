@@ -69,4 +69,12 @@ public class SchoolDatabaseOperations {
     // System.out.println("The report number of books has a value of " + report.getNumberOfBooks());
     return report;
   }
+
+  public Integer getTotalNumberOfStudents(int schoolId) {
+    SchoolsRecord school = this.getSchool(schoolId);
+    if (school == null) {
+      return null;
+    }
+    return school.getTotalStudents();
+  }
 }

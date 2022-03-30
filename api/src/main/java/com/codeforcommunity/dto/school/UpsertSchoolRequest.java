@@ -6,6 +6,7 @@ import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.HandledException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.criteria.CriteriaBuilder.In;
 
 public class UpsertSchoolRequest extends ApiDto {
 
@@ -18,6 +19,7 @@ public class UpsertSchoolRequest extends ApiDto {
   private Country country;
   private Boolean hidden;
   private LibraryStatus libraryStatus;
+  private Integer totalStudents;
 
   public String getEmail() {
     return email;
@@ -90,6 +92,10 @@ public class UpsertSchoolRequest extends ApiDto {
   public void setLibraryStatus(LibraryStatus libraryStatus) {
     this.libraryStatus = libraryStatus;
   }
+
+  public void setTotalStudents(Integer totalStudents) { this.totalStudents = totalStudents; }
+
+  public Integer getTotalStudents() { return totalStudents; }
 
   @Override
   public List<String> validateFields(String fieldPrefix) throws HandledException {

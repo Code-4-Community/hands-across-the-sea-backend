@@ -133,12 +133,11 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     }
 
     Integer countBooks = bookLogDb.getTotalNumberOfBooksForSchool(schoolId);
+    Integer countStudents = schoolDatabaseOperations.getTotalNumberOfStudents(schoolId);
 
     if (report == null) {
-      return new MetricsSchoolResponse(null, null, null, null, countBooks);
+      return new MetricsSchoolResponse(null, countStudents, null, null, countBooks);
     }
-
-    Integer countStudents = report.getNumberOfChildren();
 
     Float countBooksPerStudent =
         (countBooks != null && countStudents != null)
@@ -210,24 +209,28 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     if (schoolIds == null || schoolIds.size() == 0) {
       return new MetricGeneric(null, null);
     }
-    boolean updatedCount = false;
+    boolean updatedBookCount = false;
+    boolean updatedStudentCount = false;
     Integer totalBooks = 0;
     Integer totalStudents = 0;
 
     for (Integer schoolId : schoolIds) {
       Integer schoolBookTotal = bookLogDb.getTotalNumberOfBooksForSchool(schoolId);
+      Integer schoolStudentTotal = schoolDatabaseOperations.getTotalNumberOfStudents(schoolId);
       if (schoolBookTotal != null) {
-        updatedCount = true;
+        updatedBookCount = true;
         totalBooks += schoolBookTotal;
       }
-      ReportGeneric report = schoolDatabaseOperations.getMostRecentReport(schoolId);
-      if (report != null) {
-        totalStudents += report.getNumberOfChildren();
+      if (schoolStudentTotal != null) {
+        updatedStudentCount = true;
+        totalStudents += schoolStudentTotal;
       }
     }
 
-    if (!updatedCount) {
+    if (!updatedBookCount) {
       totalBooks = null;
+    }
+    if (!updatedStudentCount) {
       totalStudents = null;
     }
     return new MetricGeneric(totalBooks, totalStudents);

@@ -3,6 +3,7 @@ package com.codeforcommunity.dto.school;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import java.util.List;
+import javax.persistence.criteria.CriteriaBuilder.In;
 
 public class School {
 
@@ -16,6 +17,7 @@ public class School {
   private Country country;
   private Boolean hidden;
   private LibraryStatus libraryStatus;
+  private Integer totalStudents;
 
   public School() {}
 
@@ -29,7 +31,8 @@ public class School {
       String area,
       Country country,
       Boolean hidden,
-      LibraryStatus libraryStatus) {
+      LibraryStatus libraryStatus,
+      Integer totalStudents) {
     this.id = id;
     this.name = name;
     this.address = address;
@@ -40,6 +43,7 @@ public class School {
     this.country = country;
     this.hidden = hidden;
     this.libraryStatus = libraryStatus;
+    this.totalStudents = totalStudents;
   }
 
   public School(
@@ -145,4 +149,9 @@ public class School {
   public void setLibraryStatus(LibraryStatus libraryStatus) {
     this.libraryStatus = libraryStatus;
   }
+
+  public Integer getTotalStudents() { return totalStudents; }
+
+  public void setTotalStudents(Integer totalStudents) { this.totalStudents = totalStudents;}
+
 }

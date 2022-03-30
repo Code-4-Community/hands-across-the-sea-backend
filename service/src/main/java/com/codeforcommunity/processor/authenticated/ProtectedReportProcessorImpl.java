@@ -51,14 +51,15 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
-    // Update this school to have a new library status
-    school.setLibraryStatus(LibraryStatus.EXISTS);
-    school.store();
-
     // Save a record to the school_reports_with_libraries table
     SchoolReportsWithLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITH_LIBRARIES);
     storeReportWithLibrary(userData, schoolId, req, newReport);
     newReport.refresh();
+
+    // Update this school to have a new library status
+    school.setLibraryStatus(LibraryStatus.EXISTS);
+    school.setTotalStudents(req.getNumberOfChildren());
+    school.store();
 
     return new ReportWithLibrary(
         newReport.getId(),
@@ -122,6 +123,9 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor {
     }
 
     storeReportWithLibrary(userData, schoolId, req, newReport);
+
+    ReportGeneric mostRecentReport = getMostRecentReport(userData, schoolId);
+    school.setTotalStudents(mostRecentReport.getNumberOfChildren());
   }
 
   private void storeReportWithLibrary(
@@ -222,12 +226,14 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor {
         throw new InvalidShipmentYearException(req.getMostRecentShipmentYear());
       }
     }
-    school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
-    school.store();
 
     SchoolReportsWithoutLibrariesRecord newReport = db.newRecord(SCHOOL_REPORTS_WITHOUT_LIBRARIES);
     storeReportWithoutLibrary(userData, schoolId, req, newReport, req.getGradesAttended());
     newReport.refresh();
+
+    school.setLibraryStatus(LibraryStatus.DOES_NOT_EXIST);
+    school.setTotalStudents(req.getNumberOfChildren());
+    school.store();
 
     return new ReportWithoutLibrary(
         newReport.getId(),
@@ -282,6 +288,8 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor {
     }
 
     storeReportWithoutLibrary(userData, schoolId, req, newReport, req.getGradesAttended());
+    ReportGeneric mostRecentReport = getMostRecentReport(userData, schoolId);
+    school.setTotalStudents(mostRecentReport.getNumberOfChildren());
   }
 
   private void storeReportWithoutLibrary(
