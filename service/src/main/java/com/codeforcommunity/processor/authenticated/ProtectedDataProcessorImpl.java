@@ -13,6 +13,7 @@ import com.codeforcommunity.dto.data.MetricsSchoolResponse;
 import com.codeforcommunity.dto.data.MetricsTotalResponse;
 import com.codeforcommunity.dto.report.ReportGeneric;
 import com.codeforcommunity.dto.report.ReportWithLibrary;
+import com.codeforcommunity.dto.school.BookLog;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.PrivilegeLevel;
@@ -134,9 +135,10 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
     Integer countBooks = bookLogDb.getTotalNumberOfBooksForSchool(schoolId);
     Integer countStudents = schoolDatabaseOperations.getTotalNumberOfStudents(schoolId);
+    Integer netBooksInOut = calculcateNetBooksIn(schoolId);
 
     if (report == null) {
-      return new MetricsSchoolResponse(null, countStudents, null, null, countBooks);
+      return new MetricsSchoolResponse(null, countStudents, null, netBooksInOut, countBooks);
     }
 
     Float countBooksPerStudent =
@@ -148,7 +150,6 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
         (report instanceof ReportWithLibrary)
             ? ((ReportWithLibrary) report).getNumberOfStudentLibrarians()
             : null;
-    Integer netBooksInOut = null; // TODO
     return new MetricsSchoolResponse(
         countBooksPerStudent, countStudents, countStudentLibrarians, netBooksInOut, countBooks);
   }
@@ -264,5 +265,18 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     }
 
     return (float) totalCountStudentLibrarians / (float) totalCountSchoolsWithLibraries;
+  }
+
+  private Integer calculcateNetBooksIn(int schoolId) {
+    List<BookLog> schoolBookLogs = bookLogDb.getAllBookLogsForASchool(schoolId);
+    if (schoolBookLogs == null || schoolBookLogs.size() == 0) {
+      return null;
+    }
+    Integer numberOfBookLogs = schoolBookLogs.size();
+    Integer totalDifferenceOfBooks = 0;
+    for (BookLog bookLog : schoolBookLogs) {
+      totalDifferenceOfBooks += bookLog.getCount();
+    }
+    return totalDifferenceOfBooks / numberOfBookLogs;
   }
 }

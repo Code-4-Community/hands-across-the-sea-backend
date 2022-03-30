@@ -29,4 +29,15 @@ public class BookLogDatabaseOperations {
     }
     return bookCount;
   }
+
+
+  public List<BookLog> getAllBookLogsForASchool(int schoolId) {
+    List<BookLog> logs =
+        db.selectFrom(BOOK_LOGS)
+            .where(BOOK_LOGS.SCHOOL_ID.eq(schoolId))
+            .and(BOOK_LOGS.DELETED_AT.isNull())
+            .fetchInto(BookLog.class);
+    return logs;
+  }
+
 }
