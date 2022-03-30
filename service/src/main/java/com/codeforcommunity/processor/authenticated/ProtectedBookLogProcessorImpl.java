@@ -4,6 +4,7 @@ import static org.jooq.generated.Tables.BOOK_LOGS;
 
 import com.codeforcommunity.api.authenticated.IProtectedBookLogProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dataaccess.BookLogDatabaseOperations;
 import com.codeforcommunity.dto.school.BookLog;
 import com.codeforcommunity.dto.school.BookLogListResponse;
 import com.codeforcommunity.dto.school.UpsertBookLogRequest;

@@ -5,6 +5,7 @@ import static org.jooq.generated.Tables.USERS;
 
 import com.codeforcommunity.api.authenticated.IProtectedDataProcessor;
 import com.codeforcommunity.auth.JWTData;
+import com.codeforcommunity.dataaccess.BookLogDatabaseOperations;
 import com.codeforcommunity.dataaccess.SchoolDatabaseOperations;
 import com.codeforcommunity.dto.data.MetricGeneric;
 import com.codeforcommunity.dto.data.MetricsCountryResponse;
@@ -24,10 +25,12 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
   private final SchoolDatabaseOperations schoolDatabaseOperations;
   private final DSLContext db;
+  private final BookLogDatabaseOperations bookLogDb;
 
   public ProtectedDataProcessorImpl(DSLContext db) {
     this.schoolDatabaseOperations = new SchoolDatabaseOperations(db);
     this.db = db;
+    this.bookLogDb = new BookLogDatabaseOperations(db);
   }
 
   @Override
@@ -129,11 +132,12 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
       throw new SchoolDoesNotExistException(schoolId);
     }
 
+    Integer countBooks = bookLogDb.getTotalNumberOfBooksForSchool(schoolId);
+
     if (report == null) {
-      return new MetricsSchoolResponse(null, null, null, null, null);
+      return new MetricsSchoolResponse(null, null, null, null, countBooks);
     }
 
-    Integer countBooks = report.getNumberOfBooks();
     Integer countStudents = report.getNumberOfChildren();
 
     Float countBooksPerStudent =
@@ -211,11 +215,13 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     Integer totalStudents = 0;
 
     for (Integer schoolId : schoolIds) {
-
+      Integer schoolBookTotal = bookLogDb.getTotalNumberOfBooksForSchool(schoolId);
+      if (schoolBookTotal != null) {
+        updatedCount = true;
+        totalBooks += schoolBookTotal;
+      }
       ReportGeneric report = schoolDatabaseOperations.getMostRecentReport(schoolId);
       if (report != null) {
-        updatedCount = true;
-        totalBooks += report.getNumberOfBooks();
         totalStudents += report.getNumberOfChildren();
       }
     }

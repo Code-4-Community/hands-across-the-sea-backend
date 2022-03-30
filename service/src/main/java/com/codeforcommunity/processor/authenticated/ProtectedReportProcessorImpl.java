@@ -111,7 +111,7 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor {
       throw new NoReportFoundException(schoolId);
     }
 
-    if (!newReport.getUserId().equals(userData.getUserId())) {
+    if (!newReport.getUserId().equals(userData.getUserId()) && !userData.isAdmin()) {
       throw new AdminOnlyRouteException();
     }
 
