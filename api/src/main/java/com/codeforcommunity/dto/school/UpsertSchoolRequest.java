@@ -19,7 +19,6 @@ public class UpsertSchoolRequest extends ApiDto {
   private Country country;
   private Boolean hidden;
   private LibraryStatus libraryStatus;
-  private Integer totalStudents;
 
   public String getEmail() {
     return email;
@@ -93,9 +92,6 @@ public class UpsertSchoolRequest extends ApiDto {
     this.libraryStatus = libraryStatus;
   }
 
-  public void setTotalStudents(Integer totalStudents) { this.totalStudents = totalStudents; }
-
-  public Integer getTotalStudents() { return totalStudents; }
 
   @Override
   public List<String> validateFields(String fieldPrefix) throws HandledException {
