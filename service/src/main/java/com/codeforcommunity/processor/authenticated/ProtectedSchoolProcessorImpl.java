@@ -102,6 +102,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
       storeSchool(
           newSchool, name, address, phone, email, notes, area, country, hidden, libraryStatus);
       newSchool.setTotalStudents(totalStudents);
+      newSchool.store();
 
       return new School(
           newSchool.getId(),
