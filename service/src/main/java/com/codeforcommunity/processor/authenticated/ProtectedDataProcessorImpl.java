@@ -93,7 +93,6 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
             .and(SCHOOLS.COUNTRY.eq(country))
             .fetch(SCHOOLS.ID);
 
-    Float avgCountBooksPerStudent = this.getCountryBooksPerStudentAverage(schoolReports);
     Float avgCountStudentLibrariansPerSchool =
         this.getCountryStudentLibrariansPerSchoolAverage(schoolReports);
 
@@ -109,8 +108,10 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
         (countSchools > 0) ? ((float) countSchoolsWithLibrary / (float) countSchools) * 100 : 0;
     Float percentOfSchoolsWithLibraries =
         percentSchoolsWithLibraries == 0 ? null : percentSchoolsWithLibraries;
-
     MetricGeneric metricGeneric = getGenericMetrics(schoolIds);
+    Float avgCountBooksPerStudent =
+        (metricGeneric.getTotalBooks() != null && metricGeneric.getTotalStudents() != null && metricGeneric.getTotalStudents() != 0)
+        ? metricGeneric.getTotalBooks() / metricGeneric.getTotalStudents().floatValue() : null;
     return new MetricsCountryResponse(
         countSchools,
         countVolunteerAccounts,
@@ -180,29 +181,6 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     }
 
     return reports;
-  }
-
-  private Float getCountryBooksPerStudentAverage(List<ReportGeneric> schoolReports) {
-    List<Float> schoolAveragesBooksPerStudent = new ArrayList<Float>();
-
-    for (ReportGeneric report : schoolReports) {
-      // For each report, calculate books per student
-      Integer countBooks = report.getNumberOfBooks();
-      Integer countStudents = report.getNumberOfChildren();
-
-      if (countBooks == null || countStudents == null) {
-        continue;
-      }
-
-      float schoolAvg = ((float) countBooks) / ((float) countStudents);
-      schoolAveragesBooksPerStudent.add(schoolAvg);
-    }
-
-    if (schoolAveragesBooksPerStudent.isEmpty()) {
-      return null;
-    }
-
-    return (float) schoolAveragesBooksPerStudent.stream().mapToDouble(d -> d).average().orElse(0.0);
   }
 
   // gets total books and students from a list of schools
