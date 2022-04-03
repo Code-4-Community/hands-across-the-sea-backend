@@ -27,8 +27,10 @@ import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
 import com.codeforcommunity.util.ProcessorUtility;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.jooq.DSLContext;
@@ -46,23 +48,33 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
   }
 
   @Override
-  public SchoolListResponse getAllSchools(JWTData userData) {
-    List<SchoolSummary> schools =
-        db.selectFrom(SCHOOLS)
-            .where(SCHOOLS.HIDDEN.isFalse())
-            .and(SCHOOLS.DELETED_AT.isNull())
-            .fetchInto(SchoolSummary.class);
+  public SchoolListResponse getAllSchools(JWTData userData, Optional<String> country) {
+    List<SchoolSummary> schools = new ArrayList<>();
+    if (country.isPresent()) {
+      schools =
+          db.selectFrom(SCHOOLS)
+              .where(SCHOOLS.HIDDEN.isFalse())
+              .and(SCHOOLS.DELETED_AT.isNull())
+              .and(SCHOOLS.COUNTRY.eq(Country.valueOf(country.get())))
+              .fetchInto(SchoolSummary.class);
+    } else {
+      schools =
+          db.selectFrom(SCHOOLS)
+              .where(SCHOOLS.HIDDEN.isFalse())
+              .and(SCHOOLS.DELETED_AT.isNull())
+              .fetchInto(SchoolSummary.class);
 
+    }
     return new SchoolListResponse(schools);
   }
 
   @Override
   public School getSchool(JWTData userData, int schoolId) {
     School school =
-        db.selectFrom(SCHOOLS)
-            .where(SCHOOLS.DELETED_AT.isNull())
-            .and(SCHOOLS.ID.eq(schoolId))
-            .fetchOneInto(School.class);
+          db.selectFrom(SCHOOLS)
+              .where(SCHOOLS.DELETED_AT.isNull())
+              .and(SCHOOLS.ID.eq(schoolId))
+              .fetchOneInto(School.class);
 
     if (school == null) {
       // Check to make sure the school exists first

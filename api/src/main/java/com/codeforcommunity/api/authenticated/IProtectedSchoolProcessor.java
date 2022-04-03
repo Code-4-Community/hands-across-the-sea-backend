@@ -7,10 +7,11 @@ import com.codeforcommunity.dto.school.SchoolContactListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
+import java.util.Optional;
 
 public interface IProtectedSchoolProcessor {
 
-  SchoolListResponse getAllSchools(JWTData userData);
+  SchoolListResponse getAllSchools(JWTData userData, Optional<String> country);
 
   School getSchool(JWTData userData, int schoolId);
 
