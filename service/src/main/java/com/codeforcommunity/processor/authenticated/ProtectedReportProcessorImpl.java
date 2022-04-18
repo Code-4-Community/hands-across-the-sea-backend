@@ -407,7 +407,7 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor {
                   .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId()))
                   .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)));
     } else {
-      throw new RuntimeException("Wtf");
+      throw new RuntimeException("Unrecognized privilege level");
     }
 
     List<ReportGeneric> reports = new ArrayList<>();

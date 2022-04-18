@@ -430,7 +430,7 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     } else if (userData.isVolunteer()) {
       return getSchoolsFromUserIdReports(userData);
     } else {
-      throw new RuntimeException("wtf");
+      throw new RuntimeException("Unrecognized privilege level");
     }
   }
 
