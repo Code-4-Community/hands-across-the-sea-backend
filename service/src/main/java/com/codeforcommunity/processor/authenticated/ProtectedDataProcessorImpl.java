@@ -112,8 +112,11 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
         percentSchoolsWithLibraries == 0 ? null : percentSchoolsWithLibraries;
     MetricGeneric metricGeneric = getGenericMetrics(schoolIds);
     Float avgCountBooksPerStudent =
-        (metricGeneric.getTotalBooks() != null && metricGeneric.getTotalStudents() != null && metricGeneric.getTotalStudents() != 0)
-        ? metricGeneric.getTotalBooks() / metricGeneric.getTotalStudents().floatValue() : null;
+        (metricGeneric.getTotalBooks() != null
+                && metricGeneric.getTotalStudents() != null
+                && metricGeneric.getTotalStudents() != 0)
+            ? metricGeneric.getTotalBooks() / metricGeneric.getTotalStudents().floatValue()
+            : null;
     return new MetricsCountryResponse(
         countSchools,
         countVolunteerAccounts,
@@ -146,13 +149,8 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
 
     if (countBooksPerStudent == null) {
       logger.error("Count books per student is null");
-      if (countStudents == null) {
-        logger.error("Count student is null");
-      }
-      if (countBooks == null) {
-        logger.error("Count books is null");
-      }
     }
+
     if (report == null) {
       return new MetricsSchoolResponse(
           countBooksPerStudent, countStudents, null, netBooksInOut, countBooks);

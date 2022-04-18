@@ -25,8 +25,8 @@ ENV_VALUES = {
         "database_password": "DB_PASSWORD",
 
         # Email Properties
-        # "email_send_password": "GMAIL_APP_PASSWORD",
-        # "email_should_send": "GMAIL_APP_ENABLED",
+        "email_send_password": "GMAIL_APP_PASSWORD",
+        "email_should_send": "GMAIL_APP_ENABLED",
 
         # JWT Properties
         "jwt_secret_key": "JWT_SECRET_KEY",

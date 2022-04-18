@@ -12,6 +12,8 @@ public class ForgotPasswordRequest extends ApiDto {
     this.email = email;
   }
 
+  public ForgotPasswordRequest() {}
+
   public String getEmail() {
     return email;
   }

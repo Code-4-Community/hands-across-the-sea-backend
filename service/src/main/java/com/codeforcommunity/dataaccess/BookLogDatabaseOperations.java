@@ -30,7 +30,6 @@ public class BookLogDatabaseOperations {
     return bookCount;
   }
 
-
   public List<BookLog> getAllBookLogsForASchool(int schoolId) {
     List<BookLog> logs =
         db.selectFrom(BOOK_LOGS)
@@ -39,5 +38,4 @@ public class BookLogDatabaseOperations {
             .fetchInto(BookLog.class);
     return logs;
   }
-
 }

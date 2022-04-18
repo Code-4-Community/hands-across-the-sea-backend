@@ -3,7 +3,6 @@ package com.codeforcommunity.dto.school;
 import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import java.util.List;
-import javax.persistence.criteria.CriteriaBuilder.In;
 
 public class School {
 
@@ -150,8 +149,11 @@ public class School {
     this.libraryStatus = libraryStatus;
   }
 
-  public Integer getTotalStudents() { return totalStudents; }
+  public Integer getTotalStudents() {
+    return totalStudents;
+  }
 
-  public void setTotalStudents(Integer totalStudents) { this.totalStudents = totalStudents;}
-
+  public void setTotalStudents(Integer totalStudents) {
+    this.totalStudents = totalStudents;
+  }
 }
