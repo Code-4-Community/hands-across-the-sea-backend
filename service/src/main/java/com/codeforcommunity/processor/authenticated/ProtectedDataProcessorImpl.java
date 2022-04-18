@@ -138,14 +138,14 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     Integer countStudents = schoolDatabaseOperations.getTotalNumberOfStudents(schoolId);
     Integer netBooksInOut = calculcateNetBooksIn(schoolId);
 
-    if (report == null) {
-      return new MetricsSchoolResponse(null, countStudents, null, netBooksInOut, countBooks);
-    }
-
     Float countBooksPerStudent =
-        (countBooks != null && countStudents != null)
-            ? ((float) countBooks / (float) countStudents)
+        (countBooks != null && countStudents != null && countStudents != 0)
+            ? countBooks.floatValue() / countStudents.floatValue()
             : null;
+
+    if (report == null) {
+      return new MetricsSchoolResponse(countBooksPerStudent, countStudents, null, netBooksInOut, countBooks);
+    }
 
     Integer countStudentLibrarians =
         (report instanceof ReportWithLibrary)

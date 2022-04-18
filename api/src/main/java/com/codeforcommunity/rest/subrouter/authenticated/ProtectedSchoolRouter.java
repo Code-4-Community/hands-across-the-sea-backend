@@ -215,7 +215,7 @@ public class ProtectedSchoolRouter implements IRouter {
 
   private void handleGetSchoolsFromUserId(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
-    SchoolListResponse response = schoolProcessor.getSchoolsFromUserIdReports(userData);
+    SchoolListResponse response = schoolProcessor.getSchoolReportsForUser(userData);
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 

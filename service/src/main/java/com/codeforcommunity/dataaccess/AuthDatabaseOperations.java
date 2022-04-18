@@ -59,7 +59,7 @@ public class AuthDatabaseOperations {
     if (maybeUser.isPresent()) {
       Users user = maybeUser.get();
 
-      return new JWTData(user.getId(), user.getPrivilegeLevel());
+      return new JWTData(user.getId(), user.getPrivilegeLevel(), user.getCountry());
     } else {
       throw new UserDoesNotExistException(email);
     }
