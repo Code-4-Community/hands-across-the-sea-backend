@@ -28,7 +28,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import java.util.Optional;
 
 public class ProtectedSchoolRouter implements IRouter {
 
@@ -215,15 +214,13 @@ public class ProtectedSchoolRouter implements IRouter {
 
   private void handleGetSchoolsFromUserId(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
-    SchoolListResponse response = schoolProcessor.getSchoolReportsForUser(userData);
+    SchoolListResponse response = schoolProcessor.getSchoolsFromUserIdReports(userData);
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 
   private void handleGetAllSchoolsRoute(RoutingContext ctx) {
     JWTData userData = ctx.get("jwt_data");
-    Optional<String> countryName =
-        RestFunctions.getOptionalQueryParam(ctx, "country", (str -> str));
-    SchoolListResponse response = schoolProcessor.getAllSchools(userData, countryName);
+    SchoolListResponse response = schoolProcessor.getAllSchools(userData);
     end(ctx.response(), 200, JsonObject.mapFrom(response).toString());
   }
 

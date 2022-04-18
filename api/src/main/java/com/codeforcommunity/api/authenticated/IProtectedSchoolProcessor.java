@@ -7,11 +7,10 @@ import com.codeforcommunity.dto.school.SchoolContactListResponse;
 import com.codeforcommunity.dto.school.SchoolListResponse;
 import com.codeforcommunity.dto.school.UpsertSchoolContactRequest;
 import com.codeforcommunity.dto.school.UpsertSchoolRequest;
-import java.util.Optional;
 
 public interface IProtectedSchoolProcessor {
 
-  SchoolListResponse getAllSchools(JWTData userData, Optional<String> country);
+  SchoolListResponse getAllSchools(JWTData userData);
 
   School getSchool(JWTData userData, int schoolId);
 
@@ -40,5 +39,5 @@ public interface IProtectedSchoolProcessor {
 
   void unHideSchool(JWTData userData, int schoolId);
 
-  SchoolListResponse getSchoolReportsForUser(JWTData userData);
+  SchoolListResponse getSchoolsFromUserIdReports(JWTData userData);
 }

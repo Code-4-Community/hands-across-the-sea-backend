@@ -1,6 +1,5 @@
 package com.codeforcommunity.processor.authenticated;
 
-import static org.jooq.generated.Tables.SCHOOLS;
 import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITHOUT_LIBRARIES;
 import static org.jooq.generated.Tables.SCHOOL_REPORTS_WITH_LIBRARIES;
 
@@ -13,8 +12,6 @@ import com.codeforcommunity.dto.report.ReportWithLibrary;
 import com.codeforcommunity.dto.report.ReportWithoutLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithLibrary;
 import com.codeforcommunity.dto.report.UpsertReportWithoutLibrary;
-import com.codeforcommunity.dto.school.SchoolListResponse;
-import com.codeforcommunity.dto.school.SchoolSummary;
 import com.codeforcommunity.enums.Grade;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.exceptions.AdminOnlyRouteException;
@@ -330,85 +327,42 @@ public class ProtectedReportProcessorImpl implements IProtectedReportProcessor {
     if (school == null) {
       throw new SchoolDoesNotExistException(schoolId);
     }
-    List<ReportWithLibrary> withLibraryReports = new ArrayList<>();
-    List<ReportWithoutLibrary> noLibraryReports = new ArrayList<>();
-    int countWithLibrary = 0;
-    int countWithoutLibrary = 0;
 
-    if (userData.isAdmin() || userData.isOfficer()) {
-      withLibraryReports =
-          db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-              .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId)).fetch().stream()
-              .map(
-                  record ->
-                      ReportWithLibrary.instantiateFromRecord(
-                          record,
-                          this.util.getUserName(record.getUserId()),
-                          this.util.getSchoolName(schoolId)))
-              .collect(Collectors.toList());
-      noLibraryReports =
-          db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-              .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)).fetch().stream()
-              .map(
-                  record ->
-                      ReportWithoutLibrary.instantiateFromRecord(
-                          record,
-                          this.util.getUserName(record.getUserId()),
-                          this.util.getSchoolName(schoolId)))
-              .collect(Collectors.toList());
-      countWithLibrary =
-          db.fetchCount(
-              db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-                  .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-                  .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId)));
+    List<ReportWithLibrary> withLibraryReports =
+        db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+            .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId)).fetch().stream()
+            .map(
+                record ->
+                    ReportWithLibrary.instantiateFromRecord(
+                        record,
+                        this.util.getUserName(userData.getUserId()),
+                        this.util.getSchoolName(schoolId)))
+            .collect(Collectors.toList());
 
-      countWithoutLibrary =
-          db.fetchCount(
-              db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-                  .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-                  .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)));
-    } else if (userData.isVolunteer()) {
-      withLibraryReports =
-          db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-              .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId))
-              .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId())).fetch().stream()
-              .map(
-                  record ->
-                      ReportWithLibrary.instantiateFromRecord(
-                          record,
-                          this.util.getUserName(record.getUserId()),
-                          this.util.getSchoolName(schoolId)))
-              .collect(Collectors.toList());
-      noLibraryReports =
-          db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-              .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-              .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId))
-              .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.USER_ID.eq(userData.getUserId())).fetch().stream()
-              .map(
-                  record ->
-                      ReportWithoutLibrary.instantiateFromRecord(
-                          record,
-                          this.util.getUserName(record.getUserId()),
-                          this.util.getSchoolName(schoolId)))
-              .collect(Collectors.toList());
-      countWithLibrary =
-          db.fetchCount(
-              db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
-                  .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
-                  .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId()))
-                  .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId)));
-      countWithoutLibrary =
-          db.fetchCount(
-              db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
-                  .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
-                  .and(SCHOOL_REPORTS_WITH_LIBRARIES.USER_ID.eq(userData.getUserId()))
-                  .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)));
-    } else {
-      throw new RuntimeException("Unrecognized privilege level");
-    }
+    List<ReportWithoutLibrary> noLibraryReports =
+        db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+            .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)).fetch().stream()
+            .map(
+                record ->
+                    ReportWithoutLibrary.instantiateFromRecord(
+                        record,
+                        this.util.getUserName(userData.getUserId()),
+                        this.util.getSchoolName(schoolId)))
+            .collect(Collectors.toList());
+
+    int countWithLibrary =
+        db.fetchCount(
+            db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+                .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
+                .and(SCHOOL_REPORTS_WITH_LIBRARIES.SCHOOL_ID.eq(schoolId)));
+
+    int countWithoutLibrary =
+        db.fetchCount(
+            db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+                .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
+                .and(SCHOOL_REPORTS_WITHOUT_LIBRARIES.SCHOOL_ID.eq(schoolId)));
 
     List<ReportGeneric> reports = new ArrayList<>();
     reports.addAll(withLibraryReports);
