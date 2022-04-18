@@ -18,6 +18,7 @@ import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.LibraryStatus;
 import com.codeforcommunity.enums.PrivilegeLevel;
 import com.codeforcommunity.exceptions.SchoolDoesNotExistException;
+import com.codeforcommunity.logger.SLogger;
 import java.util.ArrayList;
 import java.util.List;
 import org.jooq.DSLContext;
@@ -27,6 +28,7 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
   private final SchoolDatabaseOperations schoolDatabaseOperations;
   private final DSLContext db;
   private final BookLogDatabaseOperations bookLogDb;
+  protected final SLogger logger = new SLogger(ProtectedDataProcessorImpl.class);
 
   public ProtectedDataProcessorImpl(DSLContext db) {
     this.schoolDatabaseOperations = new SchoolDatabaseOperations(db);
@@ -137,14 +139,23 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
     Integer countBooks = bookLogDb.getTotalNumberOfBooksForSchool(schoolId);
     Integer countStudents = schoolDatabaseOperations.getTotalNumberOfStudents(schoolId);
     Integer netBooksInOut = calculcateNetBooksIn(schoolId);
-
     Float countBooksPerStudent =
         (countBooks != null && countStudents != null && countStudents != 0)
-            ? ((float) countBooks / (float) countStudents)
+            ? countBooks.floatValue() / countStudents.floatValue()
             : null;
 
+    if (countBooksPerStudent == null) {
+      logger.error("Count books per student is null");
+      if (countStudents == null) {
+        logger.error("Count student is null");
+      }
+      if (countBooks == null) {
+        logger.error("Count books is null");
+      }
+    }
     if (report == null) {
-      return new MetricsSchoolResponse(countBooksPerStudent, countStudents, null, netBooksInOut, countBooks);
+      return new MetricsSchoolResponse(
+          countBooksPerStudent, countStudents, null, netBooksInOut, countBooks);
     }
 
     Integer countStudentLibrarians =
