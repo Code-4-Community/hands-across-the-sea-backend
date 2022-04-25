@@ -20,9 +20,9 @@ database_password = placeholder_db_password
 # =======================================================================================================
 # EMAIL PROPERTIES
 # =======================================================================================================
-email_send_email = placeholder_email
+email_send_email = c4cneu.hats@gmail.com
 email_send_password = placeholder_email_password
-email_sender_name = placeholder_sender
+email_sender_name = no-reply-hats
 email_host = smtp.gmail.com
 email_port = 465
 email_should_send = false
