@@ -47,7 +47,6 @@ public class SchoolDatabaseOperations {
     LibraryStatus libraryStatus = school.getLibraryStatus();
 
     if (libraryStatus == LibraryStatus.EXISTS) {
-      //  System.out.println("Inside of library exists");
       report =
           db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
               .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull())
@@ -56,7 +55,6 @@ public class SchoolDatabaseOperations {
               .limit(1)
               .fetchOneInto(ReportWithLibrary.class);
     } else if (libraryStatus == LibraryStatus.DOES_NOT_EXIST) {
-      // System.out.println("Inside of library does not exists");
       report =
           db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
               .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull())
@@ -65,8 +63,6 @@ public class SchoolDatabaseOperations {
               .limit(1)
               .fetchOneInto(ReportWithoutLibrary.class);
     }
-
-    // System.out.println("The report number of books has a value of " + report.getNumberOfBooks());
     return report;
   }
 
