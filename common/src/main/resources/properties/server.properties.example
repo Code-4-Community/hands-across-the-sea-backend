@@ -37,7 +37,7 @@ email_subject_account_deleted = Your Account Has Been Deleted
 # =======================================================================================================
 # FRONTEND PROPERTIES
 # =======================================================================================================
-frontend_base_url = placeholder_url
+frontend_base_url = https://hands.c4cneu.com
 frontend_password_reset_route = /forgot-password-reset/%s/
 
 
