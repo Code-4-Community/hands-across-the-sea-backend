@@ -147,10 +147,6 @@ public class ProtectedDataProcessorImpl implements IProtectedDataProcessor {
             ? countBooks.floatValue() / countStudents.floatValue()
             : null;
 
-    if (countBooksPerStudent == null) {
-      logger.error("Count books per student is null");
-    }
-
     if (report == null) {
       return new MetricsSchoolResponse(
           countBooksPerStudent, countStudents, null, netBooksInOut, countBooks);
