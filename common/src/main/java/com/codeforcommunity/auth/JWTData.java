@@ -1,15 +1,18 @@
 package com.codeforcommunity.auth;
 
+import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.PrivilegeLevel;
 
 public class JWTData {
 
   private final Integer userId;
   private final PrivilegeLevel privilegeLevel;
+  private final Country country;
 
-  public JWTData(Integer userId, PrivilegeLevel privilegeLevel) {
+  public JWTData(Integer userId, PrivilegeLevel privilegeLevel, Country country) {
     this.userId = userId;
     this.privilegeLevel = privilegeLevel;
+    this.country = country;
   }
 
   public Integer getUserId() {
@@ -19,6 +22,12 @@ public class JWTData {
   public PrivilegeLevel getPrivilegeLevel() {
     return this.privilegeLevel;
   }
+
+
+  public Country getCountry() {
+    return this.country;
+  }
+
 
   public boolean isAdmin() {
     return this.privilegeLevel == PrivilegeLevel.ADMIN;

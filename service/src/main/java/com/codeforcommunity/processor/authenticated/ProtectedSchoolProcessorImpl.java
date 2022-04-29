@@ -52,7 +52,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
             .where(SCHOOLS.HIDDEN.isFalse())
             .and(SCHOOLS.DELETED_AT.isNull())
             .fetchInto(SchoolSummary.class);
-
     return new SchoolListResponse(schools);
   }
 
@@ -65,7 +64,6 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
             .fetchOneInto(School.class);
 
     if (school == null) {
-      // Check to make sure the school exists first
       throw new SchoolDoesNotExistException(schoolId);
     }
 
@@ -393,7 +391,37 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
     school.store();
   }
 
-  public SchoolListResponse getSchoolsFromUserIdReports(JWTData userData) {
+  @Override
+  public SchoolListResponse getSchoolReportsForUser(JWTData userData) {
+    Set<Integer> schoolIds = new HashSet<>();
+
+    if (userData.isAdmin()) {
+      schoolIds = fetchSchoolsWithReports();
+      List<SchoolSummary> schools =
+          db.selectFrom(SCHOOLS)
+              .where(SCHOOLS.HIDDEN.isFalse())
+              .and(SCHOOLS.DELETED_AT.isNull())
+              .and(SCHOOLS.ID.in(schoolIds))
+              .fetchInto(SchoolSummary.class);
+      return new SchoolListResponse(schools);
+    } else if (userData.isOfficer()) {
+      schoolIds = fetchSchoolsWithReports();
+      List<SchoolSummary> schools =
+          db.selectFrom(SCHOOLS)
+              .where(SCHOOLS.HIDDEN.isFalse())
+              .and(SCHOOLS.DELETED_AT.isNull())
+              .and(SCHOOLS.ID.in(schoolIds))
+              .and(SCHOOLS.COUNTRY.eq(userData.getCountry()))
+              .fetchInto(SchoolSummary.class);
+      return new SchoolListResponse(schools);
+    } else if (userData.isVolunteer()) {
+      return getSchoolsFromUserIdReports(userData);
+    } else {
+      throw new RuntimeException("Unrecognized privilege level");
+    }
+  }
+
+  private SchoolListResponse getSchoolsFromUserIdReports(JWTData userData) {
     Set<Integer> schoolIds = new HashSet<>();
 
     List<ReportWithLibrary> withLibraryReports =
@@ -436,5 +464,39 @@ public class ProtectedSchoolProcessorImpl implements IProtectedSchoolProcessor {
             .fetchInto(SchoolSummary.class);
 
     return new SchoolListResponse(schools);
+  }
+
+  private Set<Integer> fetchSchoolsWithReports() {
+    Set<Integer> schoolIds = new HashSet<>();
+    List<ReportWithLibrary> withLibraryReports =
+        db.selectFrom(SCHOOL_REPORTS_WITH_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITH_LIBRARIES.DELETED_AT.isNull()).fetch().stream()
+            .map(
+                record ->
+                    ReportWithLibrary.instantiateFromRecord(
+                        record,
+                        this.util.getUserName(record.getUserId()),
+                        this.util.getSchoolName(record.getSchoolId())))
+            .collect(Collectors.toList());
+
+    List<ReportWithoutLibrary> noLibraryReports =
+        db.selectFrom(SCHOOL_REPORTS_WITHOUT_LIBRARIES)
+            .where(SCHOOL_REPORTS_WITHOUT_LIBRARIES.DELETED_AT.isNull()).fetch().stream()
+            .map(
+                record ->
+                    ReportWithoutLibrary.instantiateFromRecord(
+                        record,
+                        this.util.getUserName(record.getUserId()),
+                        this.util.getSchoolName(record.getSchoolId())))
+            .collect(Collectors.toList());
+
+    for (ReportWithLibrary report : withLibraryReports) {
+      schoolIds.add(report.getSchoolId());
+    }
+
+    for (ReportWithoutLibrary report : noLibraryReports) {
+      schoolIds.add(report.getSchoolId());
+    }
+    return schoolIds;
   }
 }

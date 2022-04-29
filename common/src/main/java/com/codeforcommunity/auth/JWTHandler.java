@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.Verification;
+import com.codeforcommunity.enums.Country;
 import com.codeforcommunity.enums.PrivilegeLevel;
 import com.codeforcommunity.propertiesLoader.PropertiesLoader;
 import java.time.Instant;
@@ -77,7 +78,8 @@ public class JWTHandler {
     int userId = decodedJWT.getClaim("userId").asInt();
     PrivilegeLevel privilegeLevel =
         PrivilegeLevel.valueOf(decodedJWT.getClaim("privilegeLevel").asString());
-    return new JWTData(userId, privilegeLevel);
+    Country country = Country.valueOf(decodedJWT.getClaim("country").asString());
+    return new JWTData(userId, privilegeLevel, country);
   }
 
   private DecodedJWT getDecodedJWT(String jwt) throws JWTVerificationException {
@@ -97,6 +99,7 @@ public class JWTHandler {
     return JWT.create()
         .withClaim("userId", jwtData.getUserId())
         .withClaim("privilegeLevel", jwtData.getPrivilegeLevel().name())
+        .withClaim("country", jwtData.getCountry().toString())
         .withExpiresAt(date)
         .withIssuer(C4C_ISSUER)
         .sign(algorithm);
