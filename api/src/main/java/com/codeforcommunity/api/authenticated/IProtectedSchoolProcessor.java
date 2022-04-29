@@ -39,5 +39,5 @@ public interface IProtectedSchoolProcessor {
 
   void unHideSchool(JWTData userData, int schoolId);
 
-  SchoolListResponse getSchoolsFromUserIdReports(JWTData userData);
+  SchoolListResponse getSchoolReportsForUser(JWTData userData);
 }
