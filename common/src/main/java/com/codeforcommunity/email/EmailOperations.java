@@ -117,8 +117,11 @@ public class EmailOperations {
    */
   public void sendEmail(String sendToName, String sendToEmail, String subject, String emailBody) {
     if (!shouldSendEmails) {
+      logger.error("Should Send Emails is set to false - not returning email when we should.");
       return;
     }
+
+    logger.error("Should Send Email is set to true - continuing email process");
 
     logger.info(String.format("Sending email with subject `%s`", subject));
 
