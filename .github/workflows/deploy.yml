@@ -27,6 +27,8 @@ jobs:
           JWT_SECRET_KEY:  ${{ secrets.JWT_SECRET_KEY }}
           SLACK_WEBHOOK_URL:  ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_ENABLED:  ${{ secrets.SLACK_ENABLED }}
+          GMAIL_APP_PASSWORD:  ${{ secrets.GMAIL_APP_PASSWORD }}
+          GMAIL_APP_ENABLED:  ${{ secrets.GMAIL_APP_ENABLED }}
         run: python3 ./deploy.py
 
       - name: Build the thing :)
