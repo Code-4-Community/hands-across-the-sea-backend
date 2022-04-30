@@ -29,7 +29,7 @@ public class EmailOperations {
       String sendPassword,
       String emailHost,
       int emailPort) {
-    this.shouldSendEmails = shouldSendEmails;
+    this.shouldSendEmails = true;
     this.senderName = senderName;
     this.sendEmail = sendEmail;
     this.mailer =
