@@ -47,3 +47,4 @@ jobs:
           version_label: "c4c-hats-internal-backend-${{ github.sha }}"
           region: us-east-2
           deployment_package: build.zip
+
