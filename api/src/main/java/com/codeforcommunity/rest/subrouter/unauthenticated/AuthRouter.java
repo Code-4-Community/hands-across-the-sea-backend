@@ -31,7 +31,8 @@ public class AuthRouter implements IRouter {
 
     registerLoginUser(router);
     registerRefreshUser(router);
-    registerNewUser(router);
+    // Disabling signup for security reasons. Users will be added by admins only.
+    //registerNewUser(router);
     registerLogoutUser(router);
     registerVerifySecretKey(router);
     registerRequestForgotPassword(router);
