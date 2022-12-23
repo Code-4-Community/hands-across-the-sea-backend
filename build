@@ -7,7 +7,7 @@ cp common/src/main/resources/properties/server.properties.example common/src/mai
 python ./deploy.py
 
 # Build fat jar with Maven
-mvn -B clean verify
+mvn -B clean verify -Dmaven.test.skip
 
 # Output:
 # service/target/service-1.0-SNAPSHOT-jar-with-dependencies.jar
