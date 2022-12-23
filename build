@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Copy the examples file
 cp common/src/main/resources/properties/server.properties.example common/src/main/resources/properties/server.properties
 
@@ -8,7 +10,7 @@ python3 -m pip install requests
 python3 ./deploy.py
 
 # Build fat jar with Maven
-mvn -B clean verify -X -e
+mvn -B clean verify
 
 # Output:
 # service/target/service-1.0-SNAPSHOT-jar-with-dependencies.jar
