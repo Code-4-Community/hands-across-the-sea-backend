@@ -1,5 +1,4 @@
 import os
-import requests
 
 # The directory that contains all `.properties.example` files
 PROPERTIES_DIR = "common/src/main/resources/properties/"
@@ -37,8 +36,6 @@ ENV_VALUES = {
     },
 }
 
-# Whether or not to log errors to Slack
-SEND_SLACK = True
 
 
 def main():
@@ -111,31 +108,11 @@ def process_properties(example_file_name, file_example, file_properties):
             if out_value is None:
                 out_value = "${}".format(env_var)  # Set value to environment variable name
                 error_msg = "`[{}]`: Replacing empty environment variable: `${}`".format(example_file_name, env_var)
-                handle_error(error_msg)
+                print(error_msg)
 
             out_line = "{} = {}\n".format(key_placeholder, out_value)
             file_properties.write(out_line)
             continue
-
-
-def handle_error(error_msg):
-    """
-    Handles printing error messages and sending them to Slack, if applicable.
-
-    :param error_msg: the error message to log.
-    :return: void
-    """
-    print(error_msg)
-
-    if SEND_SLACK:
-        try:
-            webhook_url = os.environ.get(SLACK_WEBHOOK_ENV_VAR)
-            payload = {
-                "text": error_msg
-            }
-            requests.post(webhook_url, json=payload)
-        except Exception as e:
-            print("Failed to send Slack alert:", e)
 
 
 main()

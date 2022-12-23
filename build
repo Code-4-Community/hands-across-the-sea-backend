@@ -3,11 +3,8 @@
 # Copy the examples file
 cp common/src/main/resources/properties/server.properties.example common/src/main/resources/properties/server.properties
 
-# Install Python deps
-python3 -m pip install requests
-
 # Fill in blanks in server.properties w/ environment variables
-python3 ./deploy.py
+python ./deploy.py
 
 # Build fat jar with Maven
 mvn -B clean verify
