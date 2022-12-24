@@ -66,6 +66,7 @@ jobs:
           image: ${{ steps.build-image.outputs.image }}
           access-role-arn: ${{ secrets.ROLE_ARN }}
           region: us-east-2
+          port: ${{ secrets.PORT }}
           wait-for-service-stability-seconds: 1200
           
 
