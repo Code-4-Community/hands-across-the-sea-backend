@@ -29,3 +29,4 @@ This project is the Java API server for Code4Community's partnership Hands Acros
  - By default the API is accessible at `http://localhost:8081`.
  - All routes have the `/api/v1` prefix to them.
  - **Example**: the HTTP request to get all notes would be be: `GET http://localhost:8081/api/v1/notes`.
+ 
